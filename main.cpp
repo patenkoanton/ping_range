@@ -21,11 +21,7 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    PingRange range_ping;
-    if (range_ping.initialize(argv[1]) == false) {
-        show_help();
-        return 0;
-    }
-
+    // TODO: catch exception and show help in case of error.
+    PingRange *range_ping = new PingRange(argv[1]);
     return 0;
 }

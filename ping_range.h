@@ -4,14 +4,12 @@
 #include <string>
 #include <vector>
 
+#include "address_range.h"
+
 class PingRange {
-private:
-    std::vector<std::string> addresses_to_ping;
-    std::string get_address(std::string address_and_mask);
-    int get_mask(std::string address_and_mask);
-    void generate_address_range(std::string address, int mask);
+    AddressRange address_range;
 public:
-    bool initialize(std::string address_and_mask);
+    PingRange(std::string address_and_mask) : address_range(address_and_mask) {};
 };
 
 #endif
