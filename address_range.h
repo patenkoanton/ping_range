@@ -2,7 +2,7 @@
 #include <vector>
 
 class AddressRange {
-    std::vector<std::string> address_range;     // vector of IP addresses.
+    std::vector<std::string> address_range;     // vector with generated IP addresses.
 
     int get_mask(std::string address_and_mask);
     std::string get_address(std::string address_and_mask);

@@ -29,10 +29,6 @@ AddressRange::AddressRange(std::string address_and_mask)
     std::cout << mask << std::endl;
 
     this->generate_address_range(address, mask);
-    std::cout << "Range of IP addresses generated: " << std::endl;
-    for (auto it = this->address_range.begin(); it != this->address_range.end(); it++) {
-        std::cout << *it << std::endl;
-    }
 }
 
 
@@ -87,7 +83,7 @@ void AddressRange::address_octets_to_string(std::string & address, uint32_t addr
 
 const std::vector<std::string> & AddressRange::get_address_range()
 {
-
+    return this->address_range;
 }
 
 
