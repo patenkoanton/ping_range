@@ -11,6 +11,7 @@ class PingRange {
 public:
     PingRange(std::string address_and_mask) : address_range(address_and_mask) {};
     const std::vector<std::string> & get_address_range();
+    void ping();
 };
 
 #endif
