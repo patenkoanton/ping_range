@@ -1,0 +1,11 @@
+I'm tired of writing TODOs in random places so I'll continue here.
+
+=========== Issues =====================
+* When generating the range of addresses, make sure the last octet is not 0x00 or 0xFF as those addresses are reserved or unused by convention.
+
+=========== Ideas ======================
+* "Ping range" sounds kinda cripled. Lets rename the whole project to "ping subnet".
+All the modules and variables that contain "ping range" should be removed as well.
+
+* Dumb idea: take address generator object out of ping range class and let main handle the fuckery.
+
