@@ -2,6 +2,9 @@ I'm tired of writing TODOs in random places so I'll continue here.
 
 =========== Issues =====================
 * When generating the range of addresses, make sure the last octet is not 0x00 or 0xFF as those addresses are reserved or unused by convention.
+* Replace tabs with whitespaces
+* Replace printf with cout (any way to replace perror as well????)
+* Replace c-string functions with std::string equivalents
 
 =========== Ideas ======================
 * "Ping range" sounds kinda cripled. Lets rename the whole project to "ping subnet".
