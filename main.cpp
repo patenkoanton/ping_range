@@ -26,8 +26,13 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    // TODO: catch exception and show help in case of error.
-    PingRange *range_ping = new PingRange(argv[1]);
+    PingRange *range_ping = NULL;
+    try {
+        range_ping = new PingRange(argv[1]);
+    } catch (std::string& exception) {
+        std::cout << "ERROR: " + exception << std::endl;
+        return 0;
+    }
 
     // Print the range of addresses.
     auto address_range = range_ping->get_address_range();

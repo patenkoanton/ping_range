@@ -1,81 +1,29 @@
 #include <vector>
 #include <string>
 #include <cstring>
-#include <sys/time.h>
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <netinet/ip_icmp.h>
-#include <strings.h>
-#include <unistd.h>
+#include <unistd.h>     // getpid()
 #include "ping_range.h"
+#include "icmp_socket.h"
 
-#define SOCKET_TIMEOUT_SEC      (5)
 #define MAX_IP_STRING_LEN       (16)
 #define PACKETSIZE              (64)
 
-int PingRange::open_socket()
+
+PingRange::PingRange(std::string address_and_mask) : address_range(address_and_mask), package_number(0)
 {
-	struct protoent *protocol = NULL;
-    int hsocket;
-	if ((protocol = getprotobyname("icmp")) == NULL) {
-		printf("ERROR: failed to get ICMP protocol info\n");
-		return -1;
-	}
-
-    hsocket = socket(AF_INET, SOCK_RAW, protocol->p_proto);
-	if (hsocket < 0) {
-		perror("ERROR: failed to open socket. Try using 'sudo'.\n");
-    	return -1;
+    try {
+        this->icmp_socket = new ICMPSocket(SOCKET_TIMEOUT_SEC);
+    } catch(...) {
+        throw;
     }
-
-    return hsocket;
 }
-
-
-int PingRange::configure_socket()
-{
-    struct timeval timeValue = {
-        .tv_sec = SOCKET_TIMEOUT_SEC,
-	    .tv_usec = 0,
-    };
-	
-    // Set socket timeout.
-    if (setsockopt(this->hsocket, SOL_SOCKET, SO_RCVTIMEO, &timeValue, sizeof(timeValue)) < 0) {
-        perror("ERROR: setsockopt error\n");
-        return -1;
-    }
-
-    return 0;
-}
-
-
-
-int PingRange::open_and_configure_socket()
-{
-    this->hsocket = this->open_socket();
-    if (this->hsocket < 0) {
-        return -1;
-    }
-
-    if (this->configure_socket() < 0) {
-        printf("ERROR: failed to configure socket.");
-        return -1;
-    }
-
-    return 0;
-}
-
 
 
 void PingRange::ping()
 {
-    // Create and configure socket if not done yet.
-    if (this->hsocket < 0) {
-        if (open_and_configure_socket() < 0) {
-            return;
-        }
-    }
-
     // TODO: do something with all this.
     // TODO: explain.
 	char * noise;
@@ -102,7 +50,7 @@ void PingRange::ping()
 		
 		for (;;)
 		{
-			if (recvfrom(this->hsocket, this->receiveBuffer, sizeof(this->receiveBuffer), 0, (struct sockaddr*)&receiver, &receiverLength) < 0) {
+			if (recvfrom(this->icmp_socket->get_socket(), this->receiveBuffer, sizeof(this->receiveBuffer), 0, (struct sockaddr*)&receiver, &receiverLength) < 0) {
 				if (errno == EWOULDBLOCK) {				
 					printf(" [OFFLINE]\n");	
 					break;
@@ -165,7 +113,7 @@ void PingRange::send_icmp_request(struct sockaddr_in &sender)
 	packet_to_send.header.checksum = this->checksum(&packet_to_send, sizeof(packet_to_send));
 	
     // Send
-	if (sendto(this->hsocket, &packet_to_send, sizeof(packet_to_send), 0, (struct sockaddr*)&sender, sizeof(struct sockaddr)) <= 0) {
+	if (sendto(this->icmp_socket->get_socket(), &packet_to_send, sizeof(packet_to_send), 0, (struct sockaddr*)&sender, sizeof(struct sockaddr)) <= 0) {
 		perror("ERROR: failed to send ICMP request\n");
         return;
     } else {
@@ -197,4 +145,10 @@ unsigned short PingRange::checksum(void *b, int receiverLength)
 const std::vector<std::string> & PingRange::get_address_range()
 {
     return this->address_range.get_address_range();
+}
+
+
+PingRange::~PingRange()
+{
+    delete this->icmp_socket;
 }

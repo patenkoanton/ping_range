@@ -5,6 +5,8 @@ I'm tired of writing TODOs in random places so I'll continue here.
 * Replace tabs with whitespaces
 * Replace printf with cout (any way to replace perror as well????)
 * Replace c-string functions with std::string equivalents
+* Make the usage of {} in functions consistent across the entire project
+* Be consistent with objects vs pointers-to-objects in classes.
 
 =========== Ideas ======================
 * "Ping range" sounds kinda cripled. Lets rename the whole project to "ping subnet".
