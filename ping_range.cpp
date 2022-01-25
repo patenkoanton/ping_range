@@ -1,6 +1,6 @@
-#include <vector>
+#include <iostream>
 #include <string>
-#include <cstring>
+#include <cstring>  // bzero
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <netinet/ip_icmp.h>
@@ -8,7 +8,6 @@
 #include "ping_range.h"
 #include "icmp_socket.h"
 
-#define MAX_IP_STRING_LEN       (16)
 #define PACKETSIZE              (64)
 
 
@@ -21,58 +20,49 @@ PingRange::PingRange(std::string address_and_mask) : address_range(address_and_m
     }
 }
 
-
 void PingRange::ping()
 {
     // TODO: do something with all this.
     // TODO: explain.
-	char * noise;
-	struct sockaddr_in antelop;
 	struct sockaddr_in receiver;
 	socklen_t receiverLength = sizeof(receiver);
-	struct ip *ipHeader = (struct ip *)(this->receiveBuffer);
-    char host_ip[MAX_IP_STRING_LEN];
-    std::vector<std::string> hosts = get_address_range();
+    auto hosts = this->get_address_range();
 
-    // Send ICMP packet for every host in the list and wait for reply.
-    for (std::string host : hosts) {
+    // Send ICMP request to every host in the list and wait for reply
+    for (auto host : hosts) {
         struct sockaddr_in sender;
         sender.sin_family = PF_INET;
 	    sender.sin_port = htons(33490);
 	    inet_aton(host.c_str(), (struct in_addr *)&sender.sin_addr.s_addr);
 
-		// if(excludeLocalAddressess(counter->host, this) == 1){
-		// 	printf("%s [ONLINE]\n", counter->host);
-		// 	continue;
-		// }
-
 		this->send_icmp_request(sender);
-		
-		for (;;)
-		{
+
+		while (1) {
 			if (recvfrom(this->icmp_socket->get_socket(), this->receiveBuffer, sizeof(this->receiveBuffer), 0, (struct sockaddr*)&receiver, &receiverLength) < 0) {
 				if (errno == EWOULDBLOCK) {				
 					printf(" [OFFLINE]\n");	
 					break;
-				}
-				if (errno == EINTR)
+				} else if (errno == EINTR) {        // TODO: double check what these return codes do
 					break;
-				perror("send_icmp_request: recvfrom");
+                }
+                std::cerr << "ERROR: " << strerror(errno) << ". ";
+				std::cerr << "Failed to receive ICMP response." << std::endl;
 				break;
-			}
-			else {
-				noise = inet_ntoa(ipHeader->ip_src);
+			} else {
+                // Got ICMP response
+                struct ip *ip_header = (struct ip *)(this->receiveBuffer);
+				std::string responder_ip = inet_ntoa(ip_header->ip_src);
 
-                char lol[1000];             // TODO: fix this shit.
-                strcpy(lol, host.c_str());
+                // Remove potential trailing newline (TODO: check if it's possible to get trailing newline here)
+                if (responder_ip.back() == '\n') {
+                    responder_ip.erase(responder_ip.back());
+                }
 
-				strtok(lol, "\n");
-				if (strcmp(host.c_str(), noise) == 0) {
+                // Make sure response came from the host we are pinging
+                if (host == responder_ip) {
                     this->parse_package();
                     break;
-				} else {
-					continue;
-                }
+				}
 			}
 		}
 	}

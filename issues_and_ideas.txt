@@ -7,10 +7,12 @@ I'm tired of writing TODOs in random places so I'll continue here.
 * Replace c-string functions with std::string equivalents
 * Make the usage of {} in functions consistent across the entire project
 * Be consistent with objects vs pointers-to-objects in classes.
+* Fix spacing (number of newlines) between function implementation and macros/includes in *.cpp modules.
 
 =========== Ideas ======================
 * "Ping range" sounds kinda cripled. Lets rename the whole project to "ping subnet".
 All the modules and variables that contain "ping range" should be removed as well.
+* send/receive ICMP packets in parallel (e.g. one host - one thread). Use POSIX threads.
 
 * Dumb idea: take address generator object out of ping range class and let main handle the fuckery.
 
