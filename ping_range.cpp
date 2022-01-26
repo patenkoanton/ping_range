@@ -65,9 +65,9 @@ void PingRange::parse_package(std::vector<char> &receive_buffer)
     char *receive_buffer_data = receive_buffer.data();
 	struct icmphdr *icmpHeader = (struct icmphdr *)(receive_buffer_data + sizeof(struct iphdr));
 	if (icmpHeader->type == 0) {
-		printf(" [ONLINE]\n");
+		std::cout << " [ONLINE]" << std::endl;
     } else {
-		printf(" [OFFLINE]\n");
+		std::cout << " [OFFLINE]" << std::endl;
     }
 }
 
