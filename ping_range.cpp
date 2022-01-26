@@ -90,7 +90,7 @@ int PingRange::send_icmp_request(std::string &dest_ip)
         .code = 0,                  // Code 0 is required
         .checksum = 0,              // Initial checksum has to be zero
     };
-	icmp_header.checksum = this->checksum(&icmp_header, sizeof(icmp_header));
+	icmp_header.checksum = this->generate_internet_checksum(&icmp_header, sizeof(icmp_header));
 	
     // Print host address
     std::cout << inet_ntoa(dest.sin_addr);
@@ -139,18 +139,21 @@ int PingRange::receive_icmp_response(std::vector<char> &receive_buffer)
 }
 
 
-unsigned short PingRange::checksum(void *b, int receiverLength)
-{	unsigned short *receiveBuffer = (unsigned short *)b;
-	unsigned int sum=0;
-	unsigned short result;
+u_int16_t PingRange::generate_internet_checksum(const void *packet, int packet_size)
+{
+    uint16_t *buffer = (uint16_t *)packet;
+	uint32_t sum = 0;
+    uint16_t result = 0;
 
-	for (sum = 0; receiverLength > 1; receiverLength -= 2)
-		sum += *receiveBuffer++;
-	if (receiverLength == 1)
-		sum += *(unsigned char*)receiveBuffer;
+	for (sum = 0; packet_size > 1; packet_size -= 2) {
+		sum += *(buffer++);
+    }
+	if (packet_size == 1) {
+		sum += *(uint8_t *)buffer;
+    }
 	sum = (sum >> 16) + (sum & 0xFFFF);
 	sum += (sum >> 16);
-	result = ~sum;
+    result = ~sum;
 	return result;
 }
 
