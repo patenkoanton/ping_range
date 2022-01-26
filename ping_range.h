@@ -6,17 +6,14 @@
 #include "address_range.h"
 #include "icmp_socket.h"
 
-#define RECEIVE_BUFFER_SIZE     (1024)
-#define SOCKET_TIMEOUT_SEC      (5)
-
 class PingRange {
     AddressRange address_range;
     ICMPSocket *icmp_socket;
-
-    unsigned char receiveBuffer[RECEIVE_BUFFER_SIZE];
-    void send_icmp_request(struct sockaddr_in &sender);
     int package_number;             // TODO: do we need this
-    void parse_package();
+
+    void send_icmp_request(std::string &dest_ip);
+    int receive_icmp_response(std::vector<char> &receive_buffer);
+    void parse_package(std::vector<char> &receive_buffer);    
     unsigned short checksum(void *b, int receiverLength);
 public:
     PingRange(std::string address_and_mask);

@@ -8,6 +8,8 @@ I'm tired of writing TODOs in random places so I'll continue here.
 * Make the usage of {} in functions consistent across the entire project
 * Be consistent with objects vs pointers-to-objects in classes.
 * Fix spacing (number of newlines) between function implementation and macros/includes in *.cpp modules.
+* "Response" has to become "reply"
+* in receive_icmp_response find a way to check if number of bytes received matches the length of ICMP packet
 
 =========== Ideas ======================
 * "Ping range" sounds kinda cripled. Lets rename the whole project to "ping subnet".
