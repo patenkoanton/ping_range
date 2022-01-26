@@ -10,11 +10,19 @@ I'm tired of writing TODOs in random places so I'll continue here.
 * Fix spacing (number of newlines) between function implementation and macros/includes in *.cpp modules.
 * "Response" has to become "reply"
 * in receive_icmp_response find a way to check if number of bytes received matches the length of ICMP packet
+* unhandled exception; to reproduce:
+        sudo ./ping_range 77.38.21.239\30
+* ERROR in receive_icmp_request() is non-critical, so we might rename it be a WARNING;
+* program blocks forever when ping utility is running in parallel. Apparently it chokes under the flow of packets and stays in receive-loop forever.
+Find a way to fix it.
+*
 
 =========== Ideas ======================
 * "Ping range" sounds kinda cripled. Lets rename the whole project to "ping subnet".
 All the modules and variables that contain "ping range" should be removed as well.
 * send/receive ICMP packets in parallel (e.g. one host - one thread). Use POSIX threads.
+* Sometimes hosts reply through proxy within the same subnet, example: 77.38.21.238\32.
+    77.38.21.238 will reply through 77.38.21.239 (proxy server). Dumb idea: maybe we can find out if host is talking through proxy.
 
 * Dumb idea: take address generator object out of ping range class and let main handle the fuckery.
 

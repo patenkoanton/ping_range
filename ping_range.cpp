@@ -1,14 +1,12 @@
 #include <iostream>
 #include <string>
-#include <cstring>  // bzero
+#include <cstring>  // strerror
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <netinet/ip_icmp.h>
-#include <unistd.h>     // getpid()
 #include "ping_range.h"
 #include "icmp_socket.h"
 
-#define PACKETSIZE              (64)
 #define RECEIVE_BUFFER_SIZE     (1024)
 #define SOCKET_TIMEOUT_SEC      (5)
 
@@ -29,7 +27,11 @@ void PingRange::ping()
 
     // Send ICMP request to every host in the list and wait for reply
     for (auto host : hosts) {
-        this->send_icmp_request(host);
+        if (this->send_icmp_request(host) < 0) {
+            std::cout << "WARNING: " << strerror(errno) << ". ";
+            std::cout << "Failed to send ICMP request." << std::endl;
+            continue;
+        }
 		while (1) {
             int rc = this->receive_icmp_response(receive_buffer);
             if (rc < 0) {
@@ -72,49 +74,42 @@ void PingRange::parse_package(std::vector<char> &receive_buffer)
 }
 
 
-void PingRange::send_icmp_request(std::string &dest_ip)
+int PingRange::send_icmp_request(std::string &dest_ip)
 {
     // Structure includes destination host IP address info
     sockaddr_in dest = {
-        .sin_family = PF_INET,
+        .sin_family = AF_INET,
         .sin_port = htons(33490),
     };
     
     inet_aton(dest_ip.c_str(), (in_addr *)&dest.sin_addr);
 
-    struct Packet
-    {
-        struct icmphdr header;
-        char message[PACKETSIZE - sizeof(struct icmphdr )];
-    };
-
-	struct Packet packet_to_send;
-	bzero(&packet_to_send, sizeof(packet_to_send));     // TODO: do we need this
-    
     // Fill the packet
-	packet_to_send.header.type = ICMP_ECHO;
-	packet_to_send.header.un.echo.id = getpid();        // TODO: do we need this
-
-	for (int i = 0; i < sizeof(packet_to_send.message) - 1; i++) {
-		packet_to_send.message[i] = i + '0';
-    }
-	packet_to_send.message[sizeof(packet_to_send.message)] = 0;
-	packet_to_send.header.un.echo.sequence = this->package_number++;
-	packet_to_send.header.checksum = this->checksum(&packet_to_send, sizeof(packet_to_send));
+    struct icmphdr icmp_header = {
+        .type = ICMP_ECHO,          // Echo request type (used to ping) 
+        .code = 0,                  // Code 0 is required
+        .checksum = 0,              // Initial checksum has to be zero
+    };
+	icmp_header.checksum = this->checksum(&icmp_header, sizeof(icmp_header));
 	
+    // Print host address
+    std::cout << inet_ntoa(dest.sin_addr);
+
     // Send
-	if (sendto(this->icmp_socket->get_socket(), &packet_to_send, sizeof(packet_to_send), 0, (struct sockaddr*)&dest, sizeof(struct sockaddr)) <= 0) {
-		perror("ERROR: failed to send ICMP request\n");
-        return;
-    } else {
-        struct hostent *he = gethostbyaddr(&dest.sin_addr, sizeof(dest.sin_addr), PF_INET);
-		if (he != NULL) {
-   			printf("%s", he->h_name);
-        } else {
-			printf("%s", inet_ntoa(dest.sin_addr));
-        }
-	}
-}	
+    int hsocket = this->icmp_socket->get_socket();
+    sockaddr *dest_sockaddr = (sockaddr *)&dest;
+	if (sendto(hsocket, &icmp_header, sizeof(icmp_header), 0, dest_sockaddr, sizeof(sockaddr)) <= 0) {
+        return -1;
+    }
+
+    // Print host name if applicable
+    hostent *host_data = gethostbyaddr(&dest.sin_addr, sizeof(dest.sin_addr), AF_INET);
+    if (host_data != NULL) {
+        std::cout << " (" << host_data->h_name << ")";
+    }
+
+    return 0;
+}
 
 
 /* Return value:
