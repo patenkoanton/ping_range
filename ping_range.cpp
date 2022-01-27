@@ -11,7 +11,6 @@
 #define SOCKET_TIMEOUT_SEC      (5)
 
 
-// TODO: pass string through a reference
 PingRange::PingRange(std::string address_and_mask)
 {
     try {
