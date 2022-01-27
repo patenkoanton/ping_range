@@ -15,7 +15,7 @@ I'm tired of writing TODOs in random places so I'll continue here.
 * ERROR in receive_icmp_request() is non-critical, so we might rename it be a WARNING;
 * program blocks forever when ping utility is running in parallel. Apparently it chokes under the flow of packets and stays in receive-loop forever.
 Find a way to fix it.
-*
+* Find a way to run the application without root access
 
 =========== Ideas ======================
 * "Ping range" sounds kinda cripled. Lets rename the whole project to "ping subnet".

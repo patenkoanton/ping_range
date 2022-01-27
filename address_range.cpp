@@ -5,8 +5,6 @@
 
 #include "address_range.h"
 
-#define INVALID_ADDRESS     ("")
-#define INVALID_MASK        (-1)
 #define IP_ADDRESS_NUMBERS  (4)
 #define IP_ADDRESS_SIZE_BITS  (32)
 
@@ -14,7 +12,7 @@
 AddressRange::AddressRange(std::string address_and_mask)
 {
     std::string address = this->get_address(address_and_mask);
-    if (address == INVALID_ADDRESS) {
+    if (address.empty()) {
         std::cout << "Error: failed to parse IP address." << std::endl;
         // TODO: throw exception
     }
@@ -22,7 +20,7 @@ AddressRange::AddressRange(std::string address_and_mask)
     std::cout << address << std::endl;
 
     int mask = this->get_mask(address_and_mask);
-    if (mask == INVALID_MASK) {
+    if (mask < 0) {
         std::cout << "Error: failed to parse IP mask." << std::endl;
         // TODO: throw exception
     }
@@ -90,22 +88,22 @@ const std::vector<std::string> & AddressRange::get_address_range()
 }
 
 
-std::string AddressRange::get_address(std::string address_and_mask)
+std::string AddressRange::get_address(std::string &address_and_mask)
 {
     size_t slash_pos = address_and_mask.find('/');
     if (slash_pos == std::string::npos) {
-        return INVALID_ADDRESS;     // TODO: fix
+        return std::string();     // Return empty string if no slash found.
     }
 
     return std::string(address_and_mask, 0, slash_pos);
 }
 
 
-int AddressRange::get_mask(std::string address_and_mask)
+int AddressRange::get_mask(std::string &address_and_mask)
 {
     size_t slash_pos = address_and_mask.find('/');
     if (slash_pos == std::string::npos) {
-        return INVALID_MASK;     // TODO: fix
+        return -1;      // Error - no slash found. 
     }
 
     return std::stoi(std::string(address_and_mask, slash_pos + 1));
