@@ -9,8 +9,7 @@
 #define IP_ADDRESS_SIZE_BITS  (32)
 
 
-// TODO: pass string through a reference
-AddressRange::AddressRange(std::string address_and_mask)
+AddressRange::AddressRange(std::string &address_and_mask)
 {
     std::string address = this->get_address(address_and_mask);
     if (address.empty()) {

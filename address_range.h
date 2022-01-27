@@ -10,6 +10,6 @@ class AddressRange {
     void address_string_to_octets(std::string address, uint32_t & address_number);
     void address_octets_to_string(std::string & address, uint32_t address_number);
 public:
-    AddressRange(std::string address_and_mask);
+    AddressRange(std::string &address_and_mask);
     const std::vector<std::string> & get_address_range();
 };
