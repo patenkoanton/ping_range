@@ -11,9 +11,11 @@
 #define SOCKET_TIMEOUT_SEC      (5)
 
 
-PingRange::PingRange(std::string address_and_mask) : address_range(address_and_mask)
+// TODO: pass string through a reference
+PingRange::PingRange(std::string address_and_mask)
 {
     try {
+        this->address_range = new AddressRange(address_and_mask);
         this->icmp_socket = new ICMPSocket(SOCKET_TIMEOUT_SEC);
     } catch(...) {
         throw;
@@ -159,11 +161,12 @@ u_int16_t PingRange::generate_internet_checksum(const void *packet, int packet_s
 
 const std::vector<std::string> & PingRange::get_address_range()
 {
-    return this->address_range.get_address_range();
+    return this->address_range->get_address_range();
 }
 
 
 PingRange::~PingRange()
 {
+    delete this->address_range;
     delete this->icmp_socket;
 }

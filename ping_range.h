@@ -7,7 +7,7 @@
 #include "icmp_socket.h"
 
 class PingRange {
-    AddressRange address_range;
+    AddressRange *address_range;
     ICMPSocket *icmp_socket;
 
     int send_icmp_request(std::string &dest_ip);

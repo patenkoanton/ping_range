@@ -8,23 +8,20 @@
 #define IP_ADDRESS_NUMBERS  (4)
 #define IP_ADDRESS_SIZE_BITS  (32)
 
-// TODO: replace string arg with const string &.
+
+// TODO: pass string through a reference
 AddressRange::AddressRange(std::string address_and_mask)
 {
     std::string address = this->get_address(address_and_mask);
     if (address.empty()) {
-        std::cout << "Error: failed to parse IP address." << std::endl;
-        // TODO: throw exception
+        throw std::string("Error: failed to parse IP address.");
     }
-
     std::cout << address << std::endl;
 
     int mask = this->get_mask(address_and_mask);
     if (mask < 0) {
-        std::cout << "Error: failed to parse IP mask." << std::endl;
-        // TODO: throw exception
+        throw std::string("Error: failed to parse IP mask.");
     }
-
     std::cout << mask << std::endl;
 
     this->generate_address_range(address, mask);
