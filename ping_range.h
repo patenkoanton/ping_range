@@ -9,7 +9,6 @@
 class PingRange {
     AddressRange address_range;
     ICMPSocket *icmp_socket;
-    int package_number;             // TODO: do we need this
 
     int send_icmp_request(std::string &dest_ip);
     int receive_icmp_response(std::vector<char> &receive_buffer);

@@ -11,7 +11,7 @@
 #define SOCKET_TIMEOUT_SEC      (5)
 
 
-PingRange::PingRange(std::string address_and_mask) : address_range(address_and_mask), package_number(0)
+PingRange::PingRange(std::string address_and_mask) : address_range(address_and_mask)
 {
     try {
         this->icmp_socket = new ICMPSocket(SOCKET_TIMEOUT_SEC);
@@ -22,7 +22,7 @@ PingRange::PingRange(std::string address_and_mask) : address_range(address_and_m
 
 void PingRange::ping()
 {
-    std::vector<char> receive_buffer(RECEIVE_BUFFER_SIZE);      // TODO: make it signed char
+    std::vector<char> receive_buffer(RECEIVE_BUFFER_SIZE);
     auto hosts = this->get_address_range();
 
     // Send ICMP request to every host in the list and wait for reply
