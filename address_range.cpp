@@ -1,10 +1,7 @@
 #include <string>
-#include <vector>
 #include <iostream>
-#include <tgmath.h>     // TODO: replace with <math> or <math.h>?
-#include <netinet/in.h>
+#include <cmath>
 #include <arpa/inet.h>
-#include <sys/socket.h>
 #include "address_range.h"
 
 #define IP_ADDRESS_SIZE_BITS  (32)
@@ -34,7 +31,7 @@ void AddressRange::generate_address_range(std::string &input_address_string, int
     uint32_t subnet_address = this->generate_subnet_address(input_address_string, mask);
 
     // Go through all possible hosts in subnet.
-    uint32_t max_mask = pow(2, IP_ADDRESS_SIZE_BITS - mask) - 1;
+    uint32_t max_mask = std::pow(2, IP_ADDRESS_SIZE_BITS - mask) - 1;
     for (uint32_t current_mask = 0; current_mask <= max_mask; current_mask++) {
         uint32_t current_mask_in_network_order = this->reverse_byte_order(current_mask);
         uint32_t host_address = subnet_address | current_mask_in_network_order;
