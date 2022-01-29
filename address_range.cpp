@@ -38,10 +38,7 @@ void AddressRange::generate_address_range(std::string &input_address_string, int
     for (uint32_t current_mask = 0; current_mask <= max_mask; current_mask++) {
         uint32_t current_mask_in_network_order = this->reverse_byte_order(current_mask);
         uint32_t host_address = subnet_address | current_mask_in_network_order;
-
-        // Convert the address to a host byte order and store into vector.
-        std::string host_address_string = inet_ntoa(*((in_addr *)&host_address));
-        this->address_range.push_back(host_address_string);
+        this->address_range.push_back(host_address);
     }
 }
 
@@ -80,7 +77,7 @@ uint32_t AddressRange::generate_subnet_address(std::string &input_address_string
 }
 
 
-const std::vector<std::string> &AddressRange::get_address_range()
+const std::vector<uint32_t> &AddressRange::get_address_range()
 {
     return this->address_range;
 }

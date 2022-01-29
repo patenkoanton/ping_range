@@ -1,8 +1,9 @@
 #include <string>
 #include <vector>
 
+
 class AddressRange {
-    std::vector<std::string> address_range;     // vector with generated IP addresses.
+    std::vector<uint32_t> address_range;     // vector with generated host addresses in network order
 
     std::string get_address(std::string &address_and_mask);
     int get_mask(std::string &address_and_mask);
@@ -11,5 +12,5 @@ class AddressRange {
     uint32_t generate_subnet_address(std::string &input_address, int mask);
 public:
     AddressRange(std::string &address_and_mask);
-    const std::vector<std::string> & get_address_range();
+    const std::vector<uint32_t> & get_address_range();
 };

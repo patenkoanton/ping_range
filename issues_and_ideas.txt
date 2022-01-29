@@ -18,8 +18,8 @@ Find a way to fix it.
 * Find a way to run the application without root access
 * In address_range, make get_address() and get_mask() into a same function as the are basically doing the same thing
 * Where possible, replace pointers with smart pointers
-* send_icmp_request() method has to convert ip address from string to network byte order in order to send the request.
-Maybe address_range should return vector<sockaddr_in> instead of vector<string> ?
+* remove excessive "struct" keywords accross the project:
+    * not required in C++
 
 =========== Ideas ======================
 * "Ping range" sounds kinda cripled. Lets rename the whole project to "ping subnet".
@@ -32,4 +32,5 @@ All the modules and variables that contain "ping range" should be removed as wel
 * Print some extra data to the user output: TTL, time delay.
 * If no mask found in user input, then only ping the single address provided (as if mask value was 32).
 * Rename IP_ADDRESS_SIZE_BITS to IPv4_SIZE_BITS.
+* Decrease socket timeout to 3-4 seconds
 

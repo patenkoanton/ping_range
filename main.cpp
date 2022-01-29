@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
-
-// user headers
+#include <arpa/inet.h>
 #include "ping_range.h"
 
 #define MIN_ARGC    (2)
@@ -38,7 +37,10 @@ int main(int argc, char *argv[])
     auto address_range = range_ping->get_address_range();
     std::cout << "Range of IP addresses generated: " << std::endl;
     for (auto it = address_range.begin(); it != address_range.end(); it++) {
-        std::cout << *it << std::endl;
+        in_addr host_address = {
+            .s_addr = *it,
+        };
+        std::cout << inet_ntoa(host_address) << std::endl;
     }
     std::cout << std::endl;
 

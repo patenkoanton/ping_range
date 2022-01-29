@@ -27,8 +27,8 @@ void PingRange::ping()
     auto hosts = this->get_address_range();
 
     // Send ICMP request to every host in the list and wait for reply
-    for (auto host : hosts) {
-        if (this->send_icmp_request(host) < 0) {
+    for (auto host_address : hosts) {
+        if (this->send_icmp_request(host_address) < 0) {
             std::cout << "WARNING: " << strerror(errno) << ". ";
             std::cout << "Failed to send ICMP request." << std::endl;
             continue;
@@ -46,15 +46,10 @@ void PingRange::ping()
 
             // Got ICMP response
             struct ip *ip_header = (struct ip *)(receive_buffer.data());
-            std::string responder_ip = inet_ntoa(ip_header->ip_src);
 
-            // Remove potential trailing newline (TODO: check if it's possible to get trailing newline here)
-            if (responder_ip.back() == '\n') {
-                responder_ip.erase(responder_ip.back());
-            }
-
-            // Check response if it came from the right host.
-            if (host == responder_ip) {
+            // Verify that response came from the right host.
+            auto responder_address = ip_header->ip_src.s_addr;
+            if (host_address == responder_address) {
                 this->parse_package(receive_buffer);
                 break;
             }
@@ -75,15 +70,14 @@ void PingRange::parse_package(std::vector<char> &receive_buffer)
 }
 
 
-int PingRange::send_icmp_request(std::string &dest_ip)
+int PingRange::send_icmp_request(uint32_t dest_ip)
 {
     // Structure includes destination host IP address info
     sockaddr_in dest = {
         .sin_family = AF_INET,
         .sin_port = htons(33490),
+        .sin_addr = *(in_addr *)&dest_ip,
     };
-    
-    inet_aton(dest_ip.c_str(), (in_addr *)&dest.sin_addr);
 
     // Fill the packet
     struct icmphdr icmp_header = {
@@ -158,7 +152,7 @@ u_int16_t PingRange::generate_internet_checksum(const void *packet, int packet_s
 	return result;
 }
 
-const std::vector<std::string> & PingRange::get_address_range()
+const std::vector<uint32_t> &PingRange::get_address_range()
 {
     return this->address_range->get_address_range();
 }
