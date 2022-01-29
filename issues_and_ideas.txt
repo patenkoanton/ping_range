@@ -18,6 +18,8 @@ Find a way to fix it.
 * Find a way to run the application without root access
 * In address_range, make get_address() and get_mask() into a same function as the are basically doing the same thing
 * Where possible, replace pointers with smart pointers
+* send_icmp_request() method has to convert ip address from string to network byte order in order to send the request.
+Maybe address_range should return vector<sockaddr_in> instead of vector<string> ?
 
 =========== Ideas ======================
 * "Ping range" sounds kinda cripled. Lets rename the whole project to "ping subnet".
@@ -27,4 +29,7 @@ All the modules and variables that contain "ping range" should be removed as wel
     77.38.21.238 will reply through 77.38.21.239 (proxy server). Dumb idea: maybe we can find out if host is talking through proxy.
 
 * Dumb idea: take address generator object out of ping range class and let main handle the fuckery.
+* Print some extra data to the user output: TTL, time delay.
+* If no mask found in user input, then only ping the single address provided (as if mask value was 32).
+* Rename IP_ADDRESS_SIZE_BITS to IPv4_SIZE_BITS.
 

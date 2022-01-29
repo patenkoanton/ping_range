@@ -1,11 +1,12 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include <tgmath.h>
-
+#include <tgmath.h>     // TODO: replace with <math> or <math.h>?
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
 #include "address_range.h"
 
-#define IP_ADDRESS_NUMBERS  (4)
 #define IP_ADDRESS_SIZE_BITS  (32)
 
 
@@ -27,58 +28,59 @@ AddressRange::AddressRange(std::string &address_and_mask)
 }
 
 
-void AddressRange::generate_address_range(std::string address, int mask)
+void AddressRange::generate_address_range(std::string &input_address_string, int mask)
 {
-    // IP address represented as octets: (192 << 24) | (168 << 16) | (0 << 8) | (1 << 0) = 192.168.0.1
-    uint32_t address_octets = 0;
-    this->address_string_to_octets(address, address_octets);
+    // Get subnet address (network order).
+    uint32_t subnet_address = this->generate_subnet_address(input_address_string, mask);
+
+    // Go through all possible hosts in subnet.
+    uint32_t max_mask = pow(2, IP_ADDRESS_SIZE_BITS - mask) - 1;
+    for (uint32_t current_mask = 0; current_mask <= max_mask; current_mask++) {
+        uint32_t current_mask_in_network_order = this->reverse_byte_order(current_mask);
+        uint32_t host_address = subnet_address | current_mask_in_network_order;
+
+        // Convert the address to a host byte order and store into vector.
+        std::string host_address_string = inet_ntoa(*((in_addr *)&host_address));
+        this->address_range.push_back(host_address_string);
+    }
+}
+
+
+uint32_t AddressRange::reverse_byte_order(uint32_t mask)
+{
+    uint8_t *first_byte = (uint8_t *)&mask;
+    uint8_t *last_byte = first_byte + sizeof(mask) - 1;
+    while (first_byte < last_byte) {
+        uint8_t buffer = *last_byte;
+        *last_byte = *first_byte;
+        *first_byte = buffer;
+        first_byte++;
+        last_byte--;
+    }
+
+    return mask;
+}
+
+// Use input address and mask to generate subnet address.
+// Returns subnet address in network order.
+uint32_t AddressRange::generate_subnet_address(std::string &input_address_string, int mask)
+{
+    // Convert from numbers-and-dots notation into a number.
+    // TODO: inet_aton might return an error if address is invalid
+    uint32_t input_address_in_network_order = 0;
+    inet_aton(input_address_string.c_str(), (in_addr *)&input_address_in_network_order);
     
-    // Go through all possible IP addresses and store them into address_range vector.
-    uint32_t mask_number_of_bits = IP_ADDRESS_SIZE_BITS - mask;
-    uint32_t nulled_address = address_octets & (0xFFFFFFFF << mask_number_of_bits);
-    uint32_t max_mask = pow(2, mask_number_of_bits) - 1;
-    for (uint32_t mask_bits = 0; mask_bits <= max_mask; mask_bits++) {
-        std::string current_address;
-        uint32_t current_address_octets = nulled_address | mask_bits;
-        this->address_octets_to_string(current_address, current_address_octets);
-        this->address_range.push_back(current_address);
-        std::cout << "generated IP address: " << current_address << std::endl;
-    }
+    // Magic part: now we have to reverse the address (to a host byte order) in order to apply the mask and get a subnet address.
+    // Applying the mask to the network order address is too much of a brainfuck.
+    uint32_t input_address_in_host_order = this->reverse_byte_order(input_address_in_network_order);
+
+    // Get subnet address by applying the mask.
+    uint32_t subnet_address_in_host_order = input_address_in_host_order & (0xFFFFFFFF << (IP_ADDRESS_SIZE_BITS - mask));
+    return this->reverse_byte_order(subnet_address_in_host_order);
 }
 
-void AddressRange::address_string_to_octets(std::string address, uint32_t & address_number)
-{
-    size_t dot_pos = 0;
-    size_t digit_pos = 0;
 
-    // Go through the dots in IP address.
-    for (int i = IP_ADDRESS_NUMBERS - 1; i >= 0; i--) {
-        dot_pos = address.find('.', dot_pos);
-        if (dot_pos == std::string::npos) {
-            dot_pos = address.length();
-        }
-        
-        // Parse the number between the dots.
-        std::string address_octet_str = std::string(address, digit_pos, dot_pos - digit_pos);
-        uint32_t address_octet = std::stoi(address_octet_str) << i * 8;
-        address_number |= address_octet;
-        digit_pos = dot_pos = dot_pos + 1;
-    }
-}
-
-void AddressRange::address_octets_to_string(std::string & address, uint32_t address_number)
-{
-    address.clear();
-    for (int i = IP_ADDRESS_NUMBERS - 1; i >= 0; i--) {
-        uint8_t address_octet = address_number >> i * 8;
-        address += std::to_string(address_octet) + ".";
-    }
-
-    // Remove trailing dot.
-    address.pop_back();
-}
-
-const std::vector<std::string> & AddressRange::get_address_range()
+const std::vector<std::string> &AddressRange::get_address_range()
 {
     return this->address_range;
 }

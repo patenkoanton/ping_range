@@ -6,9 +6,9 @@ class AddressRange {
 
     std::string get_address(std::string &address_and_mask);
     int get_mask(std::string &address_and_mask);
-    void generate_address_range(std::string address, int mask);
-    void address_string_to_octets(std::string address, uint32_t & address_number);
-    void address_octets_to_string(std::string & address, uint32_t address_number);
+    void generate_address_range(std::string &input_address, int mask);
+    uint32_t reverse_byte_order(uint32_t mask);
+    uint32_t generate_subnet_address(std::string &input_address, int mask);
 public:
     AddressRange(std::string &address_and_mask);
     const std::vector<std::string> & get_address_range();
