@@ -43,10 +43,10 @@ void AddressRange::generate_address_range(std::string &input_address_string, int
 }
 
 
-uint32_t AddressRange::reverse_byte_order(uint32_t mask)
+uint32_t AddressRange::reverse_byte_order(uint32_t input)
 {
-    uint8_t *first_byte = (uint8_t *)&mask;
-    uint8_t *last_byte = first_byte + sizeof(mask) - 1;
+    uint8_t *first_byte = (uint8_t *)&input;
+    uint8_t *last_byte = first_byte + sizeof(input) - 1;
     while (first_byte < last_byte) {
         uint8_t buffer = *last_byte;
         *last_byte = *first_byte;
@@ -55,7 +55,7 @@ uint32_t AddressRange::reverse_byte_order(uint32_t mask)
         last_byte--;
     }
 
-    return mask;
+    return input;
 }
 
 // Use input address and mask to generate subnet address.
