@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cmath>
 #include <arpa/inet.h>
+#include <stdexcept>        // std::invalid_argument
 #include "address_range.h"
 
 #define IP_ADDRESS_SIZE_BITS  (32)
@@ -87,17 +88,29 @@ const std::vector<uint32_t> &AddressRange::get_address_range()
 }
 
 
-// Parse IP address and mask passed by user. No validation is done here.
-// Return value: a pair of IP address plus mask.
-// If no mask provided - use 32-bit mask.
+/* Parse IP address and mask provided by user.
+ * Always returns a pair of IP address and mask:
+ *		* if no mask provided - mask will be set to 32
+ *      * slash without mask - mask will be set to -1 (invalid)
+ */
 std::pair<std::string, int> AddressRange::parse_input_address_string(std::string &input_address_string)
 {
+    std::string address;
+    int mask = 0;
+
     size_t slash_pos = input_address_string.find('/');
-    if (slash_pos == std::string::npos) {
-        return std::pair<std::string, int> (input_address_string, IP_ADDRESS_SIZE_BITS);
+    if (slash_pos == std::string::npos) {       // no slash '/'
+        address = input_address_string;
+        mask = IP_ADDRESS_SIZE_BITS;
+    } else {
+        address = std::string(input_address_string, 0, slash_pos);
+        try {
+            mask = std::stoi(std::string(input_address_string, slash_pos + 1));
+        } catch (std::invalid_argument &) {
+            std::cout << "WARNING: empty subnet mask." << std::endl;
+            mask = -1;
+        }
     }
 
-    auto address = std::string(input_address_string, 0, slash_pos);
-    int mask = std::stoi(std::string(input_address_string, slash_pos + 1));
     return std::pair<std::string, int> (address, mask);
 }
