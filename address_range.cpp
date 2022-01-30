@@ -7,21 +7,12 @@
 #define IP_ADDRESS_SIZE_BITS  (32)
 
 
-AddressRange::AddressRange(std::string &address_and_mask)
+AddressRange::AddressRange(std::string &input_address_string)
 {
-    std::string address = this->get_address(address_and_mask);
-    if (address.empty()) {
-        throw std::string("Error: failed to parse IP address.");
-    }
-    std::cout << address << std::endl;
-
-    int mask = this->get_mask(address_and_mask);
-    if (mask < 0) {
-        throw std::string("Error: failed to parse IP mask.");
-    }
-    std::cout << mask << std::endl;
-
-    this->generate_address_range(address, mask);
+    std::pair<std::string, int> address_and_mask = this->parse_input_address_string(input_address_string);
+    std::cout << "address: " << address_and_mask.first << std::endl;
+    std::cout << "mask: " << address_and_mask.second << std::endl;
+    this->generate_address_range(address_and_mask.first, address_and_mask.second);
 }
 
 
@@ -80,24 +71,17 @@ const std::vector<uint32_t> &AddressRange::get_address_range()
 }
 
 
-std::string AddressRange::get_address(std::string &address_and_mask)
+// Parse IP address and mask passed by user. No validation is done here.
+// Return value: a pair of IP address plus mask.
+// If no mask provided - use 32-bit mask.
+std::pair<std::string, int> AddressRange::parse_input_address_string(std::string &input_address_string)
 {
-    size_t slash_pos = address_and_mask.find('/');
+    size_t slash_pos = input_address_string.find('/');
     if (slash_pos == std::string::npos) {
-        return std::string();     // Return empty string if no slash found.
+        return std::pair<std::string, int> (input_address_string, IP_ADDRESS_SIZE_BITS);
     }
 
-    return std::string(address_and_mask, 0, slash_pos);
+    auto address = std::string(input_address_string, 0, slash_pos);
+    int mask = std::stoi(std::string(input_address_string, slash_pos + 1));
+    return std::pair<std::string, int> (address, mask);
 }
-
-
-int AddressRange::get_mask(std::string &address_and_mask)
-{
-    size_t slash_pos = address_and_mask.find('/');
-    if (slash_pos == std::string::npos) {
-        return -1;      // Error - no slash found. 
-    }
-
-    return std::stoi(std::string(address_and_mask, slash_pos + 1));
-}
-

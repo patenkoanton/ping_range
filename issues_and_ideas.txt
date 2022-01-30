@@ -16,10 +16,10 @@ I'm tired of writing TODOs in random places so I'll continue here.
 * program blocks forever when ping utility is running in parallel. Apparently it chokes under the flow of packets and stays in receive-loop forever.
 Find a way to fix it.
 * Find a way to run the application without root access
-* In address_range, make get_address() and get_mask() into a same function as the are basically doing the same thing
 * Where possible, replace pointers with smart pointers
 * remove excessive "struct" keywords accross the project:
     * not required in C++
+* Handle potential errors from inet_aton and inet_ntoa since we don't manually validate the IP address
 
 =========== Ideas ======================
 * "Ping range" sounds kinda cripled. Lets rename the whole project to "ping subnet".
