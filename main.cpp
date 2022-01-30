@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <arpa/inet.h>
+#include "main.h"
 #include "ping_subnet.h"
 
 #define MIN_ARGC    (2)

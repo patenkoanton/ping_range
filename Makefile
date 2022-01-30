@@ -1,21 +1,21 @@
 CC = g++
 CFLAGS = -g --std=c++11
 TARGET = ping_subnet
+MODULES = \
+	main \
+	ping_subnet \
+	address_range \
+	icmp_socket \
 
-$(TARGET): main.o ping_subnet.o address_range.o icmp_socket.o
+OBJ = $(MODULES:=.o)
+
+all: $(TARGET)
+
+$(TARGET): $(OBJ)
 	$(CC) $(CFLAGS) $^ -o $@
 
-main.o: main.cpp
-	$(CC) $(CFLAGS) $^ -c
-
-ping_subnet.o: ping_subnet.cpp ping_subnet.h
-	$(CC) $(CFLAGS) $^ -c
-
-address_range.o: address_range.cpp address_range.h
-	$(CC) $(CFLAGS) $^ -c
-
-icmp_socket.o: icmp_socket.cpp icmp_socket.h
-	$(CC) $(CFLAGS) $^ -c
+%.o: %.cpp %.h
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f ping_subnet.o ping_subnet.h.gch main.o address_range.o address_range.h.gch icmp_socket.o icmp_socket.h.gch $(TARGET)
+	rm -f $(OBJ) $(TARGET)
