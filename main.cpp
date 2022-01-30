@@ -1,12 +1,9 @@
 #include <iostream>
 #include <string>
 #include <arpa/inet.h>
-#include "ping_range.h"
+#include "ping_subnet.h"
 
 #define MIN_ARGC    (2)
-
-// TODO: change "ping range" to "ping subnet".
-// TODO: take address range out of ping range and let main handle the calls.
 
 bool argc_is_correct(int argc)
 {
@@ -25,16 +22,16 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    PingRange *range_ping = NULL;
+    PingSubnet *ping_subnet = NULL;
     try {
-        range_ping = new PingRange(argv[1]);
+        ping_subnet = new PingSubnet(argv[1]);
     } catch (std::string& exception) {
         std::cout << "ERROR: " + exception << std::endl;
         return 0;
     }
 
     // Print the range of addresses.
-    auto address_range = range_ping->get_address_range();
+    auto address_range = ping_subnet->get_address_range();
     std::cout << "Range of IP addresses generated: " << std::endl;
     for (auto it = address_range.begin(); it != address_range.end(); it++) {
         in_addr host_address = {
@@ -45,6 +42,6 @@ int main(int argc, char *argv[])
     std::cout << std::endl;
 
     // Ping subnet.
-    range_ping->ping();
+    ping_subnet->ping();
     return 0;
 }

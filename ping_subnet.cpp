@@ -4,14 +4,14 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <netinet/ip_icmp.h>
-#include "ping_range.h"
+#include "ping_subnet.h"
 #include "icmp_socket.h"
 
 #define RECEIVE_BUFFER_SIZE     (1024)
 #define SOCKET_TIMEOUT_SEC      (5)
 
 
-PingRange::PingRange(std::string address_and_mask)
+PingSubnet::PingSubnet(std::string address_and_mask)
 {
     try {
         this->address_range = new AddressRange(address_and_mask);
@@ -21,7 +21,7 @@ PingRange::PingRange(std::string address_and_mask)
     }
 }
 
-void PingRange::ping()
+void PingSubnet::ping()
 {
     std::vector<char> receive_buffer(RECEIVE_BUFFER_SIZE);
     auto hosts = this->get_address_range();
@@ -58,7 +58,7 @@ void PingRange::ping()
 
 }
 
-void PingRange::parse_package(std::vector<char> &receive_buffer)
+void PingSubnet::parse_package(std::vector<char> &receive_buffer)
 {
     char *receive_buffer_data = receive_buffer.data();
 	struct icmphdr *icmpHeader = (struct icmphdr *)(receive_buffer_data + sizeof(struct iphdr));
@@ -70,7 +70,7 @@ void PingRange::parse_package(std::vector<char> &receive_buffer)
 }
 
 
-int PingRange::send_icmp_request(uint32_t dest_ip)
+int PingSubnet::send_icmp_request(uint32_t dest_ip)
 {
     // Structure includes destination host IP address info
     sockaddr_in dest = {
@@ -112,7 +112,7 @@ int PingRange::send_icmp_request(uint32_t dest_ip)
     * -1 - general error / no response
     * number of bytes received  -   success
  */
-int PingRange::receive_icmp_response(std::vector<char> &receive_buffer)
+int PingSubnet::receive_icmp_response(std::vector<char> &receive_buffer)
 {
     struct sockaddr_in receiver;
     socklen_t receiverLength = sizeof(receiver);
@@ -134,7 +134,7 @@ int PingRange::receive_icmp_response(std::vector<char> &receive_buffer)
 }
 
 
-u_int16_t PingRange::generate_internet_checksum(const void *packet, int packet_size)
+u_int16_t PingSubnet::generate_internet_checksum(const void *packet, int packet_size)
 {
     uint16_t *buffer = (uint16_t *)packet;
 	uint32_t sum = 0;
@@ -152,13 +152,13 @@ u_int16_t PingRange::generate_internet_checksum(const void *packet, int packet_s
 	return result;
 }
 
-const std::vector<uint32_t> &PingRange::get_address_range()
+const std::vector<uint32_t> &PingSubnet::get_address_range()
 {
     return this->address_range->get_address_range();
 }
 
 
-PingRange::~PingRange()
+PingSubnet::~PingSubnet()
 {
     delete this->address_range;
     delete this->icmp_socket;

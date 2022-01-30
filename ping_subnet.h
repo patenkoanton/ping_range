@@ -1,12 +1,12 @@
-#ifndef _PING_RANGE_H_
-#define _PING_RANGE_H_
+#ifndef _PING_SUBNET_H_
+#define _PING_SUBNET_H_
 
 #include <string>
 #include <vector>
 #include "address_range.h"
 #include "icmp_socket.h"
 
-class PingRange {
+class PingSubnet {
     AddressRange *address_range;
     ICMPSocket *icmp_socket;
 
@@ -15,8 +15,8 @@ class PingRange {
     void parse_package(std::vector<char> &receive_buffer);    
     u_int16_t generate_internet_checksum(const void *packet, int packet_size);
 public:
-    PingRange(std::string address_and_mask);
-    ~PingRange();
+    PingSubnet(std::string address_and_mask);
+    ~PingSubnet();
     const std::vector<uint32_t> &get_address_range();
     void ping();
 };

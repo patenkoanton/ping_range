@@ -22,8 +22,6 @@ Find a way to fix it.
 * Replace strerror with std::strerror (header <cstring> should still be included)
 
 =========== Ideas ======================
-* "Ping range" sounds kinda cripled. Lets rename the whole project to "ping subnet".
-All the modules and variables that contain "ping range" should be removed as well.
 * send/receive ICMP packets in parallel (e.g. one host - one thread). Use POSIX threads.
 * Sometimes hosts reply through proxy within the same subnet, example: 77.38.21.238\32.
     77.38.21.238 will reply through 77.38.21.239 (proxy server). Dumb idea: maybe we can find out if host is talking through proxy.
