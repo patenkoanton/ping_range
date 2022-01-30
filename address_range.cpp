@@ -12,14 +12,20 @@ AddressRange::AddressRange(std::string &input_address_string)
     std::pair<std::string, int> address_and_mask = this->parse_input_address_string(input_address_string);
     std::cout << "address: " << address_and_mask.first << std::endl;
     std::cout << "mask: " << address_and_mask.second << std::endl;
-    this->generate_address_range(address_and_mask.first, address_and_mask.second);
+
+    if (this->generate_address_range(address_and_mask.first, address_and_mask.second) < 0) {
+        throw std::string("Failed to generate the range of host IP addresses.");
+    }
 }
 
 
-void AddressRange::generate_address_range(std::string &input_address_string, int mask)
+int AddressRange::generate_address_range(std::string &input_address_string, int mask)
 {
     // Get subnet address (network order).
     uint32_t subnet_address = this->generate_subnet_address(input_address_string, mask);
+    if (subnet_address == 0) {
+        return -1;
+    }
 
     // Go through all possible hosts in subnet.
     uint32_t max_mask = std::pow(2, IP_ADDRESS_SIZE_BITS - mask) - 1;
@@ -28,6 +34,8 @@ void AddressRange::generate_address_range(std::string &input_address_string, int
         uint32_t host_address = subnet_address | current_mask_in_network_order;
         this->address_range.push_back(host_address);
     }
+
+    return 0;
 }
 
 
@@ -48,12 +56,20 @@ uint32_t AddressRange::reverse_byte_order(uint32_t input)
 
 // Use input address and mask to generate subnet address.
 // Returns subnet address in network order.
+// Returns 0 if error occured.
 uint32_t AddressRange::generate_subnet_address(std::string &input_address_string, int mask)
 {
+    if (mask < 1 || mask > 32) {
+        std::cerr << "ERROR: invalid subnet mask provided." << std::endl;
+        return 0;
+    }
+
     // Convert from numbers-and-dots notation into a number.
-    // TODO: inet_aton might return an error if address is invalid
     uint32_t input_address_in_network_order = 0;
-    inet_aton(input_address_string.c_str(), (in_addr *)&input_address_in_network_order);
+    if (inet_aton(input_address_string.c_str(), (in_addr *)&input_address_in_network_order) == 0) {
+        std::cerr << "ERROR: invalid IP address provided." << std::endl;
+        return 0;
+    }
     
     // Magic part: now we have to reverse the address (to a host byte order) in order to apply the mask and get a subnet address.
     // Applying the mask to the network order address is too much of a brainfuck.

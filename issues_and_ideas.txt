@@ -19,7 +19,12 @@ Find a way to fix it.
 * Where possible, replace pointers with smart pointers
 * remove excessive "struct" keywords accross the project:
     * not required in C++
-* Handle potential errors from inet_aton and inet_ntoa since we don't manually validate the IP address
+* Replace strerror with std::strerror (header <cstring> should still be included)
+* Handle empty mask argument, example:
+        sudo ./ping_range 77.38.21.9/
+  Results in:
+        terminate called after throwing an instance of 'std::invalid_argument'
+        what():  stoi
 
 =========== Ideas ======================
 * "Ping range" sounds kinda cripled. Lets rename the whole project to "ping subnet".
