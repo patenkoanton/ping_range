@@ -13,7 +13,7 @@ bool argc_is_correct(int argc)
 
 void show_help()
 {
-    std::cout << "Usage: ..." << std::endl;
+    std::cout << "Usage: sudo ./ping_subnet [subnet_ip_address]/[mask]" << std::endl;
 }
 
 int main(int argc, char *argv[])
@@ -28,6 +28,8 @@ int main(int argc, char *argv[])
         ping_subnet = new PingSubnet(argv[1]);
     } catch (std::string& exception) {
         std::cout << "ERROR: " + exception << std::endl;
+        std::cout << std::endl;
+        show_help();
         return 0;
     }
 
