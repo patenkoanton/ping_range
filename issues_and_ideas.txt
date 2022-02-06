@@ -9,6 +9,7 @@ I'm tired of writing TODOs in random places so I'll continue here.
 * Be consistent with objects vs pointers-to-objects in classes.
 * Fix spacing (number of newlines) between function implementation and macros/includes in *.cpp modules.
 * "Response" has to become "reply"
+    * "responder" has to become "replier"
 * in receive_icmp_response find a way to check if number of bytes received matches the length of ICMP packet
 * unhandled exception; to reproduce:
         sudo ./ping_range 77.38.21.239\30
@@ -20,6 +21,8 @@ Find a way to fix it.
 * remove excessive "struct" keywords accross the project:
     * not required in C++
 * Replace strerror with std::strerror (header <cstring> should still be included)
+* Add README.md
+* Remove debug prints
 
 =========== Ideas ======================
 * send/receive ICMP packets in parallel (e.g. one host - one thread). Use POSIX threads.

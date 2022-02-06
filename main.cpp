@@ -44,5 +44,8 @@ int main(int argc, char *argv[])
 
     // Ping subnet.
     ping_subnet->ping();
+
+    // Cleanup
+    delete ping_subnet;
     return 0;
 }
