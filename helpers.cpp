@@ -19,5 +19,6 @@ bool helpers_help_message_requested(int argc, char **argv)
 // Show info message for user.
 void helpers_show_help()
 {
+    std::cout << std::endl;
     std::cout << "Usage: sudo ./ping_subnet [subnet_ip_address]/[mask]" << std::endl;
 }

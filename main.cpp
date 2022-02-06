@@ -27,7 +27,6 @@ int main(int argc, char *argv[])
         ping_subnet = new PingSubnet(argv[1]);
     } catch (std::string& exception) {
         std::cout << "ERROR: " + exception << std::endl;
-        std::cout << std::endl;
         helpers_show_help();
         return 0;
     }
