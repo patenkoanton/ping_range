@@ -3,6 +3,7 @@
 #include <arpa/inet.h>
 #include "main.h"
 #include "ping_subnet.h"
+#include "helpers.h"
 
 #define MIN_ARGC    (2)
 

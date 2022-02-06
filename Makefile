@@ -6,6 +6,7 @@ MODULES = \
 	ping_subnet \
 	address_range \
 	icmp_socket \
+	helpers \
 
 OBJ = $(MODULES:=.o)
 
