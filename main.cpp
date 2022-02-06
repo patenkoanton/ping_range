@@ -10,7 +10,14 @@
 
 int main(int argc, char *argv[])
 {
+    // Not enough args provided - show help and exit.
     if (helpers_argc_is_incorrect(argc, MIN_ARGC)) {
+        helpers_show_help();
+        return 0;
+    }
+
+    // Help requested - show help and exit.
+    if (helpers_help_message_requested(argc, argv)) {
         helpers_show_help();
         return 0;
     }

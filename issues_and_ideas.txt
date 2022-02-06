@@ -23,6 +23,8 @@ Find a way to fix it.
 * Replace strerror with std::strerror (header <cstring> should still be included)
 * Add README.md
 * Remove debug prints
+* Add empty line in show_help() before the message.
+    * Remove an extra one from elsewhere if required.
 
 =========== Ideas ======================
 * send/receive ICMP packets in parallel (e.g. one host - one thread). Use POSIX threads.

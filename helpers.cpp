@@ -1,4 +1,5 @@
 #include <iostream>
+#include <set>
 #include "helpers.h"
 
 
@@ -6,6 +7,13 @@
 bool helpers_argc_is_incorrect(int argc, int min_argc)
 {
     return argc < min_argc;
+}
+
+// Check if either --help or -help was passed.
+bool helpers_help_message_requested(int argc, char **argv)
+{
+    std::set<std::string> args(argv, argv + argc);
+    return args.count("--help") || args.count("-h");
 }
 
 // Show info message for user.
