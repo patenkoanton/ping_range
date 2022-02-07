@@ -5,6 +5,7 @@
 #include <arpa/inet.h>
 #include <netinet/ip_icmp.h>
 #include "ping_subnet.h"
+#include "address_range.h"
 #include "icmp_socket.h"
 
 #define RECEIVE_BUFFER_SIZE     (1024)

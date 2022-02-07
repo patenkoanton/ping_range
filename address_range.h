@@ -1,3 +1,6 @@
+#ifndef _ADDRESS_RANGE_H
+#define _ADDRESS_RANGE_H
+
 #include <string>
 #include <vector>
 
@@ -13,3 +16,5 @@ public:
     AddressRange(std::string &input_address_string);
     const std::vector<uint32_t> & get_address_range();
 };
+
+#endif  // _ADDRESS_RANGE_H
