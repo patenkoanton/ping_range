@@ -7,6 +7,7 @@
 #include "ping_subnet.h"
 #include "address_range.h"
 #include "icmp_socket.h"
+#include "factory.h"
 
 #define RECEIVE_BUFFER_SIZE     (1024)
 #define SOCKET_TIMEOUT_SEC      (5)
@@ -14,11 +15,14 @@
 
 PingSubnet::PingSubnet(std::string address_and_mask)
 {
-    try {
-        this->address_range = new AddressRange(address_and_mask);
-        this->icmp_socket = new ICMPSocket(SOCKET_TIMEOUT_SEC);
-    } catch(...) {
-        throw;
+    this->address_range = factory_create_object<AddressRange, std::string&>(address_and_mask);
+    if (this->address_range == nullptr) {
+        throw std::string("failed to create AddressRange object.");
+    }
+
+    this->icmp_socket = factory_create_object<ICMPSocket>(SOCKET_TIMEOUT_SEC);
+    if (this->icmp_socket == nullptr) {
+        throw std::string("failed to create ICMPSocket object.");
     }
 }
 
@@ -156,11 +160,4 @@ u_int16_t PingSubnet::generate_internet_checksum(const void *packet, int packet_
 const std::vector<uint32_t> &PingSubnet::get_address_range()
 {
     return this->address_range->get_address_range();
-}
-
-
-PingSubnet::~PingSubnet()
-{
-    delete this->address_range;
-    delete this->icmp_socket;
 }
