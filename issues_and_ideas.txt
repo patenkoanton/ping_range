@@ -3,10 +3,8 @@ I'm tired of writing TODOs in random places so I'll continue here.
 =========== Issues =====================
 * When generating the range of addresses, make sure the last octet is not 0x00 or 0xFF as those addresses are reserved or unused by convention.
 * Replace tabs with whitespaces
-* Replace printf with cout (any way to replace perror as well????)
 * Replace c-string functions with std::string equivalents
 * Make the usage of {} in functions consistent across the entire project
-* Be consistent with objects vs pointers-to-objects in classes.
 * Fix spacing (number of newlines) between function implementation and macros/includes in *.cpp modules.
 * in receive_icmp_response find a way to check if number of bytes received matches the length of ICMP packet
 * program blocks forever when ping utility is running in parallel. Apparently it chokes under the flow of packets and stays in receive-loop forever.
@@ -20,9 +18,8 @@ Find a way to fix it.
 * Sometimes hosts reply through proxy within the same subnet, example: 77.38.21.238\32.
     77.38.21.238 will reply through 77.38.21.239 (proxy server). Dumb idea: maybe we can find out if host is talking through proxy.
 
-* Dumb idea: take address generator object out of ping range class and let main handle the fuckery.
 * Print some extra data to the user output: TTL, time delay.
-* If no mask found in user input, then only ping the single address provided (as if mask value was 32).
 * Rename IP_ADDRESS_SIZE_BITS to IPv4_SIZE_BITS.
 * Decrease socket timeout to 3-4 seconds
+* Add support for Windows, use autotools if required.
 
