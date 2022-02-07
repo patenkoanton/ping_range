@@ -24,7 +24,7 @@ ICMPSocket::ICMPSocket(int socket_timeout_sec)
 
 int ICMPSocket::open_socket()
 {
-	struct protoent *protocol = NULL;
+	protoent *protocol = NULL;
 	if ((protocol = getprotobyname("icmp")) == NULL) {
 		std::cerr << "ERROR: failed to get ICMP protocol info." << std::endl;
 		return -1;
@@ -43,7 +43,7 @@ int ICMPSocket::open_socket()
 
 int ICMPSocket::configure_socket(int socket_timeout_sec)
 {
-    struct timeval timeValue = {
+    timeval timeValue = {
         .tv_sec = socket_timeout_sec,
 	    .tv_usec = 0,
     };

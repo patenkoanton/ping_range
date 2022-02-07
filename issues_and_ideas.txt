@@ -18,8 +18,6 @@ I'm tired of writing TODOs in random places so I'll continue here.
 Find a way to fix it.
 * Find a way to run the application without root access
 * Where possible, replace pointers with smart pointers
-* remove excessive "struct" keywords accross the project:
-    * not required in C++
 * Add README.md
 * Remove debug prints
 

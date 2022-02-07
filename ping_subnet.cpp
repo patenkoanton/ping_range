@@ -50,7 +50,7 @@ void PingSubnet::ping()
             }
 
             // Got ICMP response
-            struct ip *ip_header = (struct ip *)(receive_buffer.data());
+            ip *ip_header = (ip *)receive_buffer.data();
 
             // Verify that response came from the right host.
             auto responder_address = ip_header->ip_src.s_addr;
@@ -66,7 +66,7 @@ void PingSubnet::ping()
 void PingSubnet::parse_package(std::vector<char> &receive_buffer)
 {
     char *receive_buffer_data = receive_buffer.data();
-	struct icmphdr *icmpHeader = (struct icmphdr *)(receive_buffer_data + sizeof(struct iphdr));
+	icmphdr *icmpHeader = (icmphdr *)(receive_buffer_data + sizeof(iphdr));
 	if (icmpHeader->type == 0) {
 		std::cout << " [ONLINE]" << std::endl;
     } else {
@@ -85,7 +85,7 @@ int PingSubnet::send_icmp_request(uint32_t dest_ip)
     };
 
     // Fill the packet
-    struct icmphdr icmp_header = {
+    icmphdr icmp_header = {
         .type = ICMP_ECHO,          // Echo request type (used to ping) 
         .code = 0,                  // Code 0 is required
         .checksum = 0,              // Initial checksum has to be zero
@@ -119,12 +119,12 @@ int PingSubnet::send_icmp_request(uint32_t dest_ip)
  */
 int PingSubnet::receive_icmp_response(std::vector<char> &receive_buffer)
 {
-    struct sockaddr_in receiver;
+    sockaddr_in receiver;
     socklen_t receiverLength = sizeof(receiver);
     char *receive_buffer_data = receive_buffer.data();
     size_t receive_buffer_size = receive_buffer.capacity();
 
-    int rc = recvfrom(this->icmp_socket->get_socket(), receive_buffer_data, receive_buffer_size, 0, (struct sockaddr*)&receiver, &receiverLength);
+    int rc = recvfrom(this->icmp_socket->get_socket(), receive_buffer_data, receive_buffer_size, 0, (sockaddr*)&receiver, &receiverLength);
     if (rc < 0) {
         if (errno == EWOULDBLOCK) {
             return 0;      // No response before the socket timeout. Host is down/does not reply.
