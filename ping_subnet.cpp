@@ -139,7 +139,7 @@ int PingSubnet::receive_icmp_response(std::vector<char> &receive_buffer)
 }
 
 
-u_int16_t PingSubnet::generate_internet_checksum(const void *packet, int packet_size)
+uint16_t PingSubnet::generate_internet_checksum(const void *packet, int packet_size)
 {
     uint16_t *buffer = (uint16_t *)packet;
 	uint32_t sum = 0;

@@ -25,7 +25,6 @@ Find a way to fix it.
 * Remove debug prints
 * In PingSubnet::PingSubnet replace std::string argument with &std::string.
 * Rename helpers to main_helpers
-* ping_subnet.h: replace u_int16_t with uint16_t
 
 =========== Ideas ======================
 * send/receive ICMP packets in parallel (e.g. one host - one thread). Use POSIX threads.

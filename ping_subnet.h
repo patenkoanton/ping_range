@@ -15,7 +15,7 @@ class PingSubnet {
     int send_icmp_request(uint32_t dest_ip);
     int receive_icmp_response(std::vector<char> &receive_buffer);
     void parse_package(std::vector<char> &receive_buffer);    
-    u_int16_t generate_internet_checksum(const void *packet, int packet_size);
+    uint16_t generate_internet_checksum(const void *packet, int packet_size);
 public:
     PingSubnet(std::string address_and_mask);
     const std::vector<uint32_t> &get_address_range();
