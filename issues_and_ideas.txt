@@ -20,7 +20,6 @@ Find a way to fix it.
 * Where possible, replace pointers with smart pointers
 * remove excessive "struct" keywords accross the project:
     * not required in C++
-* Replace strerror with std::strerror (header <cstring> should still be included)
 * Add README.md
 * Remove debug prints
 

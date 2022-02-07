@@ -34,14 +34,14 @@ void PingSubnet::ping()
     // Send ICMP request to every host in the list and wait for reply
     for (auto host_address : hosts) {
         if (this->send_icmp_request(host_address) < 0) {
-            std::cout << "WARNING: " << strerror(errno) << ". ";
+            std::cout << "WARNING: " << std::strerror(errno) << ". ";
             std::cout << "Failed to send ICMP request." << std::endl;
             continue;
         }
 		while (1) {
             int rc = this->receive_icmp_response(receive_buffer);
             if (rc < 0) {
-                std::cout << "ERROR: " << strerror(errno) << ". ";
+                std::cout << "ERROR: " << std::strerror(errno) << ". ";
                 std::cout << "Failed to receive ICMP response." << std::endl;
                 break;
             } else if (rc == 0) {

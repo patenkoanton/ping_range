@@ -1,5 +1,5 @@
 #include <string>
-#include <cstring>
+#include <cstring>  // strerror
 #include <sys/time.h>
 #include <netdb.h>
 #include <unistd.h>
@@ -32,7 +32,7 @@ int ICMPSocket::open_socket()
 
     this->hsocket = socket(AF_INET, SOCK_RAW, protocol->p_proto);
 	if (this->hsocket < 0) {
-        std::cerr << "ERROR: " << strerror(errno);
+        std::cerr << "ERROR: " << std::strerror(errno);
         std::cerr << ". Try using 'sudo'." << std::endl;
     	return -1;
     }
@@ -50,7 +50,7 @@ int ICMPSocket::configure_socket(int socket_timeout_sec)
 	
     // Set socket timeout
     if (setsockopt(this->hsocket, SOL_SOCKET, SO_RCVTIMEO, &timeValue, sizeof(timeValue)) < 0) {
-        std::cerr << "ERROR: setsockopt error. " << strerror(errno) << std::endl;
+        std::cerr << "ERROR: setsockopt error. " << std::strerror(errno) << std::endl;
         return -1;
     }
 
