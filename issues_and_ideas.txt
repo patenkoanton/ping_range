@@ -17,7 +17,6 @@ I'm tired of writing TODOs in random places so I'll continue here.
 * program blocks forever when ping utility is running in parallel. Apparently it chokes under the flow of packets and stays in receive-loop forever.
 Find a way to fix it.
 * Find a way to run the application without root access
-* Where possible, replace pointers with smart pointers
 * Add README.md
 * Remove debug prints
 
