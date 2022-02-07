@@ -24,7 +24,6 @@ Find a way to fix it.
 * Add README.md
 * Remove debug prints
 * In PingSubnet::PingSubnet replace std::string argument with &std::string.
-* Rename helpers to main_helpers
 
 =========== Ideas ======================
 * send/receive ICMP packets in parallel (e.g. one host - one thread). Use POSIX threads.
