@@ -23,6 +23,8 @@ Find a way to fix it.
 * Replace strerror with std::strerror (header <cstring> should still be included)
 * Add README.md
 * Remove debug prints
+* In PingSubnet::PingSubnet replace std::string argument with &std::string.
+* Rename helpers to main_helpers
 
 =========== Ideas ======================
 * send/receive ICMP packets in parallel (e.g. one host - one thread). Use POSIX threads.

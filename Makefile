@@ -7,6 +7,7 @@ MODULES = \
 	address_range \
 	icmp_socket \
 	helpers \
+	factory \
 
 OBJ = $(MODULES:=.o)
 

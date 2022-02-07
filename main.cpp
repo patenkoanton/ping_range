@@ -4,6 +4,7 @@
 #include "main.h"
 #include "ping_subnet.h"
 #include "helpers.h"
+#include "factory.h"
 
 #define MIN_ARGC    (2)
 
@@ -22,11 +23,9 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    PingSubnet *ping_subnet = NULL;
-    try {
-        ping_subnet = new PingSubnet(argv[1]);
-    } catch (std::string& exception) {
-        std::cout << "ERROR: " + exception << std::endl;
+    // Create "pinger" object.
+    auto ping_subnet = factory_create_object<PingSubnet>(argv[1]);
+    if (ping_subnet == nullptr) {
         helpers_show_help();
         return 0;
     }
@@ -44,8 +43,5 @@ int main(int argc, char *argv[])
 
     // Ping subnet.
     ping_subnet->ping();
-
-    // Cleanup
-    delete ping_subnet;
     return 0;
 }
