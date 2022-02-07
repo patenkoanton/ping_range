@@ -39,22 +39,22 @@ void PingSubnet::ping()
             continue;
         }
 		while (1) {
-            int rc = this->receive_icmp_response(receive_buffer);
+            int rc = this->receive_icmp_reply(receive_buffer);
             if (rc < 0) {
                 std::cout << "WARNING: " << std::strerror(errno) << ". ";
-                std::cout << "Failed to receive ICMP response." << std::endl;
+                std::cout << "Failed to receive ICMP reply." << std::endl;
                 break;
             } else if (rc == 0) {
                 std::cout << " [OFFLINE]" << std::endl;
                 break;
             }
 
-            // Got ICMP response
+            // Got ICMP reply
             ip *ip_header = (ip *)receive_buffer.data();
 
-            // Verify that response came from the right host.
-            auto responder_address = ip_header->ip_src.s_addr;
-            if (host_address == responder_address) {
+            // Verify that reply came from the right host.
+            auto replier_address = ip_header->ip_src.s_addr;
+            if (host_address == replier_address) {
                 this->parse_package(receive_buffer);
                 break;
             }
@@ -114,10 +114,10 @@ int PingSubnet::send_icmp_request(uint32_t dest_ip)
 
 /* Return value:
     * 0  - host is offline / gracefully disconnected
-    * -1 - general error / no response
+    * -1 - general error / no reply
     * number of bytes received  -   success
  */
-int PingSubnet::receive_icmp_response(std::vector<char> &receive_buffer)
+int PingSubnet::receive_icmp_reply(std::vector<char> &receive_buffer)
 {
     sockaddr_in receiver;
     socklen_t receiverLength = sizeof(receiver);
@@ -127,7 +127,7 @@ int PingSubnet::receive_icmp_response(std::vector<char> &receive_buffer)
     int rc = recvfrom(this->icmp_socket->get_socket(), receive_buffer_data, receive_buffer_size, 0, (sockaddr*)&receiver, &receiverLength);
     if (rc < 0) {
         if (errno == EWOULDBLOCK) {
-            return 0;      // No response before the socket timeout. Host is down/does not reply.
+            return 0;      // No reply before the socket timeout. Host is down/does not reply.
         }
         return -1;      // General error.
     } else if (rc == 0) {

@@ -13,7 +13,7 @@ class PingSubnet {
     
 
     int send_icmp_request(uint32_t dest_ip);
-    int receive_icmp_response(std::vector<char> &receive_buffer);
+    int receive_icmp_reply(std::vector<char> &receive_buffer);
     void parse_package(std::vector<char> &receive_buffer);    
     uint16_t generate_internet_checksum(const void *packet, int packet_size);
 public:
