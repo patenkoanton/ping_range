@@ -50,7 +50,7 @@ void PingSubnet::ping()
             }
 
             // Got ICMP reply
-            ip *ip_header = (ip *)receive_buffer.data();
+            auto ip_header = (ip *)receive_buffer.data();
 
             // Verify that reply came from the right host.
             auto replier_address = ip_header->ip_src.s_addr;
@@ -66,7 +66,7 @@ void PingSubnet::ping()
 void PingSubnet::parse_package(std::vector<char> &receive_buffer)
 {
     char *receive_buffer_data = receive_buffer.data();
-    icmphdr *icmpHeader = (icmphdr *)(receive_buffer_data + sizeof(iphdr));
+    auto icmpHeader = (icmphdr *)(receive_buffer_data + sizeof(iphdr));
     if (icmpHeader->type == 0) {
         std::cout << " [ONLINE]" << std::endl;
     } else {
@@ -97,13 +97,13 @@ int PingSubnet::send_icmp_request(uint32_t dest_ip)
 
     // Send
     int hsocket = this->icmp_socket->get_socket();
-    sockaddr *dest_sockaddr = (sockaddr *)&dest;
+    auto dest_sockaddr = (sockaddr *)&dest;
     if (sendto(hsocket, &icmp_header, sizeof(icmp_header), 0, dest_sockaddr, sizeof(sockaddr)) <= 0) {
         return -1;
     }
 
     // Print host name if applicable
-    hostent *host_data = gethostbyaddr(&dest.sin_addr, sizeof(dest.sin_addr), AF_INET);
+    auto host_data = gethostbyaddr(&dest.sin_addr, sizeof(dest.sin_addr), AF_INET);
     if (host_data != NULL) {
         std::cout << " (" << host_data->h_name << ")";
     }
