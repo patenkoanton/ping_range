@@ -14,7 +14,7 @@ template<class T, class N> std::unique_ptr<T> factory_create_object(N arg)
     try {
         object = std::unique_ptr<T>(new T(arg));
     } catch (std::string& exception) {
-        std::cout << "ERROR: " + exception << std::endl;
+        std::cerr << "ERROR: " + exception << std::endl;
         return nullptr;
     }
 
