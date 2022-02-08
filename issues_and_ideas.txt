@@ -2,15 +2,22 @@ I'm tired of writing TODOs in random places so I'll continue here.
 
 =========== Issues =====================
 * When generating the range of addresses, make sure the last octet is not 0x00 or 0xFF as those addresses are reserved or unused by convention.
-* Replace c-string functions with std::string equivalents
-* Make the usage of {} in functions consistent across the entire project
-* Fix spacing (number of newlines) between function implementation and macros/includes in *.cpp modules.
 * in receive_icmp_response find a way to check if number of bytes received matches the length of ICMP packet
 * program blocks forever when ping utility is running in parallel. Apparently it chokes under the flow of packets and stays in receive-loop forever.
 Find a way to fix it.
 * Find a way to run the application without root access
 * Add README.md
 * Remove debug prints
+* Edit comments (before the function) to have a common style:
+    /* This is function. Return value"
+     *      * bla when a==0
+     *      * bar when a==1
+     *      * etc....
+     */
+* In ping_subnet::ping: we print the host address and host status from different methods which is a bad practice. 
+Make sure we have an "orchestrator" method who collects data (host address, DNS and status) from other methods and forms an output string.
+I.e. we need to form an output string and print it from a single method, not across the whole module. 
+* Replace std::cout with std::cerr where applicable.
 
 =========== Ideas ======================
 * send/receive ICMP packets in parallel (e.g. one host - one thread). Use POSIX threads.
