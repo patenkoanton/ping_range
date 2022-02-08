@@ -38,7 +38,7 @@ void PingSubnet::ping()
             std::cout << "Failed to send ICMP request." << std::endl;
             continue;
         }
-		while (1) {
+        while (1) {
             int rc = this->receive_icmp_reply(receive_buffer);
             if (rc < 0) {
                 std::cout << "WARNING: " << std::strerror(errno) << ". ";
@@ -58,19 +58,19 @@ void PingSubnet::ping()
                 this->parse_package(receive_buffer);
                 break;
             }
-		}
-	}
+        }
+    }
 
 }
 
 void PingSubnet::parse_package(std::vector<char> &receive_buffer)
 {
     char *receive_buffer_data = receive_buffer.data();
-	icmphdr *icmpHeader = (icmphdr *)(receive_buffer_data + sizeof(iphdr));
-	if (icmpHeader->type == 0) {
-		std::cout << " [ONLINE]" << std::endl;
+    icmphdr *icmpHeader = (icmphdr *)(receive_buffer_data + sizeof(iphdr));
+    if (icmpHeader->type == 0) {
+        std::cout << " [ONLINE]" << std::endl;
     } else {
-		std::cout << " [OFFLINE]" << std::endl;
+        std::cout << " [OFFLINE]" << std::endl;
     }
 }
 
@@ -90,15 +90,15 @@ int PingSubnet::send_icmp_request(uint32_t dest_ip)
         .code = 0,                  // Code 0 is required
         .checksum = 0,              // Initial checksum has to be zero
     };
-	icmp_header.checksum = this->generate_internet_checksum(&icmp_header, sizeof(icmp_header));
-	
+    icmp_header.checksum = this->generate_internet_checksum(&icmp_header, sizeof(icmp_header));
+    
     // Print host address
     std::cout << inet_ntoa(dest.sin_addr);
 
     // Send
     int hsocket = this->icmp_socket->get_socket();
     sockaddr *dest_sockaddr = (sockaddr *)&dest;
-	if (sendto(hsocket, &icmp_header, sizeof(icmp_header), 0, dest_sockaddr, sizeof(sockaddr)) <= 0) {
+    if (sendto(hsocket, &icmp_header, sizeof(icmp_header), 0, dest_sockaddr, sizeof(sockaddr)) <= 0) {
         return -1;
     }
 
@@ -142,19 +142,19 @@ int PingSubnet::receive_icmp_reply(std::vector<char> &receive_buffer)
 uint16_t PingSubnet::generate_internet_checksum(const void *packet, int packet_size)
 {
     uint16_t *buffer = (uint16_t *)packet;
-	uint32_t sum = 0;
+    uint32_t sum = 0;
     uint16_t result = 0;
 
-	for (sum = 0; packet_size > 1; packet_size -= 2) {
-		sum += *(buffer++);
+    for (sum = 0; packet_size > 1; packet_size -= 2) {
+        sum += *(buffer++);
     }
-	if (packet_size == 1) {
-		sum += *(uint8_t *)buffer;
+    if (packet_size == 1) {
+        sum += *(uint8_t *)buffer;
     }
-	sum = (sum >> 16) + (sum & 0xFFFF);
-	sum += (sum >> 16);
+    sum = (sum >> 16) + (sum & 0xFFFF);
+    sum += (sum >> 16);
     result = ~sum;
-	return result;
+    return result;
 }
 
 const std::vector<uint32_t> &PingSubnet::get_address_range()

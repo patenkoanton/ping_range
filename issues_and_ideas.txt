@@ -2,7 +2,6 @@ I'm tired of writing TODOs in random places so I'll continue here.
 
 =========== Issues =====================
 * When generating the range of addresses, make sure the last octet is not 0x00 or 0xFF as those addresses are reserved or unused by convention.
-* Replace tabs with whitespaces
 * Replace c-string functions with std::string equivalents
 * Make the usage of {} in functions consistent across the entire project
 * Fix spacing (number of newlines) between function implementation and macros/includes in *.cpp modules.

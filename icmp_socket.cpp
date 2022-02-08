@@ -24,17 +24,17 @@ ICMPSocket::ICMPSocket(int socket_timeout_sec)
 
 int ICMPSocket::open_socket()
 {
-	protoent *protocol = NULL;
-	if ((protocol = getprotobyname("icmp")) == NULL) {
-		std::cerr << "ERROR: failed to get ICMP protocol info." << std::endl;
-		return -1;
-	}
+    protoent *protocol = NULL;
+    if ((protocol = getprotobyname("icmp")) == NULL) {
+        std::cerr << "ERROR: failed to get ICMP protocol info." << std::endl;
+        return -1;
+    }
 
     this->hsocket = socket(AF_INET, SOCK_RAW, protocol->p_proto);
-	if (this->hsocket < 0) {
+    if (this->hsocket < 0) {
         std::cerr << "ERROR: " << std::strerror(errno);
         std::cerr << ". Try using 'sudo'." << std::endl;
-    	return -1;
+        return -1;
     }
 
     return 0;
@@ -45,9 +45,9 @@ int ICMPSocket::configure_socket(int socket_timeout_sec)
 {
     timeval timeValue = {
         .tv_sec = socket_timeout_sec,
-	    .tv_usec = 0,
+        .tv_usec = 0,
     };
-	
+    
     // Set socket timeout
     if (setsockopt(this->hsocket, SOL_SOCKET, SO_RCVTIMEO, &timeValue, sizeof(timeValue)) < 0) {
         std::cerr << "ERROR: setsockopt error. " << std::strerror(errno) << std::endl;

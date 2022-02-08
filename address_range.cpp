@@ -89,7 +89,7 @@ const std::vector<uint32_t> &AddressRange::get_address_range()
 
 /* Parse IP address and mask provided by user.
  * Always returns a pair of IP address and mask:
- *		* if no mask provided - mask will be set to 32
+ *      * if no mask provided - mask will be set to 32
  *      * slash without mask - mask will be set to -1 (invalid)
  */
 std::pair<std::string, int> AddressRange::parse_input_address_string(std::string &input_address_string)
