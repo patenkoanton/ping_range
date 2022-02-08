@@ -8,12 +8,6 @@ Find a way to fix it.
 * Find a way to run the application without root access
 * Add README.md
 * Remove debug prints
-* Edit comments (before the function) to have a common style:
-    /* This is function. Return value"
-     *      * bla when a==0
-     *      * bar when a==1
-     *      * etc....
-     */
 * In ping_subnet::ping: we print the host address and host status from different methods which is a bad practice. 
 Make sure we have an "orchestrator" method who collects data (host address, DNS and status) from other methods and forms an output string.
 I.e. we need to form an output string and print it from a single method, not across the whole module. 

@@ -53,7 +53,7 @@ bool Main::argc_is_incorrect(int argc, int min_argc)
 }
 
 
-// Check if either --help or -help was passed.
+/* Check if either --help or -help was passed. */
 bool Main::help_message_requested(int argc, char **argv)
 {
     std::set<std::string> args(argv, argv + argc);
@@ -61,7 +61,7 @@ bool Main::help_message_requested(int argc, char **argv)
 }
 
 
-// Show info message for user.
+/* Show info message for user. */
 void Main::show_help()
 {
     std::cout << std::endl;

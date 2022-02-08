@@ -54,9 +54,10 @@ uint32_t AddressRange::reverse_byte_order(uint32_t input)
     return input;
 }
 
-// Use input address and mask to generate subnet address.
-// Returns subnet address in network order.
-// Returns 0 if error occured.
+/* Use input address and mask to generate subnet address.
+ * Returns subnet address in network order.
+ * Returns 0 if error occured.
+ */
 uint32_t AddressRange::generate_subnet_address(std::string &input_address_string, int mask)
 {
     if (mask < 1 || mask > 32) {
