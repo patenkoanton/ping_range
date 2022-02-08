@@ -5,7 +5,7 @@
 #include <stdexcept>        // std::invalid_argument
 #include "address_range.h"
 
-#define IP_ADDRESS_SIZE_BITS  (32)
+#define IPv4_SIZE_BITS  (32)
 
 
 AddressRange::AddressRange(std::string &input_address_string)
@@ -28,7 +28,7 @@ int AddressRange::generate_address_range(std::string &input_address_string, int 
     }
 
     // Go through all possible hosts in subnet.
-    uint32_t max_mask = std::pow(2, IP_ADDRESS_SIZE_BITS - mask) - 1;
+    uint32_t max_mask = std::pow(2, IPv4_SIZE_BITS - mask) - 1;
     for (uint32_t current_mask = 0; current_mask <= max_mask; current_mask++) {
         uint32_t current_mask_in_network_order = this->reverse_byte_order(current_mask);
         uint32_t host_address = subnet_address | current_mask_in_network_order;
@@ -76,7 +76,7 @@ uint32_t AddressRange::generate_subnet_address(std::string &input_address_string
     uint32_t input_address_in_host_order = this->reverse_byte_order(input_address_in_network_order);
 
     // Get subnet address by applying the mask.
-    uint32_t subnet_address_in_host_order = input_address_in_host_order & (0xFFFFFFFF << (IP_ADDRESS_SIZE_BITS - mask));
+    uint32_t subnet_address_in_host_order = input_address_in_host_order & (0xFFFFFFFF << (IPv4_SIZE_BITS - mask));
     return this->reverse_byte_order(subnet_address_in_host_order);
 }
 
@@ -100,7 +100,7 @@ std::pair<std::string, int> AddressRange::parse_input_address_string(std::string
     size_t slash_pos = input_address_string.find('/');
     if (slash_pos == std::string::npos) {       // no slash '/'
         address = input_address_string;
-        mask = IP_ADDRESS_SIZE_BITS;
+        mask = IPv4_SIZE_BITS;
     } else {
         address = std::string(input_address_string, 0, slash_pos);
         try {
