@@ -125,18 +125,16 @@ int PingSubnet::receive_icmp_reply(std::vector<char> &receive_buffer)
     char *receive_buffer_data = receive_buffer.data();
     size_t receive_buffer_size = receive_buffer.capacity();
 
-    int rc = recvfrom(this->icmp_socket->get_socket(), receive_buffer_data, receive_buffer_size, 0, (sockaddr*)&receiver, &receiverLength);
-    if (rc < 0) {
+    int bytes_received = recvfrom(this->icmp_socket->get_socket(), receive_buffer_data, receive_buffer_size, 0, (sockaddr*)&receiver, &receiverLength);
+    if (bytes_received < 0) {
         if (errno == EWOULDBLOCK) {
             return 0;      // No reply before the socket timeout. Host is down/does not reply.
         }
         return -1;      // General error.
-    } else if (rc == 0) {
-        return 0;       // Host gracefully disconnected, i.e. offline.
     }
 
     // Success
-    return rc;
+   return bytes_received;
 }
 
 
