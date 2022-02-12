@@ -32,7 +32,9 @@ int AddressRange::generate_address_range(std::string &input_address_string, int 
     for (uint32_t current_mask = 0; current_mask <= max_mask; current_mask++) {
         uint32_t current_mask_in_network_order = this->reverse_byte_order(current_mask);
         uint32_t host_address = subnet_address | current_mask_in_network_order;
-        this->address_range.push_back(host_address);
+        if (this->address_permitted(host_address)) {
+            this->address_range.push_back(host_address);
+        }
     }
 
     return 0;
@@ -110,4 +112,15 @@ std::pair<std::string, int> AddressRange::parse_input_address_string(std::string
     }
 
     return std::pair<std::string, int> (address, mask);
+}
+
+// Returns true if IP address is not a subnet (x.x.x.0) or a broadcast (x.x.x.255).
+bool AddressRange::address_permitted(uint32_t address_in_network_order) {
+    uint32_t address_in_host_order = this->reverse_byte_order(address_in_network_order);
+    uint32_t least_significant_byte = address_in_host_order & 0xFF;
+    if ((least_significant_byte == 0x00) || (least_significant_byte == 0xFF)) {
+        return false;
+    }
+
+    return true;
 }

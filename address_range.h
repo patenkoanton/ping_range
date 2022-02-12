@@ -12,6 +12,7 @@ class AddressRange {
     uint32_t reverse_byte_order(uint32_t input);
     uint32_t generate_subnet_address(std::string &input_address, int mask);
     std::pair<std::string, int> parse_input_address_string(std::string &input_address_string);
+    bool address_permitted(uint32_t address);
 public:
     AddressRange(std::string &input_address_string);
     const std::vector<uint32_t> & get_address_range();
