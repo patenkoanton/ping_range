@@ -52,12 +52,10 @@ void PingSubnet::ping()
                 continue;
             }
 
-            // Got ICMP reply
-            auto ip_header = (ip *)receive_buffer.data();
-
-            // Verify that reply came from the right host.
-            auto replier_address = ip_header->ip_src.s_addr;
-            if (host_address == replier_address) {
+            // Got ICMP reply. Verify that it came from the right host.
+            auto ip_header = (iphdr *)receive_buffer.data();
+            auto replier_address = ip_header->saddr;
+            if (replier_address == host_address) {
                 this->parse_package(receive_buffer);
                 break;
             }
