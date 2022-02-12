@@ -1,7 +1,6 @@
 I'm tired of writing TODOs in random places so I'll continue here.
 
 =========== Issues =====================
-* in receive_icmp_response find a way to check if number of bytes received matches the length of ICMP packet
 * program blocks forever when ping utility is running in parallel. Apparently it chokes under the flow of packets and stays in receive-loop forever.
 Find a way to fix it.
 * Find a way to run the application without root access

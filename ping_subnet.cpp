@@ -9,8 +9,9 @@
 #include "icmp_socket.h"
 #include "factory.h"
 
-#define RECEIVE_BUFFER_SIZE     (1024)
-#define SOCKET_TIMEOUT_SEC      (5)
+#define RECEIVE_BUFFER_SIZE         (1024)
+#define SOCKET_TIMEOUT_SEC          (5)
+#define ICMP_REPLY_EXPECTED_SIZE    (sizeof(iphdr) + sizeof(icmphdr))
 
 
 PingSubnet::PingSubnet(std::string address_and_mask)
@@ -39,14 +40,16 @@ void PingSubnet::ping()
             continue;
         }
         while (1) {
-            int rc = this->receive_icmp_reply(receive_buffer);
-            if (rc < 0) {
+            int bytes_received = this->receive_icmp_reply(receive_buffer);
+            if (bytes_received < 0) {
                 std::cout << "WARNING: " << std::strerror(errno) << ". ";
                 std::cout << "Failed to receive ICMP reply." << std::endl;
                 break;
-            } else if (rc == 0) {
+            } else if (bytes_received == 0) {
                 std::cout << " [OFFLINE]" << std::endl;
                 break;
+            } else if (bytes_received != ICMP_REPLY_EXPECTED_SIZE) {
+                continue;
             }
 
             // Got ICMP reply
