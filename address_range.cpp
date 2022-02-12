@@ -71,14 +71,11 @@ uint32_t AddressRange::generate_subnet_address(std::string &input_address_string
         std::cerr << "ERROR: invalid IP address provided." << std::endl;
         return 0;
     }
-    
-    // Magic part: now we have to reverse the address (to a host byte order) in order to apply the mask and get a subnet address.
-    // Applying the mask to the network order address is too much of a brainfuck.
-    uint32_t input_address_in_host_order = this->reverse_byte_order(input_address_in_network_order);
 
-    // Get subnet address by applying the mask.
-    uint32_t subnet_address_in_host_order = input_address_in_host_order & (0xFFFFFFFF << (IPv4_SIZE_BITS - mask));
-    return this->reverse_byte_order(subnet_address_in_host_order);
+    // Apply a bit mask.
+    uint32_t null_mask = 0xFFFFFFFF << (IPv4_SIZE_BITS - mask);
+    uint32_t null_mask_in_network_order = this->reverse_byte_order(null_mask);
+    return input_address_in_network_order & null_mask_in_network_order;
 }
 
 
