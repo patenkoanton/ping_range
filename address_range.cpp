@@ -19,24 +19,32 @@ AddressRange::AddressRange(std::string &input_address_string)
 }
 
 
+/* Simple sequence:
+    * 1) Apply mask to calculate the subnet address.
+    * 2) Calculate broadcast address.
+    * 3) Go through all possible hosts in subnet.
+ * Host order is used to simplify calculations, but everything is eventually converted to network order.
+ */
 int AddressRange::generate_address_range(std::string &input_address_string, int mask)
 {
-    // Get subnet address (network order).
-    uint32_t subnet_address = this->generate_subnet_address(input_address_string, mask);
-    if (subnet_address == 0) {
+    // Apply mask to calculate the subnet address (network order).
+    this->subnet = this->generate_subnet_address(input_address_string, mask);
+    if (this->subnet == 0) {
         return -1;
     }
 
+    // Calculate broadcast address.
+    uint32_t subnet_host_order = this->reverse_byte_order(this->subnet);
+    uint32_t broadcast_host_order = subnet_host_order + std::pow(2, IPv4_SIZE_BITS - mask) - 1;
+
     // Go through all possible hosts in subnet.
-    uint32_t max_mask = std::pow(2, IPv4_SIZE_BITS - mask) - 1;
-    for (uint32_t current_mask = 0; current_mask <= max_mask; current_mask++) {
-        uint32_t current_mask_in_network_order = this->reverse_byte_order(current_mask);
-        uint32_t host_address = subnet_address | current_mask_in_network_order;
-        if (this->address_permitted(host_address)) {
-            this->address_range.push_back(host_address);
-        }
+    for (uint32_t host = subnet_host_order + 1; host < broadcast_host_order; host++) {
+        uint32_t host_network_order = this->reverse_byte_order(host);
+        this->address_range.push_back(host_network_order);
     }
 
+    // Save broadcast address just in case.
+    this->broadcast = this->reverse_byte_order(broadcast_host_order);
     return 0;
 }
 
@@ -112,15 +120,4 @@ std::pair<std::string, int> AddressRange::parse_input_address_string(std::string
     }
 
     return std::pair<std::string, int> (address, mask);
-}
-
-// Returns true if IP address is not a subnet (x.x.x.0) or a broadcast (x.x.x.255).
-bool AddressRange::address_permitted(uint32_t address_in_network_order) {
-    uint32_t address_in_host_order = this->reverse_byte_order(address_in_network_order);
-    uint32_t least_significant_byte = address_in_host_order & 0xFF;
-    if ((least_significant_byte == 0x00) || (least_significant_byte == 0xFF)) {
-        return false;
-    }
-
-    return true;
 }
