@@ -9,11 +9,6 @@ Find a way to fix it.
 Make sure we have an "orchestrator" method who collects data (host address, DNS and status) from other methods and forms an output string.
 I.e. we need to form an output string and print it from a single method, not across the whole module. 
 
-* make sure address range is printed in a nice way, like this:
-    subnet:     ...
-    broadcast:  ...
-    range of hosts:     ...
-What we currently doing is not good enough.
 =========== Ideas ======================
 * send/receive ICMP packets in parallel (e.g. one host - one thread). Use POSIX threads.
 * Print some extra data to the user output: TTL, time delay.

@@ -11,8 +11,6 @@
 AddressRange::AddressRange(std::string &input_address_string)
 {
     std::pair<std::string, int> subnet_address_and_mask = this->parse_input_address_string(input_address_string);
-    std::cout << "address: " << subnet_address_and_mask.first << std::endl;
-    std::cout << "mask: " << subnet_address_and_mask.second << std::endl;
     if (this->generate_address_range(subnet_address_and_mask.first, subnet_address_and_mask.second) < 0) {
         throw std::string("Failed to generate the range of host IP addresses.");
     }

@@ -39,20 +39,28 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    // Print the range of addresses.
+    // Show subnet info including the list of hosts.
+    std::cout << "Subnet: " << Main::network_order_to_host_order(address_range->subnet) << std::endl;
+    std::cout << "Broadcast: " << Main::network_order_to_host_order(address_range->broadcast) << std::endl;
+    std::cout << "Hosts: " << std::endl;
     auto hosts = address_range->address_range;
-    std::cout << "Range of IP addresses generated: " << std::endl;
-    for (auto it = hosts.begin(); it != hosts.end(); it++) {
-        in_addr host_address = {
-            .s_addr = *it,
-        };
-        std::cout << inet_ntoa(host_address) << std::endl;
+    for (auto it = address_range->address_range.begin(); it != address_range->address_range.end(); it++) {
+        std::cout << Main::network_order_to_host_order(*it) << std::endl;
     }
     std::cout << std::endl;
 
     // Ping subnet.
     ping_subnet->ping();
     return 0;
+}
+
+std::string Main::network_order_to_host_order(uint32_t address_network_order)
+{
+    in_addr host_address = {
+        .s_addr = address_network_order,
+    };
+
+    return std::string(inet_ntoa(host_address));
 }
 
 
