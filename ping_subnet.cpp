@@ -14,13 +14,9 @@
 #define ICMP_REPLY_EXPECTED_SIZE    (sizeof(iphdr) + sizeof(icmphdr))
 
 
-PingSubnet::PingSubnet(std::string address_and_mask)
+PingSubnet::PingSubnet(std::shared_ptr<AddressRange> address_range)
 {
-    this->address_range = factory_create_object<AddressRange, std::string&>(address_and_mask);
-    if (this->address_range == nullptr) {
-        throw std::string("failed to create AddressRange object.");
-    }
-
+    this->address_range = address_range;
     this->icmp_socket = factory_create_object<ICMPSocket>(SOCKET_TIMEOUT_SEC);
     if (this->icmp_socket == nullptr) {
         throw std::string("failed to create ICMPSocket object.");
@@ -30,7 +26,7 @@ PingSubnet::PingSubnet(std::string address_and_mask)
 void PingSubnet::ping()
 {
     std::vector<char> receive_buffer(RECEIVE_BUFFER_SIZE);
-    auto hosts = this->get_address_range();
+    auto hosts = this->address_range->get_address_range();
 
     // Send ICMP request to every host in the list and wait for reply
     for (auto host_address : hosts) {
@@ -156,7 +152,3 @@ uint16_t PingSubnet::generate_internet_checksum(const void *packet, int packet_s
     return result;
 }
 
-const std::vector<uint32_t> &PingSubnet::get_address_range()
-{
-    return this->address_range->get_address_range();
-}

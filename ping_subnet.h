@@ -17,8 +17,7 @@ class PingSubnet {
     void parse_package(std::vector<char> &receive_buffer);    
     uint16_t generate_internet_checksum(const void *packet, int packet_size);
 public:
-    PingSubnet(std::string address_and_mask);
-    const std::vector<uint32_t> &get_address_range();
+    PingSubnet(std::shared_ptr<AddressRange> address_range);
     void ping();
 };
 

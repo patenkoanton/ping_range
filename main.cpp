@@ -23,17 +23,26 @@ int main(int argc, char *argv[])
         return 0;
     }
 
+    // Generate address range.
+    std::string address_and_mask = argv[1];
+    auto address_range = factory_create_object<AddressRange, std::string&>(address_and_mask);
+    if (address_range == nullptr) {
+        std::cerr << "ERROR: failed to create AddressRange object." << std::endl;
+        Main::show_help();
+        return 0;
+    }
+
     // Create "pinger" object.
-    auto ping_subnet = factory_create_object<PingSubnet>(argv[1]);
+    auto ping_subnet = factory_create_object<PingSubnet>(address_range);
     if (ping_subnet == nullptr) {
         Main::show_help();
         return 0;
     }
 
     // Print the range of addresses.
-    auto address_range = ping_subnet->get_address_range();
+    auto hosts = address_range->get_address_range();
     std::cout << "Range of IP addresses generated: " << std::endl;
-    for (auto it = address_range.begin(); it != address_range.end(); it++) {
+    for (auto it = hosts.begin(); it != hosts.end(); it++) {
         in_addr host_address = {
             .s_addr = *it,
         };
