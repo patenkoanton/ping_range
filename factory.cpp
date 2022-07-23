@@ -8,11 +8,11 @@
 
 
 /* Return class <T> object wrapped in unique_ptr. */
-template<class T, class N> std::unique_ptr<T> factory_create_object(N arg)
+template<class T, class N> std::shared_ptr<T> factory_create_object(N arg)
 {
-    std::unique_ptr<T> object;
+    std::shared_ptr<T> object;
     try {
-        object = std::unique_ptr<T>(new T(arg));
+        object = std::shared_ptr<T>(new T(arg));
     } catch (std::string& exception) {
         std::cerr << "ERROR: " + exception << std::endl;
         return nullptr;
@@ -22,6 +22,6 @@ template<class T, class N> std::unique_ptr<T> factory_create_object(N arg)
 }
 
 // Instance.
-template std::unique_ptr<PingSubnet> factory_create_object<PingSubnet, char *>(char *);
-template std::unique_ptr<AddressRange> factory_create_object<AddressRange, std::string&>(std::string&);
-template std::unique_ptr<ICMPSocket> factory_create_object<ICMPSocket, int>(int);
+template std::shared_ptr<PingSubnet> factory_create_object<PingSubnet, char *>(char *);
+template std::shared_ptr<AddressRange> factory_create_object<AddressRange, std::string&>(std::string&);
+template std::shared_ptr<ICMPSocket> factory_create_object<ICMPSocket, int>(int);

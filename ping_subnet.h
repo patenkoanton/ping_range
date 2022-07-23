@@ -8,8 +8,8 @@
 #include "icmp_socket.h"
 
 class PingSubnet {
-    std::unique_ptr<AddressRange> address_range;
-    std::unique_ptr<ICMPSocket> icmp_socket;
+    std::shared_ptr<AddressRange> address_range;
+    std::shared_ptr<ICMPSocket> icmp_socket;
     
 
     int send_icmp_request(uint32_t dest_ip);
