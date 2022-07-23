@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     }
 
     // Print the range of addresses.
-    auto hosts = address_range->get_address_range();
+    auto hosts = address_range->address_range;
     std::cout << "Range of IP addresses generated: " << std::endl;
     for (auto it = hosts.begin(); it != hosts.end(); it++) {
         in_addr host_address = {

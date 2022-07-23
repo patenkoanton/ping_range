@@ -89,12 +89,6 @@ uint32_t AddressRange::generate_subnet_address(std::string &input_address_string
 }
 
 
-const std::vector<uint32_t> &AddressRange::get_address_range()
-{
-    return this->address_range;
-}
-
-
 /* Parse IP address and mask provided by user.
  * Always returns a pair of IP address and mask:
  *      * if no mask provided - mask will be set to 32

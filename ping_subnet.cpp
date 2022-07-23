@@ -26,7 +26,7 @@ PingSubnet::PingSubnet(std::shared_ptr<AddressRange> address_range)
 void PingSubnet::ping()
 {
     std::vector<char> receive_buffer(RECEIVE_BUFFER_SIZE);
-    auto hosts = this->address_range->get_address_range();
+    auto hosts = this->address_range->address_range;
 
     // Send ICMP request to every host in the list and wait for reply
     for (auto host_address : hosts) {
