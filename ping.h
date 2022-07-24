@@ -9,7 +9,7 @@
 
 class Ping {
     std::shared_ptr<Subnet> subnet;
-    std::shared_ptr<ICMPSocket> icmp_socket;
+    std::shared_ptr<Socket> socket;
 
     int send_icmp_request(uint32_t dest_ip);
     int receive_icmp_reply(std::vector<char> &receive_buffer);

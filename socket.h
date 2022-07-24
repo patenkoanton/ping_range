@@ -1,14 +1,14 @@
 #ifndef _SOCKET_H
 #define _SOCKET_H
 
-class ICMPSocket {
+class Socket {
     int open_socket();
     int configure_socket(int socket_timeout_sec);
     void close_socket();
     int hsocket;
 public:
-    ICMPSocket(int socket_timeout_sec);
-    ~ICMPSocket();
+    Socket(int socket_timeout_sec);
+    ~Socket();
     int get_socket();
 };
 

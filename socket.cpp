@@ -7,7 +7,7 @@
 #include "socket.h"
 
 
-ICMPSocket::ICMPSocket(int socket_timeout_sec)
+Socket::Socket(int socket_timeout_sec)
 {
     // Open socket
     if (this->open_socket() < 0) {
@@ -22,7 +22,7 @@ ICMPSocket::ICMPSocket(int socket_timeout_sec)
 }
 
 
-int ICMPSocket::open_socket()
+int Socket::open_socket()
 {
     protoent *protocol = NULL;
     if ((protocol = getprotobyname("icmp")) == NULL) {
@@ -41,7 +41,7 @@ int ICMPSocket::open_socket()
 }
 
 
-int ICMPSocket::configure_socket(int socket_timeout_sec)
+int Socket::configure_socket(int socket_timeout_sec)
 {
     timeval timeValue = {
         .tv_sec = socket_timeout_sec,
@@ -58,19 +58,19 @@ int ICMPSocket::configure_socket(int socket_timeout_sec)
 }
 
 
-void ICMPSocket::close_socket()
+void Socket::close_socket()
 {
     close(this->hsocket);
 }
 
 
-ICMPSocket::~ICMPSocket()
+Socket::~Socket()
 {
     this->close_socket();
 }
 
 
-int ICMPSocket::get_socket()
+int Socket::get_socket()
 {
     return this->hsocket;
 }

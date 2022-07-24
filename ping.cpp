@@ -17,9 +17,9 @@
 Ping::Ping(std::shared_ptr<Subnet> subnet)
 {
     this->subnet = subnet;
-    this->icmp_socket = factory_create_object<ICMPSocket>(SOCKET_TIMEOUT_SEC);
-    if (this->icmp_socket == nullptr) {
-        throw std::string("failed to create ICMPSocket object.");
+    this->socket = factory_create_object<Socket>(SOCKET_TIMEOUT_SEC);
+    if (this->socket == nullptr) {
+        throw std::string("failed to create Socket object.");
     }
 }
 
@@ -93,7 +93,7 @@ int Ping::send_icmp_request(uint32_t dest_ip)
     std::cout << inet_ntoa(dest.sin_addr);
 
     // Send
-    int hsocket = this->icmp_socket->get_socket();
+    int hsocket = this->socket->get_socket();
     auto dest_sockaddr = (sockaddr *)&dest;
     if (sendto(hsocket, &icmp_header, sizeof(icmp_header), 0, dest_sockaddr, sizeof(sockaddr)) <= 0) {
         return -1;
@@ -121,7 +121,7 @@ int Ping::receive_icmp_reply(std::vector<char> &receive_buffer)
     char *receive_buffer_data = receive_buffer.data();
     size_t receive_buffer_size = receive_buffer.capacity();
 
-    int bytes_received = recvfrom(this->icmp_socket->get_socket(), receive_buffer_data, receive_buffer_size, 0, (sockaddr*)&receiver, &receiverLength);
+    int bytes_received = recvfrom(this->socket->get_socket(), receive_buffer_data, receive_buffer_size, 0, (sockaddr*)&receiver, &receiverLength);
     if (bytes_received < 0) {
         if (errno == EWOULDBLOCK) {
             return 0;      // No reply before the socket timeout. Host is down/does not reply.
