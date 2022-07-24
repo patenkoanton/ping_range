@@ -10,7 +10,7 @@
 #include "factory.h"
 
 #define RECEIVE_BUFFER_SIZE         (1024)
-#define SOCKET_TIMEOUT_SEC          (5)
+#define SOCKET_TIMEOUT_SEC          (2)
 #define ICMP_REPLY_EXPECTED_SIZE    (sizeof(iphdr) + sizeof(icmphdr))
 
 

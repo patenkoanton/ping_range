@@ -12,6 +12,5 @@ I.e. we need to form an output string and print it from a single method, not acr
 =========== Ideas ======================
 * send/receive ICMP packets in parallel (e.g. one host - one thread). Use POSIX threads.
 * Print some extra data to the user output: TTL, time delay.
-* Decrease socket timeout to 3-4 seconds
 * Add support for Windows, use autotools if required.
 
