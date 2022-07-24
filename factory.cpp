@@ -2,7 +2,7 @@
 #include <memory>
 #include <string>
 #include "factory.h"
-#include "ping_subnet.h"
+#include "ping.h"
 #include "subnet.h"
 #include "icmp_socket.h"
 

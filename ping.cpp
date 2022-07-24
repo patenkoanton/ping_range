@@ -4,7 +4,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <netinet/ip_icmp.h>
-#include "ping_subnet.h"
+#include "ping.h"
 #include "subnet.h"
 #include "icmp_socket.h"
 #include "factory.h"

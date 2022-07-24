@@ -1,5 +1,5 @@
-#ifndef _PING_SUBNET_H_
-#define _PING_SUBNET_H_
+#ifndef _PING_H_
+#define _PING_H_
 
 #include <string>
 #include <vector>

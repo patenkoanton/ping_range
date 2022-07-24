@@ -3,7 +3,7 @@ CFLAGS = -g --std=c++11
 TARGET = ping_subnet
 MODULES = \
 	main \
-	ping_subnet \
+	ping \
 	subnet \
 	icmp_socket \
 	factory \

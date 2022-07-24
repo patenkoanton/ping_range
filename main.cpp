@@ -3,7 +3,7 @@
 #include <arpa/inet.h>
 #include <set>
 #include "main.h"
-#include "ping_subnet.h"
+#include "ping.h"
 #include "factory.h"
 
 #define MIN_ARGC    (2)
