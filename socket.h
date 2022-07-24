@@ -1,5 +1,5 @@
-#ifndef _ICMP_SOCKET_H_
-#define _ICMP_SOCKET_H_
+#ifndef _SOCKET_H
+#define _SOCKET_H
 
 class ICMPSocket {
     int open_socket();
@@ -13,4 +13,4 @@ public:
 };
 
 
-#endif  // _ICMP_SOCKET_H_
+#endif  // _SOCKET_H

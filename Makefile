@@ -5,7 +5,7 @@ MODULES = \
 	main \
 	ping \
 	subnet \
-	icmp_socket \
+	socket \
 	factory \
 
 OBJ = $(MODULES:=.o)

@@ -5,7 +5,7 @@
 #include <vector>
 #include <memory>
 #include "subnet.h"
-#include "icmp_socket.h"
+#include "socket.h"
 
 class Ping {
     std::shared_ptr<Subnet> subnet;

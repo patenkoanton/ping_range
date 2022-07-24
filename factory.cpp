@@ -4,7 +4,7 @@
 #include "factory.h"
 #include "ping.h"
 #include "subnet.h"
-#include "icmp_socket.h"
+#include "socket.h"
 
 
 /* Return class <T> object wrapped in shared_ptr. */

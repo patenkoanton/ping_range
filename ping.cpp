@@ -6,7 +6,7 @@
 #include <netinet/ip_icmp.h>
 #include "ping.h"
 #include "subnet.h"
-#include "icmp_socket.h"
+#include "socket.h"
 #include "factory.h"
 
 #define RECEIVE_BUFFER_SIZE         (1024)
