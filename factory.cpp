@@ -3,7 +3,7 @@
 #include <string>
 #include "factory.h"
 #include "ping_subnet.h"
-#include "address_range.h"
+#include "subnet.h"
 #include "icmp_socket.h"
 
 

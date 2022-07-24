@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <memory>
-#include "address_range.h"
+#include "subnet.h"
 #include "icmp_socket.h"
 
 class PingSubnet {

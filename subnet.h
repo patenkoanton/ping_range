@@ -1,5 +1,5 @@
-#ifndef _ADDRESS_RANGE_H
-#define _ADDRESS_RANGE_H
+#ifndef _SUBNET_H
+#define _SUBNET_H
 
 #include <string>
 #include <vector>
@@ -17,4 +17,4 @@ public:
     uint32_t broadcast;
 };
 
-#endif  // _ADDRESS_RANGE_H
+#endif  // _SUBNET_H

@@ -3,7 +3,7 @@
 #include <cmath>
 #include <arpa/inet.h>
 #include <stdexcept>        // std::invalid_argument
-#include "address_range.h"
+#include "subnet.h"
 
 #define IPv4_SIZE_BITS  (32)
 

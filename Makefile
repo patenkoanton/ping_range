@@ -4,7 +4,7 @@ TARGET = ping_subnet
 MODULES = \
 	main \
 	ping_subnet \
-	address_range \
+	subnet \
 	icmp_socket \
 	factory \
 
