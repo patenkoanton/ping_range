@@ -7,7 +7,7 @@
 #include "icmp_socket.h"
 
 
-/* Return class <T> object wrapped in unique_ptr. */
+/* Return class <T> object wrapped in shared_ptr. */
 template<class T, class N> std::shared_ptr<T> factory_create_object(N arg)
 {
     std::shared_ptr<T> object;
