@@ -32,9 +32,9 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    // Create "pinger" object.
-    auto ping_subnet = factory_create_object<PingSubnet>(subnet);
-    if (ping_subnet == nullptr) {
+    // Create "ping" object.
+    auto ping = factory_create_object<Ping>(subnet);
+    if (ping == nullptr) {
         Main::show_help();
         return 0;
     }
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     std::cout << std::endl;
 
     // Ping subnet.
-    ping_subnet->ping();
+    ping->ping();
     return 0;
 }
 

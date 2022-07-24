@@ -14,7 +14,7 @@
 #define ICMP_REPLY_EXPECTED_SIZE    (sizeof(iphdr) + sizeof(icmphdr))
 
 
-PingSubnet::PingSubnet(std::shared_ptr<Subnet> subnet)
+Ping::Ping(std::shared_ptr<Subnet> subnet)
 {
     this->subnet = subnet;
     this->icmp_socket = factory_create_object<ICMPSocket>(SOCKET_TIMEOUT_SEC);
@@ -23,7 +23,7 @@ PingSubnet::PingSubnet(std::shared_ptr<Subnet> subnet)
     }
 }
 
-void PingSubnet::ping()
+void Ping::ping()
 {
     std::vector<char> receive_buffer(RECEIVE_BUFFER_SIZE);
     auto hosts = this->subnet->hosts;
@@ -60,7 +60,7 @@ void PingSubnet::ping()
 
 }
 
-void PingSubnet::parse_package(std::vector<char> &receive_buffer)
+void Ping::parse_package(std::vector<char> &receive_buffer)
 {
     char *receive_buffer_data = receive_buffer.data();
     auto icmpHeader = (icmphdr *)(receive_buffer_data + sizeof(iphdr));
@@ -72,7 +72,7 @@ void PingSubnet::parse_package(std::vector<char> &receive_buffer)
 }
 
 
-int PingSubnet::send_icmp_request(uint32_t dest_ip)
+int Ping::send_icmp_request(uint32_t dest_ip)
 {
     // Structure includes destination host IP address info
     sockaddr_in dest = {
@@ -114,7 +114,7 @@ int PingSubnet::send_icmp_request(uint32_t dest_ip)
     * -1 - general error / no reply
     * number of bytes received  -   success
  */
-int PingSubnet::receive_icmp_reply(std::vector<char> &receive_buffer)
+int Ping::receive_icmp_reply(std::vector<char> &receive_buffer)
 {
     sockaddr_in receiver;
     socklen_t receiverLength = sizeof(receiver);
@@ -134,7 +134,7 @@ int PingSubnet::receive_icmp_reply(std::vector<char> &receive_buffer)
 }
 
 
-uint16_t PingSubnet::generate_internet_checksum(const void *packet, int packet_size)
+uint16_t Ping::generate_internet_checksum(const void *packet, int packet_size)
 {
     uint16_t *buffer = (uint16_t *)packet;
     uint32_t sum = 0;

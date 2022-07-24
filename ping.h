@@ -7,7 +7,7 @@
 #include "subnet.h"
 #include "icmp_socket.h"
 
-class PingSubnet {
+class Ping {
     std::shared_ptr<Subnet> subnet;
     std::shared_ptr<ICMPSocket> icmp_socket;
 
@@ -16,7 +16,7 @@ class PingSubnet {
     void parse_package(std::vector<char> &receive_buffer);    
     uint16_t generate_internet_checksum(const void *packet, int packet_size);
 public:
-    PingSubnet(std::shared_ptr<Subnet> subnet);
+    Ping(std::shared_ptr<Subnet> subnet);
     void ping();
 };
 
