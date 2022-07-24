@@ -25,26 +25,26 @@ int main(int argc, char *argv[])
 
     // Generate address range.
     std::string address_and_mask = argv[1];
-    auto address_range = factory_create_object<AddressRange, std::string&>(address_and_mask);
-    if (address_range == nullptr) {
-        std::cerr << "ERROR: failed to create AddressRange object." << std::endl;
+    auto subnet = factory_create_object<Subnet, std::string&>(address_and_mask);
+    if (subnet == nullptr) {
+        std::cerr << "ERROR: failed to create Subnet object." << std::endl;
         Main::show_help();
         return 0;
     }
 
     // Create "pinger" object.
-    auto ping_subnet = factory_create_object<PingSubnet>(address_range);
+    auto ping_subnet = factory_create_object<PingSubnet>(subnet);
     if (ping_subnet == nullptr) {
         Main::show_help();
         return 0;
     }
 
     // Show subnet info including the list of hosts.
-    std::cout << "Subnet: " << Main::network_order_to_host_order(address_range->subnet) << std::endl;
-    std::cout << "Broadcast: " << Main::network_order_to_host_order(address_range->broadcast) << std::endl;
+    std::cout << "Subnet: " << Main::network_order_to_host_order(subnet->subnet) << std::endl;
+    std::cout << "Broadcast: " << Main::network_order_to_host_order(subnet->broadcast) << std::endl;
     std::cout << "Hosts: " << std::endl;
-    auto hosts = address_range->address_range;
-    for (auto it = address_range->address_range.begin(); it != address_range->address_range.end(); it++) {
+    auto hosts = subnet->hosts;
+    for (auto it = subnet->hosts.begin(); it != subnet->hosts.end(); it++) {
         std::cout << Main::network_order_to_host_order(*it) << std::endl;
     }
     std::cout << std::endl;

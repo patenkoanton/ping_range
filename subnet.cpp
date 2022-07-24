@@ -8,10 +8,10 @@
 #define IPv4_SIZE_BITS  (32)
 
 
-AddressRange::AddressRange(std::string &input_address_string)
+Subnet::Subnet(std::string &input_address_string)
 {
     std::pair<std::string, int> subnet_address_and_mask = this->parse_input_address_string(input_address_string);
-    if (this->generate_address_range(subnet_address_and_mask.first, subnet_address_and_mask.second) < 0) {
+    if (this->generate_hosts(subnet_address_and_mask.first, subnet_address_and_mask.second) < 0) {
         throw std::string("Failed to generate the range of host IP addresses.");
     }
 }
@@ -23,7 +23,7 @@ AddressRange::AddressRange(std::string &input_address_string)
     * 3) Go through all possible hosts in subnet.
  * Host order is used to simplify calculations, but everything is eventually converted to network order.
  */
-int AddressRange::generate_address_range(std::string &input_address_string, int mask)
+int Subnet::generate_hosts(std::string &input_address_string, int mask)
 {
     // Apply mask to calculate the subnet address (network order).
     this->subnet = this->generate_subnet_address(input_address_string, mask);
@@ -38,7 +38,7 @@ int AddressRange::generate_address_range(std::string &input_address_string, int 
     // Go through all possible hosts in subnet.
     for (uint32_t host = subnet_host_order + 1; host < broadcast_host_order; host++) {
         uint32_t host_network_order = this->reverse_byte_order(host);
-        this->address_range.push_back(host_network_order);
+        this->hosts.push_back(host_network_order);
     }
 
     // Save broadcast address just in case.
@@ -47,7 +47,7 @@ int AddressRange::generate_address_range(std::string &input_address_string, int 
 }
 
 
-uint32_t AddressRange::reverse_byte_order(uint32_t input)
+uint32_t Subnet::reverse_byte_order(uint32_t input)
 {
     uint8_t *first_byte = (uint8_t *)&input;
     uint8_t *last_byte = first_byte + sizeof(input) - 1;
@@ -66,7 +66,7 @@ uint32_t AddressRange::reverse_byte_order(uint32_t input)
  * Returns subnet address in network order.
  * Returns 0 if error occured.
  */
-uint32_t AddressRange::generate_subnet_address(std::string &input_address_string, int mask)
+uint32_t Subnet::generate_subnet_address(std::string &input_address_string, int mask)
 {
     if (mask < 1 || mask > 32) {
         std::cerr << "ERROR: invalid subnet mask provided." << std::endl;
@@ -92,7 +92,7 @@ uint32_t AddressRange::generate_subnet_address(std::string &input_address_string
  *      * if no mask provided - mask will be set to 32
  *      * slash without mask - mask will be set to -1 (invalid)
  */
-std::pair<std::string, int> AddressRange::parse_input_address_string(std::string &input_address_string)
+std::pair<std::string, int> Subnet::parse_input_address_string(std::string &input_address_string)
 {
     std::string address;
     int mask = 0;
