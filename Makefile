@@ -12,8 +12,11 @@ OBJ = $(MODULES:=.o)
 
 all: $(TARGET)
 
+$(TARGET): SHELL:=/bin/bash
 $(TARGET): $(OBJ)
 	$(CC) $(CFLAGS) $^ -o $@
+	@echo -e "\nSetting cap_net_raw capability for ping_subnet executable..."
+	@sudo setcap cap_net_raw=eip ~/documents/c_projects/ping_subnet/ping_subnet
 
 %.o: %.cpp %.h
 	$(CC) $(CFLAGS) -c $< -o $@
