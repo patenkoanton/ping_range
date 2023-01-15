@@ -26,19 +26,27 @@ Examples:
     sudo ./ping_subnet 104.17.100.66/28     # sherdog.com
     sudo ./ping_subnet 151.101.0.81/28      # bbc.com
 
+* When we ask tcpdump to filter by subnet and mask it might throw an error when subnet bits are overlapping with bitmask.
+    Example: tcpdump src net 157.240.8.35/28
+            tcpdump: non-network bits set in "157.240.8.35/28"
+    We need to add this same functionality in our program.
+
 * Add README.md
 * Remove debug prints
 * In ping_subnet::ping: we print the host address and host status from different methods which is a bad practice. 
 Make sure we have an "orchestrator" method who collects data (host address, DNS and status) from other methods and forms an output string.
 I.e. we need to form an output string and print it from a single method, not across the whole module. 
 * receive_icmp_reply: instead of passing "sockaddr_in receiver" and "socklen_t receiverLength" we should pass NULL for both of them (reason: not being used).
-* we have error message:
-    ERROR: Operation not permitted. Try using 'sudo'
-
-    We should change "try using sudo" to "try using sudo or changing network capture permissions".
 
 =========== Ideas ======================
 * send/receive ICMP packets in parallel (e.g. one host - one thread). Use POSIX threads.
 * Print some extra data to the user output: TTL, time delay.
 * Add support for Windows, use autotools if required.
+* Rename null_mask to bitmask.
+* we have error message:
+    ERROR: Operation not permitted. Try using 'sudo'
+
+    We should change "try using sudo" to "try using sudo or changing network capture permissions".
+* Currently cap_net_raw is being set in 'make all' target. Move it to 'make install'?
+* in Socket::configure_socket: find a way to initialize timeValue struct during the function call in args list (on the go).
 
