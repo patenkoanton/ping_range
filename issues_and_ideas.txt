@@ -3,13 +3,39 @@ I'm tired of writing TODOs in random places so I'll continue here.
 =========== Issues =====================
 * program blocks forever when ping utility is running in parallel. Apparently it chokes under the flow of packets and stays in receive-loop forever.
 Find a way to fix it.
+
+-- STEPS TO REPRODUCE --
+1) ping facebook.com
+
+In separate terminal:
+2) sudo gdb ./ping_subnet
+3) (gdb) break Ping::ping         // set breakpoint in a while-loop where we call receive_icmp_reply
+4) (gdb) run 8.8.8.8/29
+5) // Observe bytes_received is too much for ICMP reply:
+    (gdb) p bytes_received       
+    $70 = 84
+6) // Observe replier address being an IP address of facebook.com:
+    (gdb) call inet_ntoa(((iphdr *)receive_buffer.data())->saddr)
+    $69 = 0x7ffff7fd5738 "157.240.8.35"
+
+We will continue sitting in that while(1) loop until "ping facebook.com" stops running.
+Every time we call recvfrom() we'll be getting the same data in the buffer (see above) which is an ICMP reply from facebook.com.
+
+NOTE: this behavior is mostly observed on hosts that are offline. If the host is up, the ping will most likely go through and the host will show up as ONLINE.
+Examples:
+    sudo ./ping_subnet 104.17.100.66/28     # sherdog.com
+    sudo ./ping_subnet 151.101.0.81/28      # bbc.com
+
 * Add README.md
 * Remove debug prints
 * In ping_subnet::ping: we print the host address and host status from different methods which is a bad practice. 
 Make sure we have an "orchestrator" method who collects data (host address, DNS and status) from other methods and forms an output string.
 I.e. we need to form an output string and print it from a single method, not across the whole module. 
 * receive_icmp_reply: instead of passing "sockaddr_in receiver" and "socklen_t receiverLength" we should pass NULL for both of them (reason: not being used).
-    
+* we have error message:
+    ERROR: Operation not permitted. Try using 'sudo'
+
+    We should change "try using sudo" to "try using sudo or changing network capture permissions".
 
 =========== Ideas ======================
 * send/receive ICMP packets in parallel (e.g. one host - one thread). Use POSIX threads.
