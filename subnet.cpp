@@ -25,18 +25,17 @@ Subnet::Subnet(std::string &input_address_string)
  */
 int Subnet::generate_hosts(std::string &input_address_string, int mask)
 {
-    // Apply mask to calculate the subnet address (network order).
+    // Calculate subnet address (host order).
     this->subnet = this->generate_subnet_address(input_address_string, mask);
     if (this->subnet == 0) {
         return -1;
     }
 
     // Calculate broadcast address.
-    uint32_t subnet_host_order = this->reverse_byte_order(this->subnet);
-    uint32_t broadcast_host_order = subnet_host_order + std::pow(2, IPv4_SIZE_BITS - mask) - 1;
+    uint32_t broadcast_host_order = this->subnet + std::pow(2, IPv4_SIZE_BITS - mask) - 1;
 
     // Go through all possible hosts in subnet.
-    for (uint32_t host = subnet_host_order + 1; host < broadcast_host_order; host++) {
+    for (uint32_t host = this->subnet + 1; host < broadcast_host_order; host++) {
         uint32_t host_network_order = this->reverse_byte_order(host);
         this->hosts.push_back(host_network_order);
     }
@@ -63,7 +62,7 @@ uint32_t Subnet::reverse_byte_order(uint32_t input)
 }
 
 /* Use input address and mask to generate subnet address.
- * Returns subnet address in network order.
+ * Returns subnet address in host order.
  * Returns 0 if error occured.
  */
 uint32_t Subnet::generate_subnet_address(std::string &input_address_string, int mask)
@@ -81,9 +80,9 @@ uint32_t Subnet::generate_subnet_address(std::string &input_address_string, int 
     }
 
     // Apply a bitmask.
-    this->bitmask = 0xFFFFFFFF << (IPv4_SIZE_BITS - mask);
-    uint32_t bitmask_in_network_order = this->reverse_byte_order(this->bitmask);
-    return input_address_in_network_order & bitmask_in_network_order;
+    this->bitmask = 0xFFFFFFFF << (IPv4_SIZE_BITS - mask);      // host order
+    uint32_t input_address_in_host_order = this->reverse_byte_order(input_address_in_network_order);
+    return input_address_in_host_order & this->bitmask;
 }
 
 
