@@ -36,8 +36,8 @@ int Subnet::generate_hosts(std::string &input_address_string, int mask)
 
     // Go through all possible hosts in subnet.
     for (uint32_t host = this->subnet + 1; host < broadcast_host_order; host++) {
-        uint32_t host_network_order = this->reverse_byte_order(host);
-        this->hosts.push_back(host_network_order);
+        uint32_t host_in_network_order = this->reverse_byte_order(host);
+        this->hosts.push_back(host_in_network_order);
     }
 
     // Save broadcast address just in case.
