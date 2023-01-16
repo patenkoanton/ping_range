@@ -80,10 +80,10 @@ uint32_t Subnet::generate_subnet_address(std::string &input_address_string, int 
         return 0;
     }
 
-    // Apply a bit mask.
-    uint32_t null_mask = 0xFFFFFFFF << (IPv4_SIZE_BITS - mask);
-    uint32_t null_mask_in_network_order = this->reverse_byte_order(null_mask);
-    return input_address_in_network_order & null_mask_in_network_order;
+    // Apply a bitmask.
+    uint32_t bitmask = 0xFFFFFFFF << (IPv4_SIZE_BITS - mask);
+    uint32_t bitmask_in_network_order = this->reverse_byte_order(bitmask);
+    return input_address_in_network_order & bitmask_in_network_order;
 }
 
 
