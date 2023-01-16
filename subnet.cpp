@@ -81,8 +81,8 @@ uint32_t Subnet::generate_subnet_address(std::string &input_address_string, int 
     }
 
     // Apply a bitmask.
-    uint32_t bitmask = 0xFFFFFFFF << (IPv4_SIZE_BITS - mask);
-    uint32_t bitmask_in_network_order = this->reverse_byte_order(bitmask);
+    this->bitmask = 0xFFFFFFFF << (IPv4_SIZE_BITS - mask);
+    uint32_t bitmask_in_network_order = this->reverse_byte_order(this->bitmask);
     return input_address_in_network_order & bitmask_in_network_order;
 }
 

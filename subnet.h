@@ -14,6 +14,7 @@ public:
     Subnet(std::string &input_address_string);
     std::vector<uint32_t> hosts;     // vector with generated host addresses in network order
     uint32_t subnet;
+    uint32_t bitmask;     // in host order (required for Socket configuration)
     uint32_t broadcast;
 };
 
