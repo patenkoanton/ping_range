@@ -8,11 +8,11 @@
 
 
 /* Return class <T> object wrapped in shared_ptr. */
-template<class T, class N> std::shared_ptr<T> factory_create_object(N arg)
+template<class T, class... Args> std::shared_ptr<T> factory_create_object(Args... args)
 {
     std::shared_ptr<T> object;
     try {
-        object = std::shared_ptr<T>(new T(arg));
+        object = std::shared_ptr<T>(new T(args...));
     } catch (std::string& exception) {
         std::cerr << "ERROR: " + exception << std::endl;
         return nullptr;
