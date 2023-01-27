@@ -32,34 +32,17 @@ int Subnet::generate_hosts(std::string &input_address_string, int mask)
         return -1;
     }
 
-    // Calculate broadcast address (host order).
-    uint32_t broadcast = this->subnet->to_host() + std::pow(2, IPv4_SIZE_BITS - mask) - 1;
-    this->broadcast = factory_create_object<IPAddress, uint32_t>(broadcast);
+    // Calculate broadcast address.
+    uint32_t max_number_of_addresses = std::pow(2, IPv4_SIZE_BITS - mask);
+    auto broadcast = *this->subnet + max_number_of_addresses - 1;
+    this->broadcast = factory_create_object<IPAddress, const IPAddress&>(broadcast);
 
     // Go through all possible hosts in subnet.
-    for (uint32_t host = this->subnet->to_host() + 1; host < this->broadcast->to_host(); host++) {
-        uint32_t host_in_network_order = this->reverse_byte_order(host);
-        this->hosts.push_back(host_in_network_order);
+    for (auto host = *this->subnet + 1; host < *this->broadcast; host++) {
+        this->hosts.push_back(host.to_network());
     }
 
     return 0;
-}
-
-
-// TODO: this will go at some point.
-uint32_t Subnet::reverse_byte_order(uint32_t input)
-{
-    uint8_t *first_byte = (uint8_t *)&input;
-    uint8_t *last_byte = first_byte + sizeof(input) - 1;
-    while (first_byte < last_byte) {
-        uint8_t buffer = *last_byte;
-        *last_byte = *first_byte;
-        *first_byte = buffer;
-        first_byte++;
-        last_byte--;
-    }
-
-    return input;
 }
 
 // Use input address and mask to generate subnet address.
@@ -78,7 +61,7 @@ std::shared_ptr<IPAddress> Subnet::generate_subnet_address(std::string &input_ad
 
     // Apply a bitmask. Host order is used to simplify calculations.
     this->bitmask = 0xFFFFFFFF << (IPv4_SIZE_BITS - mask);
-    return factory_create_object<IPAddress, uint32_t>(input_ip->to_host() & this->bitmask);
+    return factory_create_object<IPAddress, const IPAddress&>(*input_ip & this->bitmask);
 }
 
 
