@@ -38,8 +38,10 @@ int Subnet::generate_hosts(std::string &input_address_string, int mask)
     this->broadcast = factory_create_object<IPAddress, const IPAddress&>(broadcast);
 
     // Go through all possible hosts in subnet.
-    for (auto host = *this->subnet + 1; host < *this->broadcast; host++) {
+    auto host = *this->subnet + 1;
+    while (host < *this->broadcast) {
         this->hosts.push_back(host.to_network());
+        host++;
     }
 
     return 0;
