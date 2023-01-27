@@ -12,9 +12,9 @@ class IPAddress {
 public:
     IPAddress(uint32_t ip_host_order);
     IPAddress(const std::string &ip_string);
-    uint32_t to_network();
-    uint32_t to_host();
-    std::string to_string();
+    uint32_t to_network() const;
+    uint32_t to_host() const;
+    std::string to_string() const;
 };
 
 

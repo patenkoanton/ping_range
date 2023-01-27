@@ -35,19 +35,19 @@ uint32_t IPAddress::reverse_byte_order(uint32_t input)
 }
 
 
-uint32_t IPAddress::to_network()
+uint32_t IPAddress::to_network() const
 {
     return this->network_order;
 }
 
 
-uint32_t IPAddress::to_host()
+uint32_t IPAddress::to_host() const
 {
     return this->host_order;
 }
 
 
-std::string IPAddress::to_string()
+std::string IPAddress::to_string() const
 {
     char *ip_string = inet_ntoa(*((in_addr*)&this->network_order));
     return std::string(ip_string);
