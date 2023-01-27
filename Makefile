@@ -7,6 +7,7 @@ MODULES = \
 	subnet \
 	socket \
 	factory \
+	ip_address \
 
 OBJ = $(MODULES:=.o)
 
