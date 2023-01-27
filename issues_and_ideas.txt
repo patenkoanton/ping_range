@@ -14,7 +14,6 @@ I.e. we need to form an output string and print it from a single method, not acr
 * receive_icmp_reply: instead of passing "sockaddr_in receiver" and "socklen_t receiverLength" we should pass NULL for both of them (reason: not being used).
 
 =========== Ideas ======================
-* overload operators for IPAddress class.
 * send/receive ICMP packets in parallel (e.g. one host - one thread). Use POSIX threads.
 * Print some extra data to the user output: TTL, time delay.
 * Add support for Windows, use autotools if required.

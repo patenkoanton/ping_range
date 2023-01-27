@@ -15,6 +15,14 @@ public:
     uint32_t to_network() const;
     uint32_t to_host() const;
     std::string to_string() const;
+
+    // Make calculations easier.
+    IPAddress operator&(uint32_t arg) const;
+    IPAddress operator+(uint32_t arg) const;
+    IPAddress operator-(uint32_t arg) const;
+    bool operator<(const IPAddress &arg) const;
+    IPAddress operator++(int);
+    friend std::ostream& operator<<(std::ostream& stream, const IPAddress& arg);
 };
 
 

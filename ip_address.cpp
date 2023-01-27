@@ -52,3 +52,44 @@ std::string IPAddress::to_string() const
     char *ip_string = inet_ntoa(*((in_addr*)&this->network_order));
     return std::string(ip_string);
 }
+
+
+IPAddress IPAddress::operator&(uint32_t arg) const
+{
+    return this->host_order & arg;
+}
+
+
+IPAddress IPAddress::operator+(uint32_t arg) const
+{
+    return this->host_order + arg;
+}
+
+
+IPAddress IPAddress::operator-(uint32_t arg) const
+{
+    return this->host_order - arg;
+}
+
+
+bool IPAddress::operator<(const IPAddress &arg) const
+{
+    return this->host_order < arg.host_order;
+}
+
+
+IPAddress IPAddress::operator++(int)
+{
+    IPAddress old = *this;
+    (this->host_order)++;
+    this->network_order = this->reverse_byte_order(this->host_order);
+
+    return old;
+}
+
+
+std::ostream& operator<<(std::ostream& stream, const IPAddress& arg)
+{
+    stream << arg.to_string();
+    return stream;
+}
