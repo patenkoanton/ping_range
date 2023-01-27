@@ -4,6 +4,8 @@
 #include <arpa/inet.h>
 #include <stdexcept>        // std::invalid_argument
 #include "subnet.h"
+#include "ip_address.h"
+#include "factory.h"
 
 #define IPv4_SIZE_BITS  (32)
 
@@ -21,15 +23,15 @@ Subnet::Subnet(std::string &input_address_string)
     * 1) Apply mask to calculate the subnet address.
     * 2) Calculate broadcast address.
     * 3) Go through all possible hosts in subnet.
- * Host order is used to simplify calculations, but everything is eventually converted to network order.
  */
 int Subnet::generate_hosts(std::string &input_address_string, int mask)
 {
-    // Calculate subnet address (host order).
-    this->subnet = this->generate_subnet_address(input_address_string, mask);
-    if (this->subnet == 0) {
+    // Calculate subnet address.
+    auto subnet = this->generate_subnet_address(input_address_string, mask);
+    if (subnet == 0) {
         return -1;
     }
+    this->subnet = subnet->to_host();       // TODO: fix later
 
     // Calculate broadcast address.
     uint32_t broadcast_host_order = this->subnet + std::pow(2, IPv4_SIZE_BITS - mask) - 1;
@@ -46,6 +48,7 @@ int Subnet::generate_hosts(std::string &input_address_string, int mask)
 }
 
 
+// TODO: this will go at some point.
 uint32_t Subnet::reverse_byte_order(uint32_t input)
 {
     uint8_t *first_byte = (uint8_t *)&input;
@@ -61,28 +64,23 @@ uint32_t Subnet::reverse_byte_order(uint32_t input)
     return input;
 }
 
-/* Use input address and mask to generate subnet address.
- * Returns subnet address in host order.
- * Returns 0 if error occured.
- */
-uint32_t Subnet::generate_subnet_address(std::string &input_address_string, int mask)
+// Use input address and mask to generate subnet address.
+std::shared_ptr<IPAddress> Subnet::generate_subnet_address(std::string &input_address_string, int mask)
 {
     if (mask < 1 || mask > 32) {
         std::cerr << "ERROR: invalid subnet mask provided." << std::endl;
-        return 0;
+        return nullptr;
     }
 
-    // Convert from numbers-and-dots notation into a number.
-    uint32_t input_address_in_network_order = 0;
-    if (inet_aton(input_address_string.c_str(), (in_addr *)&input_address_in_network_order) == 0) {
-        std::cerr << "ERROR: invalid IP address provided." << std::endl;
-        return 0;
+    auto input_ip = factory_create_object<IPAddress, std::string&>(input_address_string);
+    if (input_ip == nullptr) {
+        std::cerr << "ERROR: failed to create IP address object." << std::endl;
+        return nullptr;
     }
 
-    // Apply a bitmask.
-    this->bitmask = 0xFFFFFFFF << (IPv4_SIZE_BITS - mask);      // host order
-    uint32_t input_address_in_host_order = this->reverse_byte_order(input_address_in_network_order);
-    return input_address_in_host_order & this->bitmask;
+    // Apply a bitmask. Host order is used to simplify calculations.
+    this->bitmask = 0xFFFFFFFF << (IPv4_SIZE_BITS - mask);
+    return factory_create_object<IPAddress, uint32_t>(input_ip->to_host() & this->bitmask);
 }
 
 
