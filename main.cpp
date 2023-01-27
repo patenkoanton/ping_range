@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     // Show subnet info including the list of hosts.
     // TODO: uncomment and fix.
     // std::cout << "Subnet: " << Main::network_order_to_host_order(subnet->subnet) << std::endl;
-    std::cout << "Broadcast: " << Main::network_order_to_host_order(subnet->broadcast) << std::endl;
+    std::cout << "Broadcast: " << subnet->broadcast->to_string() << std::endl;
     std::cout << "Hosts: " << std::endl;
     auto hosts = subnet->hosts;
     for (auto it = subnet->hosts.begin(); it != subnet->hosts.end(); it++) {

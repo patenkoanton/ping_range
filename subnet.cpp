@@ -32,17 +32,16 @@ int Subnet::generate_hosts(std::string &input_address_string, int mask)
         return -1;
     }
 
-    // Calculate broadcast address.
-    uint32_t broadcast_host_order = this->subnet->to_host() + std::pow(2, IPv4_SIZE_BITS - mask) - 1;
+    // Calculate broadcast address (host order).
+    uint32_t broadcast = this->subnet->to_host() + std::pow(2, IPv4_SIZE_BITS - mask) - 1;
+    this->broadcast = factory_create_object<IPAddress, uint32_t>(broadcast);
 
     // Go through all possible hosts in subnet.
-    for (uint32_t host = this->subnet->to_host() + 1; host < broadcast_host_order; host++) {
+    for (uint32_t host = this->subnet->to_host() + 1; host < this->broadcast->to_host(); host++) {
         uint32_t host_in_network_order = this->reverse_byte_order(host);
         this->hosts.push_back(host_in_network_order);
     }
 
-    // Save broadcast address just in case.
-    this->broadcast = this->reverse_byte_order(broadcast_host_order);
     return 0;
 }
 

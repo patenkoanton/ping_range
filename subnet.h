@@ -17,7 +17,7 @@ public:
     std::vector<uint32_t> hosts;     // vector with generated host addresses in network order
     std::shared_ptr<IPAddress> subnet;
     uint32_t bitmask;     // in host order (required for Socket configuration)
-    uint32_t broadcast;
+    std::shared_ptr<IPAddress> broadcast;
 };
 
 #endif  // _SUBNET_H
