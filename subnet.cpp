@@ -27,17 +27,16 @@ Subnet::Subnet(std::string &input_address_string)
 int Subnet::generate_hosts(std::string &input_address_string, int mask)
 {
     // Calculate subnet address.
-    auto subnet = this->generate_subnet_address(input_address_string, mask);
-    if (subnet == 0) {
+    this->subnet = this->generate_subnet_address(input_address_string, mask);
+    if (this->subnet == nullptr) {
         return -1;
     }
-    this->subnet = subnet->to_host();       // TODO: fix later
 
     // Calculate broadcast address.
-    uint32_t broadcast_host_order = this->subnet + std::pow(2, IPv4_SIZE_BITS - mask) - 1;
+    uint32_t broadcast_host_order = this->subnet->to_host() + std::pow(2, IPv4_SIZE_BITS - mask) - 1;
 
     // Go through all possible hosts in subnet.
-    for (uint32_t host = this->subnet + 1; host < broadcast_host_order; host++) {
+    for (uint32_t host = this->subnet->to_host() + 1; host < broadcast_host_order; host++) {
         uint32_t host_in_network_order = this->reverse_byte_order(host);
         this->hosts.push_back(host_in_network_order);
     }
