@@ -14,6 +14,10 @@ I.e. we need to form an output string and print it from a single method, not acr
 * receive_icmp_reply: instead of passing "sockaddr_in receiver" and "socklen_t receiverLength" we should pass NULL for both of them (reason: not being used).
 
 =========== Ideas ======================
+* encapsulate sento() and recvfrom() inside Socket class.
+* sort out the mess of shared_ptr vs shared_ptr& when passed to different methods and classes.
+Do we actually need shared_ptr in all of those cases?
+
 * send/receive ICMP packets in parallel (e.g. one host - one thread). Use POSIX threads.
 * Print some extra data to the user output: TTL, time delay.
 * Add support for Windows, use autotools if required.

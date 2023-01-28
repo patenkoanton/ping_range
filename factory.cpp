@@ -25,7 +25,7 @@ template<class T, class... Args> std::shared_ptr<T> factory_create_object(Args..
 // Instance.
 template std::shared_ptr<Ping> factory_create_object<Ping, std::shared_ptr<Subnet>>(std::shared_ptr<Subnet>);
 template std::shared_ptr<Subnet> factory_create_object<Subnet, std::string&>(std::string&);
-template std::shared_ptr<Socket> factory_create_object<Socket, int, uint32_t, uint32_t>(int, uint32_t, uint32_t);
+template std::shared_ptr<Socket> factory_create_object<Socket, int, std::shared_ptr<Subnet>>(int, std::shared_ptr<Subnet>);
 template std::shared_ptr<IPAddress> factory_create_object<IPAddress, uint32_t>(uint32_t);
 template std::shared_ptr<IPAddress> factory_create_object<IPAddress, std::string&>(std::string&);
 template std::shared_ptr<IPAddress> factory_create_object<IPAddress, const IPAddress&>(const IPAddress&);

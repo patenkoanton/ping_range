@@ -5,10 +5,14 @@
 #include <unistd.h>
 #include <iostream>
 #include <linux/filter.h>
+#include <memory>
 #include "socket.h"
+#include "subnet.h"
 
 
-Socket::Socket(int socket_timeout_sec, uint32_t subnet, uint32_t bitmask)
+// NOTE: we pass target_subnet by value because Socket::Socket shares the ownership of the object.
+// It's being passed by reference to other Socket::members because we don't want them to own the object.
+Socket::Socket(int socket_timeout_sec, const std::shared_ptr<Subnet> target_subnet)
 {
     // Open socket
     if (this->open_socket() < 0) {
@@ -16,7 +20,7 @@ Socket::Socket(int socket_timeout_sec, uint32_t subnet, uint32_t bitmask)
     }
 
     // Configure socket
-    if (this->configure_socket(socket_timeout_sec, subnet, bitmask) < 0) {
+    if (this->configure_socket(socket_timeout_sec, target_subnet) < 0) {
         this->close_socket();
         throw std::string("failed to configure socket.");
     }
@@ -42,7 +46,7 @@ int Socket::open_socket()
 }
 
 
-int Socket::configure_socket(int socket_timeout_sec, uint32_t subnet, uint32_t bitmask)
+int Socket::configure_socket(int socket_timeout_sec, const std::shared_ptr<Subnet> &target_subnet)
 {
     timeval timeValue = {
         .tv_sec = socket_timeout_sec,
@@ -56,7 +60,7 @@ int Socket::configure_socket(int socket_timeout_sec, uint32_t subnet, uint32_t b
     }
 
     // Apply subnet filter
-    if (this-apply_subnet_bpf_filter(subnet, bitmask) < 0) {
+    if (this-apply_subnet_bpf_filter(target_subnet) < 0) {
         std::cerr << "ERROR: failed to apply BPF filter." << std::endl;     // TODO: change to warning???
         return -1;
     }
@@ -71,19 +75,21 @@ int Socket::configure_socket(int socket_timeout_sec, uint32_t subnet, uint32_t b
  * More info on BPF:
  *      https://www.kernel.org/doc/html/latest/networking/filter.html
  * Method arguments:
- *      > subnet address in host order
+ *      > subnet address
  *      > bitmask (e.g. 0xFFFF0000 for /16 mask) in host order
  */
-int Socket::apply_subnet_bpf_filter(uint32_t subnet, uint32_t bitmask)
+int Socket::apply_subnet_bpf_filter(const std::shared_ptr<Subnet> &target_subnet)
 {
+    auto bitmask = target_subnet->bitmask;
+    auto subnet_ip = target_subnet->subnet->to_host();
     struct sock_filter code[] = {
-        { 0x30, 0, 0, 0x00000009 },     // ldb      [09]            // load protocol type located at 9-th byte of packet (see struct iphdr)
-        { 0x15, 0, 4, 0x00000001 },     // jeq      #0x1            // packet protocol type should be ICMP (0x01) (see /etc/protocols), otherwise drop packet
-        { 0x20, 0, 0, 0x0000000c },     // ld       [12]            // extract source IP
-        { 0x54, 0, 0, bitmask },        // and      #0xbitmask     // apply subnet mask
-        { 0x15, 0, 1, subnet },         // jeq      #0xsubnet      // if different subnet - drop packet
-        { 0x6, 0, 0, 0x00040000 },      // ret      #262144         // return packet
-        { 0x6, 0, 0, 0x00000000 },      // ret      #0              // drop packet
+        { 0x30, 0, 0, 0x00000009    },     // ldb      [09]            // load protocol type located at 9-th byte of packet (see struct iphdr)
+        { 0x15, 0, 4, 0x00000001    },     // jeq      #0x1            // packet protocol type should be ICMP (0x01) (see /etc/protocols), otherwise drop packet
+        { 0x20, 0, 0, 0x0000000c    },     // ld       [12]            // extract source IP
+        { 0x54, 0, 0, bitmask       },     // and      #0xbitmask     // apply subnet mask
+        { 0x15, 0, 1, subnet_ip     },     // jeq      #0xsubnet      // if different subnet - drop packet
+        { 0x6, 0, 0, 0x00040000     },      // ret      #262144         // return packet
+        { 0x6, 0, 0, 0x00000000     },      // ret      #0              // drop packet
     };
 
     struct sock_fprog my_bpf = {

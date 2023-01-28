@@ -17,7 +17,7 @@
 Ping::Ping(std::shared_ptr<Subnet> subnet)
 {
     this->subnet = subnet;
-    this->socket = factory_create_object<Socket>(SOCKET_TIMEOUT_SEC, subnet->subnet->to_host(), subnet->bitmask);
+    this->socket = factory_create_object<Socket>(SOCKET_TIMEOUT_SEC, subnet);
     if (this->socket == nullptr) {
         throw std::string("failed to create Socket object.");
     }
