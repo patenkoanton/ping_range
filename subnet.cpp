@@ -10,42 +10,35 @@
 #define IPv4_SIZE_BITS  (32)
 
 
+/* Simple sequence:
+    * 1) Apply mask to calculate subnet address.
+    * 2) Calculate broadcast address.
+    * 3) Store all possible hosts in subnet into vector.
+ */
 Subnet::Subnet(std::string &input_address_string)
 {
     std::pair<std::string, int> subnet_address_and_mask = this->parse_input_address_string(input_address_string);
-    if (this->generate_hosts(subnet_address_and_mask.first, subnet_address_and_mask.second) < 0) {
-        throw std::string("Failed to generate the range of host IP addresses.");
-    }
-}
+    auto input_address = subnet_address_and_mask.first;
+    auto input_mask = subnet_address_and_mask.second;
 
-
-/* Simple sequence:
-    * 1) Apply mask to calculate the subnet address.
-    * 2) Calculate broadcast address.
-    * 3) Go through all possible hosts in subnet.
- */
-int Subnet::generate_hosts(std::string &input_address_string, int mask)
-{
     // Calculate subnet address.
-    this->subnet = this->generate_subnet_address(input_address_string, mask);
+    this->subnet = this->generate_subnet_address(input_address, input_mask);
     if (this->subnet == nullptr) {
-        return -1;
+        throw std::string("Failed to generate subnet address.");
     }
 
     // Calculate broadcast address.
-    uint32_t max_number_of_addresses = std::pow(2, IPv4_SIZE_BITS - mask);
-    auto broadcast = *this->subnet + max_number_of_addresses - 1;
-    this->broadcast = factory_create_object<IPAddress, const IPAddress&>(broadcast);
-
-    // Go through all possible hosts in subnet.
-    auto host = *this->subnet + 1;
-    while (host < *this->broadcast) {
-        this->hosts.push_back(std::make_shared<IPAddress>(host));
-        host++;
+    this->broadcast = this->generate_broadcast_address(input_mask);
+    if (this->broadcast == nullptr) {
+        throw std::string("Failed to generate broadcast address.");
     }
 
-    return 0;
+    // Go through all possible hosts in subnet.
+    if (this->generate_hosts(this->hosts) < 0) {
+        throw std::string("Failed to generate hosts.");
+    }
 }
+
 
 // Use input address and mask to generate subnet address.
 std::shared_ptr<IPAddress> Subnet::generate_subnet_address(std::string &input_address_string, int mask)
@@ -64,6 +57,27 @@ std::shared_ptr<IPAddress> Subnet::generate_subnet_address(std::string &input_ad
     // Apply a bitmask. Host order is used to simplify calculations.
     this->bitmask = 0xFFFFFFFF << (IPv4_SIZE_BITS - mask);
     return factory_create_object<IPAddress, const IPAddress&>(*input_ip & this->bitmask);
+}
+
+
+std::shared_ptr<IPAddress> Subnet::generate_broadcast_address(int mask)
+{
+    uint32_t max_number_of_addresses = std::pow(2, IPv4_SIZE_BITS - mask);
+    auto broadcast = *this->subnet + max_number_of_addresses - 1;
+
+    return factory_create_object<IPAddress, const IPAddress&>(broadcast);
+}
+
+
+int Subnet::generate_hosts(std::vector<std::shared_ptr<IPAddress>> &hosts)
+{
+    auto host = *this->subnet + 1;
+    while (host < *this->broadcast) {
+        hosts.push_back(std::make_shared<IPAddress>(host));
+        host++;
+    }
+
+    return 0;
 }
 
 
