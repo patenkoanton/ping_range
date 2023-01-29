@@ -21,7 +21,6 @@ Do we actually need shared_ptr in all of those cases?
 * send/receive ICMP packets in parallel (e.g. one host - one thread). Use POSIX threads.
 * Print some extra data to the user output: TTL, time delay.
 * Add support for Windows, use autotools if required.
-* Currently cap_net_raw is being set in 'make all' target. Move it to 'make install'?
 * in Socket::configure_socket: find a way to initialize timeValue struct during the function call in args list (on the go).
 * Change this:
             See 'man capabilities' and 'man setcap' for more info.
