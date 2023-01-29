@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include <arpa/inet.h>
 #include <set>
 #include "main.h"
 #include "ping.h"
@@ -11,13 +10,11 @@
 
 int main(int argc, char *argv[])
 {
-    // Not enough args provided - show help and exit.
     if (Main::argc_is_incorrect(argc, MIN_ARGC)) {
         Main::show_help();
         return 0;
     }
 
-    // Help requested - show help and exit.
     if (Main::help_message_requested(argc, argv)) {
         Main::show_help();
         return 0;
@@ -32,7 +29,7 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    // Create "ping" object.
+    // Create ping object.
     auto ping = factory_create_object<Ping>(subnet);
     if (ping == nullptr) {
         Main::show_help();
@@ -49,7 +46,7 @@ int main(int argc, char *argv[])
 
     std::cout << std::endl;
 
-    // Ping subnet.
+    // Perform ping.
     ping->ping();
     return 0;
 }
