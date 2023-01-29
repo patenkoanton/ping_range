@@ -40,28 +40,18 @@ int main(int argc, char *argv[])
     }
 
     // Show subnet info including the list of hosts.
-    // TODO: uncomment and fix.
-    // std::cout << "Subnet: " << Main::network_order_to_host_order(subnet->subnet) << std::endl;
+    std::cout << "Subnet: " << subnet->subnet->to_string() << std::endl;
     std::cout << "Broadcast: " << subnet->broadcast->to_string() << std::endl;
     std::cout << "Hosts: " << std::endl;
-    auto hosts = subnet->hosts;
-    for (auto it = subnet->hosts.begin(); it != subnet->hosts.end(); it++) {
-        std::cout << Main::network_order_to_host_order(*it) << std::endl;
+    for (auto it : subnet->hosts){
+        std::cout << it->to_string() << std::endl;
     }
+
     std::cout << std::endl;
 
     // Ping subnet.
     ping->ping();
     return 0;
-}
-
-std::string Main::network_order_to_host_order(uint32_t address_network_order)
-{
-    in_addr host_address = {
-        .s_addr = address_network_order,
-    };
-
-    return std::string(inet_ntoa(host_address));
 }
 
 

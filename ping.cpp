@@ -2,7 +2,6 @@
 #include <string>
 #include <cstring>  // strerror
 #include <netdb.h>
-#include <arpa/inet.h>
 #include <netinet/ip_icmp.h>
 #include "ping.h"
 #include "subnet.h"
@@ -26,11 +25,10 @@ Ping::Ping(std::shared_ptr<Subnet> subnet)
 void Ping::ping()
 {
     std::vector<char> receive_buffer(RECEIVE_BUFFER_SIZE);
-    auto hosts = this->subnet->hosts;
 
     // Send ICMP request to every host in the list and wait for reply
-    for (auto host_address : hosts) {
-        if (this->send_icmp_request(host_address) < 0) {
+    for (auto host : this->subnet->hosts) {
+        if (this->send_icmp_request(host) < 0) {
             std::cout << "WARNING: " << std::strerror(errno) << ". ";
             std::cout << "Failed to send ICMP request." << std::endl;
             continue;
@@ -50,8 +48,8 @@ void Ping::ping()
 
             // Got ICMP reply. Verify that it came from the right host.
             auto ip_header = (iphdr *)receive_buffer.data();
-            auto replier_address = ip_header->saddr;
-            if (replier_address == host_address) {
+            auto replier_address_network_order = ip_header->saddr;
+            if (replier_address_network_order == host->to_network()) {
                 this->parse_package(receive_buffer);
                 break;
             }
@@ -72,13 +70,14 @@ void Ping::parse_package(std::vector<char> &receive_buffer)
 }
 
 
-int Ping::send_icmp_request(uint32_t dest_ip)
+int Ping::send_icmp_request(std::shared_ptr<IPAddress> &dest_host)
 {
     // Structure includes destination host IP address info
-    sockaddr_in dest = {
+    uint32_t dest_ip_network_order = dest_host->to_network();
+    sockaddr_in dest_info = {
         .sin_family = AF_INET,
         .sin_port = htons(33490),
-        .sin_addr = *(in_addr *)&dest_ip,
+        .sin_addr = *(in_addr *)&dest_ip_network_order,
     };
 
     // Fill the packet
@@ -90,17 +89,16 @@ int Ping::send_icmp_request(uint32_t dest_ip)
     icmp_header.checksum = this->generate_internet_checksum(&icmp_header, sizeof(icmp_header));
     
     // Print host address
-    std::cout << inet_ntoa(dest.sin_addr);
+    std::cout << dest_host->to_string();
 
     // Send
     int hsocket = this->socket->get_socket();
-    auto dest_sockaddr = (sockaddr *)&dest;
-    if (sendto(hsocket, &icmp_header, sizeof(icmp_header), 0, dest_sockaddr, sizeof(sockaddr)) <= 0) {
+    if (sendto(hsocket, &icmp_header, sizeof(icmp_header), 0, (sockaddr *)&dest_info, sizeof(sockaddr)) <= 0) {
         return -1;
     }
 
     // Print host name if applicable
-    auto host_data = gethostbyaddr(&dest.sin_addr, sizeof(dest.sin_addr), AF_INET);
+    auto host_data = gethostbyaddr(&dest_info.sin_addr, sizeof(dest_info.sin_addr), AF_INET);
     if (host_data != NULL) {
         std::cout << " (" << host_data->h_name << ")";
     }

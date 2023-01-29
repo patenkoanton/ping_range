@@ -40,7 +40,7 @@ int Subnet::generate_hosts(std::string &input_address_string, int mask)
     // Go through all possible hosts in subnet.
     auto host = *this->subnet + 1;
     while (host < *this->broadcast) {
-        this->hosts.push_back(host.to_network());
+        this->hosts.push_back(std::make_shared<IPAddress>(host));
         host++;
     }
 

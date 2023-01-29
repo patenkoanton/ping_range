@@ -13,10 +13,10 @@ class Subnet {
     std::pair<std::string, int> parse_input_address_string(std::string &input_address_string);
 public:
     Subnet(std::string &input_address_string);
-    std::vector<uint32_t> hosts;     // vector with generated host addresses in network order
+    std::vector<std::shared_ptr<IPAddress>> hosts;     // vector with generated host addresses
     std::shared_ptr<IPAddress> subnet;
-    uint32_t bitmask;     // in host order (required for Socket configuration)
     std::shared_ptr<IPAddress> broadcast;
+    uint32_t bitmask;     // in host order (required for Socket configuration)
 };
 
 #endif  // _SUBNET_H
