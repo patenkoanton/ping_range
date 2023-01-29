@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     // Show subnet info including the list of hosts.
     std::cout << "Subnet: " << subnet->subnet->to_string() << std::endl;
     std::cout << "Broadcast: " << subnet->broadcast->to_string() << std::endl;
-    std::cout << "Hosts: " << std::endl;
+    std::cout << "Hosts[DIAGNOSTIC INFO]: " << std::endl;
     for (auto it : subnet->hosts){
         std::cout << it->to_string() << std::endl;
     }
