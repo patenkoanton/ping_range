@@ -37,8 +37,9 @@ int Socket::open_socket()
 
     this->hsocket = socket(AF_INET, SOCK_RAW, protocol->p_proto);
     if (this->hsocket < 0) {
-        std::cerr << "ERROR: " << std::strerror(errno);
-        std::cerr << ". Try using 'sudo'." << std::endl;
+        std::cerr << "ERROR: " << std::strerror(errno) << ". ";
+        std::cerr << "Try using 'sudo' or applying CAP_NET_RAW capability to ping_subnet executable. ";
+        std::cerr << "See 'man capabilities' and 'man setcap' for more info." << std::endl;
         return -1;
     }
 
