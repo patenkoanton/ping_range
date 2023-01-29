@@ -56,7 +56,7 @@ std::shared_ptr<IPAddress> Subnet::generate_subnet_address(std::string &input_ad
 
     // Apply a bitmask. Host order is used to simplify calculations.
     this->bitmask = 0xFFFFFFFF << (IPv4_SIZE_BITS - mask);
-    return factory_create_object<IPAddress, const IPAddress&>(*input_ip & this->bitmask);
+    return std::make_shared<IPAddress>(*input_ip & this->bitmask);
 }
 
 
@@ -65,7 +65,7 @@ std::shared_ptr<IPAddress> Subnet::generate_broadcast_address(int mask)
     uint32_t max_number_of_addresses = std::pow(2, IPv4_SIZE_BITS - mask);
     auto broadcast = *this->subnet + max_number_of_addresses - 1;
 
-    return factory_create_object<IPAddress, const IPAddress&>(broadcast);
+    return std::make_shared<IPAddress>(broadcast);
 }
 
 
