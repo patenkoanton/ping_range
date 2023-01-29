@@ -55,8 +55,8 @@ void Ping::ping()
             }
         }
     }
-
 }
+
 
 void Ping::parse_package(std::vector<char> &receive_buffer)
 {
@@ -149,4 +149,3 @@ uint16_t Ping::generate_internet_checksum(const void *packet, int packet_size)
     result = ~sum;
     return result;
 }
-
