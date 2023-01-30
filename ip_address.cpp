@@ -8,30 +8,14 @@ IPAddress::IPAddress(const std::string &ip_string)
         throw std::string("Invalid IP address provided.");
     }
 
-    this->host_order = this->reverse_byte_order(this->network_order);
+    this->host_order = ntohl(this->network_order);
 }
 
 
 IPAddress::IPAddress(uint32_t ip_host_order)
 {
-    this->network_order = this->reverse_byte_order(ip_host_order);
     this->host_order = ip_host_order;
-}
-
-
-uint32_t IPAddress::reverse_byte_order(uint32_t input)
-{
-    uint8_t *first_byte = (uint8_t *)&input;
-    uint8_t *last_byte = first_byte + sizeof(input) - 1;
-    while (first_byte < last_byte) {
-        uint8_t buffer = *last_byte;
-        *last_byte = *first_byte;
-        *first_byte = buffer;
-        first_byte++;
-        last_byte--;
-    }
-
-    return input;
+    this->network_order = htonl(this->host_order);
 }
 
 
@@ -82,7 +66,7 @@ IPAddress IPAddress::operator++(int)
 {
     IPAddress old = *this;
     (this->host_order)++;
-    this->network_order = this->reverse_byte_order(this->host_order);
+    this->network_order = htonl(this->host_order);
 
     return old;
 }

@@ -8,7 +8,6 @@
 class IPAddress {
     uint32_t host_order = 0;
     uint32_t network_order = 0;
-    uint32_t reverse_byte_order(uint32_t input);
 public:
     IPAddress(uint32_t ip_host_order);
     IPAddress(const std::string &ip_string);

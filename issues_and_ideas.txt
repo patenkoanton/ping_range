@@ -12,7 +12,6 @@ I'm tired of writing TODOs in random places so I'll continue here.
 Make sure we have an "orchestrator" method who collects data (host address, DNS and status) from other methods and forms an output string.
 I.e. we need to form an output string and print it from a single method, not across the whole module. 
 * in *.cpp files: define public methods first and then private ones.
-* checkout methods htons, htonl ect. We might not need to reimplement host-to-network (and vice versa) convertion.
 * in IPAddress add the ability to read the address as in_addr structure.
         Maybe add some other data types too - check the current conversions we are using.
 
