@@ -1,8 +1,8 @@
 #include <iostream>
 #include <string>
 #include <cstring>  // strerror
-#include <netdb.h>
-#include <netinet/ip_icmp.h>
+#include <netdb.h>  // gethostbyaddr
+#include <netinet/ip_icmp.h>    // icmphdr
 #include "ping.h"
 #include "subnet.h"
 #include "socket.h"
@@ -26,17 +26,16 @@ void Ping::ping()
 {
     std::vector<char> receive_buffer(RECEIVE_BUFFER_SIZE);
 
-    // Send ICMP request to every host in the list and wait for reply
+    // Send ICMP request to every host in the list
     for (auto host : this->subnet->hosts) {
         if (this->send_icmp_request(host) < 0) {
-            std::cout << "WARNING: " << std::strerror(errno) << ". ";
             std::cout << "Failed to send ICMP request." << std::endl;
             continue;
         }
+        // Wait for reply...
         while (1) {
-            int bytes_received = this->receive_icmp_reply(receive_buffer);
+            auto bytes_received = this->socket->receive_packet(receive_buffer.data(), receive_buffer.capacity());
             if (bytes_received < 0) {
-                std::cout << "WARNING: " << std::strerror(errno) << ". ";
                 std::cout << "Failed to receive ICMP reply." << std::endl;
                 break;
             } else if (bytes_received == 0) {
@@ -72,17 +71,9 @@ void Ping::parse_package(std::vector<char> &receive_buffer)
 
 int Ping::send_icmp_request(std::shared_ptr<IPAddress> &dest_host)
 {
-    // Structure includes destination host IP address info
-    uint32_t dest_ip_network_order = dest_host->to_network();
-    sockaddr_in dest_info = {
-        .sin_family = AF_INET,
-        .sin_port = htons(33490),
-        .sin_addr = *(in_addr *)&dest_ip_network_order,
-    };
-
     // Fill the packet
     icmphdr icmp_header = {
-        .type = ICMP_ECHO,          // Echo request type (used to ping) 
+        .type = ICMP_ECHO,          // Echo request
         .code = 0,                  // Code 0 is required
         .checksum = 0,              // Initial checksum has to be zero
     };
@@ -92,43 +83,18 @@ int Ping::send_icmp_request(std::shared_ptr<IPAddress> &dest_host)
     std::cout << dest_host->to_string();
 
     // Send
-    int hsocket = this->socket->get_socket();
-    if (sendto(hsocket, &icmp_header, sizeof(icmp_header), 0, (sockaddr *)&dest_info, sizeof(sockaddr)) <= 0) {
+    if (this->socket->send_packet(&icmp_header, sizeof(icmp_header), dest_host) < 0) {
         return -1;
     }
 
     // Print host name if applicable
-    auto host_data = gethostbyaddr(&dest_info.sin_addr, sizeof(dest_info.sin_addr), AF_INET);
+    auto dest_ip_network_order = dest_host->to_network();
+    auto host_data = gethostbyaddr((in_addr *)&dest_ip_network_order, sizeof(in_addr), AF_INET);
     if (host_data != NULL) {
         std::cout << " (" << host_data->h_name << ")";
     }
 
     return 0;
-}
-
-
-/* Return value:
-    * 0  - host is offline / gracefully disconnected
-    * -1 - general error / no reply
-    * number of bytes received  -   success
- */
-int Ping::receive_icmp_reply(std::vector<char> &receive_buffer)
-{
-    sockaddr_in receiver;
-    socklen_t receiverLength = sizeof(receiver);
-    char *receive_buffer_data = receive_buffer.data();
-    size_t receive_buffer_size = receive_buffer.capacity();
-
-    int bytes_received = recvfrom(this->socket->get_socket(), receive_buffer_data, receive_buffer_size, 0, (sockaddr*)&receiver, &receiverLength);
-    if (bytes_received < 0) {
-        if (errno == EWOULDBLOCK) {
-            return 0;      // No reply before the socket timeout. Host is down/does not reply.
-        }
-        return -1;      // General error.
-    }
-
-    // Success
-   return bytes_received;
 }
 
 

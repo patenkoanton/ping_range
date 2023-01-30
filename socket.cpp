@@ -119,7 +119,49 @@ Socket::~Socket()
 }
 
 
-int Socket::get_socket()
+// If failed to send - prints warning and exits with error.
+int Socket::send_packet(const void *packet, size_t size, std::shared_ptr<IPAddress> dest)
 {
-    return this->hsocket;
+    // Structure includes destination host IP address info
+    uint32_t dest_ip_network_order = dest->to_network();
+    sockaddr_in dest_info = {
+        .sin_family = AF_INET,
+        .sin_port = htons(0),
+        .sin_addr = *(in_addr *)&dest_ip_network_order,
+    };
+
+    if (sendto(this->hsocket, packet, size, 0, (sockaddr *)&dest_info, sizeof(sockaddr)) < 0) {
+        this->show_general_warning();
+        // std::cout << "WARNING: " << std::strerror(errno) << ". ";
+        return -1;
+    }
+    
+    return 0;
+}
+
+
+/* Returns number of bytes received if successful.
+ * If failed:
+ *      0   - no reply
+ *      -1  - general error
+ */
+ssize_t Socket::receive_packet(char *buffer, size_t size)
+{
+    auto bytes_received = recvfrom(this->hsocket, buffer, size, 0, NULL, NULL);
+    if (bytes_received < 0) {
+        // std::cout << "WARNING: " << std::strerror(errno) << ". ";
+        if (errno == EWOULDBLOCK) {
+            return 0;      // No reply before the socket timeout. Host is down/does not reply.
+        }
+        this->show_general_warning();
+        return -1;
+    }
+
+    return bytes_received;
+}
+
+
+void Socket::show_general_warning()
+{
+    std::cout << "WARNING: " << std::strerror(errno) << ". ";
 }
