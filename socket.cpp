@@ -123,11 +123,10 @@ Socket::~Socket()
 int Socket::send_packet(const void *packet, size_t size, std::shared_ptr<IPAddress> dest)
 {
     // Structure includes destination host IP address info
-    uint32_t dest_ip_network_order = dest->to_network();
     sockaddr_in dest_info = {
         .sin_family = AF_INET,
         .sin_port = htons(0),
-        .sin_addr = *(in_addr *)&dest_ip_network_order,
+        .sin_addr = *dest->to_addr(),
     };
 
     if (sendto(this->hsocket, packet, size, 0, (sockaddr *)&dest_info, sizeof(sockaddr)) < 0) {

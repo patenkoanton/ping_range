@@ -4,7 +4,8 @@
 
 IPAddress::IPAddress(const std::string &ip_string)
 {
-    if (inet_aton(ip_string.c_str(), (in_addr *)&this->network_order) == 0) {
+    // Convert from IP string to a number representation.
+    if (inet_aton(ip_string.c_str(), this->to_addr()) == 0) {
         throw std::string("Invalid IP address provided.");
     }
 
@@ -33,8 +34,15 @@ uint32_t IPAddress::to_host() const
 
 std::string IPAddress::to_string() const
 {
-    char *ip_string = inet_ntoa(*((in_addr*)&this->network_order));
+    char *ip_string = inet_ntoa(*this->to_addr());
     return std::string(ip_string);
+}
+
+
+// Return IP address packed into in_addr in network order.
+in_addr * IPAddress::to_addr() const
+{
+    return (in_addr *)&this->network_order;
 }
 
 

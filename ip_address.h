@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <string>
+#include <netinet/in.h>     // in_addr
 
 
 class IPAddress {
@@ -14,6 +15,7 @@ public:
     uint32_t to_network() const;
     uint32_t to_host() const;
     std::string to_string() const;
+    in_addr *to_addr() const;
 
     // Make calculations easier.
     IPAddress operator&(uint32_t arg) const;

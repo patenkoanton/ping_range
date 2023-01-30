@@ -88,8 +88,7 @@ int Ping::send_icmp_request(std::shared_ptr<IPAddress> &dest_host)
     }
 
     // Print host name if applicable
-    auto dest_ip_network_order = dest_host->to_network();
-    auto host_data = gethostbyaddr((in_addr *)&dest_ip_network_order, sizeof(in_addr), AF_INET);
+    auto host_data = gethostbyaddr(dest_host->to_addr(), sizeof(in_addr), AF_INET);
     if (host_data != NULL) {
         std::cout << " (" << host_data->h_name << ")";
     }
