@@ -16,6 +16,7 @@ public:
     uint32_t to_host() const;
     std::string to_string() const;
     in_addr *to_addr() const;
+    std::string to_hostname() const;
 
     // Make calculations easier.
     IPAddress operator&(uint32_t arg) const;

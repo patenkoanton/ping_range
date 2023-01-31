@@ -1,4 +1,5 @@
 #include <arpa/inet.h>
+#include <netdb.h>
 #include "ip_address.h"
 
 
@@ -43,6 +44,20 @@ std::string IPAddress::to_string() const
 in_addr * IPAddress::to_addr() const
 {
     return (in_addr *)&this->network_order;
+}
+
+
+// Return host name, or empty string in case of error.
+std::string IPAddress::to_hostname() const
+{
+    std::string hostname;
+
+    auto data = gethostbyaddr(this->to_addr(), sizeof(in_addr), AF_INET);
+    if (data != NULL) {
+        hostname = data->h_name;
+    }
+
+    return hostname;
 }
 
 

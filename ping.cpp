@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 #include <cstring>  // strerror
-#include <netdb.h>  // gethostbyaddr
 #include <netinet/ip_icmp.h>    // icmphdr
 #include "ping.h"
 #include "subnet.h"
@@ -88,9 +87,9 @@ int Ping::send_icmp_request(std::shared_ptr<IPAddress> &dest_host)
     }
 
     // Print host name if applicable
-    auto host_data = gethostbyaddr(dest_host->to_addr(), sizeof(in_addr), AF_INET);
-    if (host_data != NULL) {
-        std::cout << " (" << host_data->h_name << ")";
+    auto hostname = dest_host->to_hostname();
+    if (hostname.empty() == false) {
+        std::cout << " (" << hostname << ")";
     }
 
     return 0;
