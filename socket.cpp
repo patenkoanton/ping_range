@@ -1,6 +1,5 @@
 #include <string>
 #include <cstring>  // strerror
-#include <sys/time.h>
 #include <netdb.h>
 #include <unistd.h>
 #include <iostream>
@@ -131,7 +130,6 @@ int Socket::send_packet(const void *packet, size_t size, std::shared_ptr<IPAddre
 
     if (sendto(this->hsocket, packet, size, 0, (sockaddr *)&dest_info, sizeof(sockaddr)) < 0) {
         this->show_general_warning();
-        // std::cout << "WARNING: " << std::strerror(errno) << ". ";
         return -1;
     }
     
@@ -148,7 +146,6 @@ ssize_t Socket::receive_packet(char *buffer, size_t size)
 {
     auto bytes_received = recvfrom(this->hsocket, buffer, size, 0, NULL, NULL);
     if (bytes_received < 0) {
-        // std::cout << "WARNING: " << std::strerror(errno) << ". ";
         if (errno == EWOULDBLOCK) {
             return 0;      // No reply before the socket timeout. Host is down/does not reply.
         }
