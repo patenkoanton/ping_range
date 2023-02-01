@@ -85,6 +85,12 @@ bool IPAddress::operator<(const IPAddress &arg) const
 }
 
 
+bool IPAddress::operator!=(const IPAddress &arg) const
+{
+    return this->to_host() != arg.to_host();
+}
+
+
 IPAddress IPAddress::operator++(int)
 {
     IPAddress old = *this;

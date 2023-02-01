@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include <cstring>  // strerror
 #include <netinet/ip_icmp.h>    // icmphdr
 #include "ping.h"
 #include "subnet.h"
@@ -25,50 +24,64 @@ void Ping::ping()
 {
     std::vector<char> receive_buffer(RECEIVE_BUFFER_SIZE);
 
-    // Send ICMP request to every host in the list
+    // Ping every host in the list
     for (auto host : this->subnet->hosts) {
         if (this->send_icmp_request(host) < 0) {
-            std::cout << "Failed to send ICMP request." << std::endl;
+            std::cout << "WARNING: failed to send ICMP request." << std::endl;
             continue;
         }
+
         // Wait for reply...
-        while (1) {
-            auto bytes_received = this->socket->receive_packet(receive_buffer.data(), receive_buffer.capacity());
-            if (bytes_received < 0) {
-                std::cout << "Failed to receive ICMP reply." << std::endl;
-                break;
-            } else if (bytes_received == 0) {
-                std::cout << " [OFFLINE]" << std::endl;
-                break;
-            } else if (bytes_received != ICMP_REPLY_EXPECTED_SIZE) {
-                continue;
-            }
-
-            // Got ICMP reply. Verify that it came from the right host.
-            auto ip_header = (iphdr *)receive_buffer.data();
-            auto replier_address_network_order = ip_header->saddr;
-            if (replier_address_network_order == host->to_network()) {
-                this->parse_package(receive_buffer);
-                break;
-            }
+        host_status_t host_status;
+        auto receive_status = this->receive_icmp_reply(host, receive_buffer);
+        if (receive_status < 0) {
+            std::cout << "WARNING: failed to receive ICMP reply." << std::endl;
+            continue;
+        } else if (receive_status == 0) {
+            host_status = offline;
+        // Got valid reply...
+        } else {
+            host_status = this->parse_host_status(receive_buffer);
         }
+
+        this->show_host_status(host, host_status);
     }
 }
 
 
-void Ping::parse_package(std::vector<char> &receive_buffer)
+// Read host status from ICMP reply payload.
+host_status_t Ping::parse_host_status(const std::vector<char> &receive_buffer) const
 {
-    char *receive_buffer_data = receive_buffer.data();
-    auto icmpHeader = (icmphdr *)(receive_buffer_data + sizeof(iphdr));
-    if (icmpHeader->type == 0) {
-        std::cout << " [ONLINE]" << std::endl;
-    } else {
-        std::cout << " [OFFLINE]" << std::endl;
+    auto icmp_header = (icmphdr *)(receive_buffer.data() + sizeof(iphdr));
+    if (icmp_header->type == 0) {
+        return online;
     }
+
+    return offline;
 }
 
 
-int Ping::send_icmp_request(std::shared_ptr<IPAddress> &dest_host)
+// Prints host IP and online status in a readable form.
+void Ping::show_host_status(std::shared_ptr<IPAddress> &host, host_status_t status) const
+{
+    std::cout << host->to_string() << " ";
+
+    auto hostname = host->to_hostname();
+    if (!hostname.empty()) {
+        std::cout << '(' << hostname << ") ";
+    }
+
+    if (status == online) {
+        std::cout << "[ONLINE]";
+    } else {
+        std::cout << "[OFFLINE]";
+    }
+
+    std::cout << std::endl;
+}
+
+
+int Ping::send_icmp_request(std::shared_ptr<IPAddress> &dest_host) const
 {
     // Fill the packet
     icmphdr icmp_header = {
@@ -77,26 +90,35 @@ int Ping::send_icmp_request(std::shared_ptr<IPAddress> &dest_host)
         .checksum = 0,              // Initial checksum has to be zero
     };
     icmp_header.checksum = this->generate_internet_checksum(&icmp_header, sizeof(icmp_header));
-    
-    // Print host address
-    std::cout << dest_host->to_string();
 
     // Send
-    if (this->socket->send_packet(&icmp_header, sizeof(icmp_header), dest_host) < 0) {
-        return -1;
-    }
-
-    // Print host name if applicable
-    auto hostname = dest_host->to_hostname();
-    if (hostname.empty() == false) {
-        std::cout << " (" << hostname << ")";
-    }
-
-    return 0;
+    return this->socket->send_packet(&icmp_header, sizeof(icmp_header), dest_host);
 }
 
 
-uint16_t Ping::generate_internet_checksum(const void *packet, int packet_size)
+/* Return value:
+    * negative   -   error
+    * 0         -   host offline
+    * positive  -   sucess: received reply from a host */
+ssize_t Ping::receive_icmp_reply(std::shared_ptr<IPAddress> &host, std::vector<char> &receive_buffer) const
+{
+    // Keep receiving until the replier IP is right.
+    ssize_t bytes_received = 0;
+    for (auto replier = factory_create_object<IPAddress, uint32_t>(0); *replier != *host; ) {
+        bytes_received = this->socket->receive_packet(receive_buffer.data(), receive_buffer.capacity());
+        if (bytes_received <= 0) {
+            break;
+        } else if (bytes_received == ICMP_REPLY_EXPECTED_SIZE) {
+            auto ip_header = (iphdr *)receive_buffer.data();
+            *replier = ntohl(ip_header->saddr);
+        }
+    }
+
+    return bytes_received;
+}
+
+
+uint16_t Ping::generate_internet_checksum(const void *packet, int packet_size) const
 {
     uint16_t *buffer = (uint16_t *)packet;
     uint32_t sum = 0;
