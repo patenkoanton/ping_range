@@ -1,5 +1,6 @@
 CC = g++
-CFLAGS = -g3 --std=c++11
+STD = c++11
+CFLAGS = -g3 --std=$(STD)
 TARGET = ping_subnet
 MODULES = \
 	main \
