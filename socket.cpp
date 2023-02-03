@@ -26,6 +26,51 @@ Socket::Socket(int socket_timeout_sec, const std::shared_ptr<Subnet> target_subn
 }
 
 
+Socket::~Socket()
+{
+    this->close_socket();
+}
+
+
+// If failed to send - prints warning and exits with error.
+int Socket::send_packet(const void *packet, size_t size, std::shared_ptr<IPAddress> dest)
+{
+    // Structure includes destination host IP address info
+    sockaddr_in dest_info = {
+        .sin_family = AF_INET,
+        .sin_port = htons(0),
+        .sin_addr = *dest->to_addr(),
+    };
+
+    if (sendto(this->hsocket, packet, size, 0, (sockaddr *)&dest_info, sizeof(sockaddr)) < 0) {
+        this->show_general_warning();
+        return -1;
+    }
+    
+    return 0;
+}
+
+
+/* Returns number of bytes received if successful.
+ * If failed:
+ *      0   - no reply
+ *      -1  - general error
+ */
+ssize_t Socket::receive_packet(char *buffer, size_t size)
+{
+    auto bytes_received = recvfrom(this->hsocket, buffer, size, 0, NULL, NULL);
+    if (bytes_received < 0) {
+        if (errno == EWOULDBLOCK) {
+            return 0;      // No reply before the socket timeout. Host is down/does not reply.
+        }
+        this->show_general_warning();
+        return -1;
+    }
+
+    return bytes_received;
+}
+
+
 int Socket::open_socket()
 {
     protoent *protocol = NULL;
@@ -109,51 +154,6 @@ int Socket::apply_subnet_bpf_filter(const std::shared_ptr<Subnet> &target_subnet
 void Socket::close_socket()
 {
     close(this->hsocket);
-}
-
-
-Socket::~Socket()
-{
-    this->close_socket();
-}
-
-
-// If failed to send - prints warning and exits with error.
-int Socket::send_packet(const void *packet, size_t size, std::shared_ptr<IPAddress> dest)
-{
-    // Structure includes destination host IP address info
-    sockaddr_in dest_info = {
-        .sin_family = AF_INET,
-        .sin_port = htons(0),
-        .sin_addr = *dest->to_addr(),
-    };
-
-    if (sendto(this->hsocket, packet, size, 0, (sockaddr *)&dest_info, sizeof(sockaddr)) < 0) {
-        this->show_general_warning();
-        return -1;
-    }
-    
-    return 0;
-}
-
-
-/* Returns number of bytes received if successful.
- * If failed:
- *      0   - no reply
- *      -1  - general error
- */
-ssize_t Socket::receive_packet(char *buffer, size_t size)
-{
-    auto bytes_received = recvfrom(this->hsocket, buffer, size, 0, NULL, NULL);
-    if (bytes_received < 0) {
-        if (errno == EWOULDBLOCK) {
-            return 0;      // No reply before the socket timeout. Host is down/does not reply.
-        }
-        this->show_general_warning();
-        return -1;
-    }
-
-    return bytes_received;
 }
 
 
