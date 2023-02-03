@@ -2,7 +2,6 @@ I'm tired of writing TODOs in random places so I'll continue here.
 
 =========== Issues =====================
 * Add README.md
-* Remove debug prints
 * In ping_subnet::ping: we print the host address and host status from different methods which is a bad practice. 
 Make sure we have an "orchestrator" method who collects data (host address, DNS and status) from other methods and forms an output string.
 I.e. we need to form an output string and print it from a single method, not across the whole module. 
