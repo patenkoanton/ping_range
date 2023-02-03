@@ -54,8 +54,16 @@ std::shared_ptr<IPAddress> Subnet::generate_subnet_address(std::string &input_ad
         return nullptr;
     }
 
-    // Apply a bitmask. Host order is used to simplify calculations.
+    // Generate a bitmask.
     this->bitmask = 0xFFFFFFFF << (IPv4_SIZE_BITS - mask);
+
+    // Verify non-network bits not set in the input (similar to what tcmpdump does).
+    if ((*input_ip & ~this->bitmask) != 0) {
+        std::cerr << "ERROR: non-network bits set in " << input_address_string << "." << std::endl;
+        return nullptr;
+    }
+
+    // Apply a bitmask.
     return std::make_shared<IPAddress>(*input_ip & this->bitmask);
 }
 

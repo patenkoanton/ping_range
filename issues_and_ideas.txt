@@ -1,11 +1,6 @@
 I'm tired of writing TODOs in random places so I'll continue here.
 
 =========== Issues =====================
-* When we ask tcpdump to filter by subnet and mask it might throw an error when subnet bits are overlapping with bitmask.
-    Example: tcpdump src net 157.240.8.35/28
-            tcpdump: non-network bits set in "157.240.8.35/28"
-    We need to add this same functionality in our program.
-
 * Add README.md
 * Remove debug prints
 * In ping_subnet::ping: we print the host address and host status from different methods which is a bad practice. 
