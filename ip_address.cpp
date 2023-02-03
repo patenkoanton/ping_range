@@ -101,6 +101,16 @@ IPAddress IPAddress::operator++(int)
 }
 
 
+// Takes IP address in host order.
+IPAddress IPAddress::operator=(uint32_t arg)
+{
+    this->host_order = arg;
+    this->network_order = htonl(this->host_order);
+
+    return *this;
+}
+
+
 std::ostream& operator<<(std::ostream& stream, const IPAddress& arg)
 {
     stream << arg.to_string();
