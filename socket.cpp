@@ -56,9 +56,9 @@ int Socket::send_packet(const void *packet, size_t size, std::shared_ptr<IPAddre
  *      0   - no reply
  *      -1  - general error
  */
-ssize_t Socket::receive_packet(char *buffer, size_t size)
+ssize_t Socket::receive_packet(std::vector<char> &buffer)
 {
-    auto bytes_received = recvfrom(this->hsocket, buffer, size, 0, NULL, NULL);
+    auto bytes_received = recvfrom(this->hsocket, buffer.data(), buffer.capacity(), 0, NULL, NULL);
     if (bytes_received < 0) {
         if (errno == EWOULDBLOCK) {
             return 0;      // No reply before the socket timeout. Host is down/does not reply.

@@ -2,7 +2,6 @@ I'm tired of writing TODOs in random places so I'll continue here.
 
 =========== Issues =====================
 * Add README.md
-* in Socket::receive_packet() pass &vector instead of char*.
 * in IPAddress:IPAddress() add argument host_order=True.
 This will allow passing either host or network order IP and convert it inside the contructor if necessary.
 

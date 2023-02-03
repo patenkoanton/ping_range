@@ -15,7 +15,7 @@ public:
     Socket(int socket_timeout_sec, const std::shared_ptr<Subnet> target_subnet);
     ~Socket();
     int send_packet(const void *packet, size_t size, std::shared_ptr<IPAddress> dest);
-    ssize_t receive_packet(char *buffer, size_t size);
+    ssize_t receive_packet(std::vector<char> &buffer);
 };
 
 
