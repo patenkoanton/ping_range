@@ -104,7 +104,8 @@ ssize_t Ping::receive_icmp_reply(std::shared_ptr<IPAddress> &host, std::vector<c
 {
     // Keep receiving until the replier IP is right.
     ssize_t bytes_received = 0;
-    for (auto replier = factory_create_object<IPAddress, uint32_t>(0); *replier != *host; ) {
+    auto replier = factory_create_object<IPAddress, uint32_t>(0);
+    while (*replier != *host) {
         bytes_received = this->socket->receive_packet(receive_buffer);
         if (bytes_received <= 0) {
             break;
