@@ -2,15 +2,12 @@ I'm tired of writing TODOs in random places so I'll continue here.
 
 =========== Issues =====================
 * Add README.md
+* Issue described in 15dc408 is fixed, but still reproducable if we run ping_subnet, and in parallel - ping the host from that subnet.
+In that case ping_subnet might still freeze. Find a way to fix it. POssible solution - use icmp_seq field.
 
 =========== Ideas ======================
-* sort out the mess of shared_ptr vs shared_ptr& when passed to different methods and classes.
-Do we actually need shared_ptr in all of those cases?
-
-* send/receive ICMP packets in parallel (e.g. one host - one thread). Use POSIX threads.
-* Print some extra data to the user output: TTL, time delay.
+* send/receive ICMP packets in parallel (e.g. one host - one thread).
 * Add support for Windows, use autotools if required.
-* in Socket::configure_socket: find a way to initialize timeValue struct during the function call in args list (on the go).
 * Change this:
             See 'man capabilities' and 'man setcap' for more info.
     To:
