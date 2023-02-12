@@ -2,8 +2,8 @@ CC = g++
 STD = c++11
 CFLAGS = -g3 --std=$(STD)
 TARGET = ping_subnet
-BINARY_DIR = /usr/bin
-BINARY_PATH = $(BINARY_DIR)/$(TARGET)
+INSTALL_DIR = /usr/bin
+INSTALL_PATH = $(INSTALL_DIR)/$(TARGET)
 MODULES = \
 	main \
 	ping \
@@ -23,14 +23,14 @@ $(TARGET): $(OBJ)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 install:
-	@echo "\nInstalling to $(BINARY_DIR)..."
-	@sudo cp $(TARGET) $(BINARY_PATH)
+	@echo "\nInstalling to $(INSTALL_DIR)..."
+	@sudo cp $(TARGET) $(INSTALL_PATH)
 	@echo "Setting CAP_NET_RAW capability for $(TARGET) executable..."
-	@sudo setcap cap_net_raw=eip $(TARGET) cap_net_raw=eip $(BINARY_PATH)
+	@sudo setcap cap_net_raw=eip $(TARGET) cap_net_raw=eip $(INSTALL_PATH)
 
 clean:
 	@rm -f $(OBJ) $(TARGET)
 
 uninstall:
-	@sudo rm -f $(BINARY_PATH)
+	@sudo rm -f $(INSTALL_PATH)
 	@echo "Uninstall complete..."
