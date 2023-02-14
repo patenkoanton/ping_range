@@ -6,7 +6,6 @@ I'm tired of writing TODOs in random places so I'll continue here.
 In that case ping_subnet might still freeze. Find a way to fix it. POssible solution - use icmp_seq field.
 
 =========== Ideas ======================
-* send/receive ICMP packets in parallel (e.g. one host - one thread).
 * Add support for Windows, use autotools if required.
 * Change this:
             See 'man capabilities' and 'man setcap' for more info.

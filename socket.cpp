@@ -11,7 +11,7 @@
 
 // NOTE: we pass target_subnet by value because Socket::Socket shares the ownership of the object.
 // It's being passed by reference to other Socket::members because we don't want them to own the object.
-Socket::Socket(int socket_timeout_sec, const std::shared_ptr<Subnet> target_subnet)
+Socket::Socket(const std::shared_ptr<Subnet> target_subnet)
 {
     // Open socket
     if (this->open_socket() < 0) {
@@ -19,7 +19,7 @@ Socket::Socket(int socket_timeout_sec, const std::shared_ptr<Subnet> target_subn
     }
 
     // Configure socket
-    if (this->configure_socket(socket_timeout_sec, target_subnet) < 0) {
+    if (this->configure_socket(target_subnet) < 0) {
         this->close_socket();
         throw std::string("failed to configure socket.");
     }
@@ -91,19 +91,8 @@ int Socket::open_socket()
 }
 
 
-int Socket::configure_socket(int socket_timeout_sec, const std::shared_ptr<Subnet> &target_subnet)
+int Socket::configure_socket(const std::shared_ptr<Subnet> &target_subnet)
 {
-    timeval timeValue = {
-        .tv_sec = socket_timeout_sec,
-        .tv_usec = 0,
-    };
-
-    // Set socket timeout
-    if (setsockopt(this->hsocket, SOL_SOCKET, SO_RCVTIMEO, &timeValue, sizeof(timeValue)) < 0) {
-        std::cerr << "ERROR: setsockopt error. " << std::strerror(errno) << std::endl;
-        return -1;
-    }
-
     // Apply subnet filter
     if (this-apply_subnet_bpf_filter(target_subnet) < 0) {
         std::cerr << "ERROR: failed to apply BPF filter." << std::endl;     // TODO: change to warning???

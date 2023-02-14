@@ -24,6 +24,7 @@ public:
     IPAddress operator-(uint32_t arg) const;
     bool operator<(const IPAddress &arg) const;
     bool operator!=(const IPAddress &arg) const;
+    bool operator==(const IPAddress &arg) const;
     IPAddress operator++(int);
     IPAddress operator=(uint32_t arg);
     friend std::ostream& operator<<(std::ostream& stream, const IPAddress& arg);

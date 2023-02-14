@@ -1,6 +1,6 @@
 CC = g++
 STD = c++11
-CFLAGS = -g3 --std=$(STD)
+CFLAGS = -g3 --std=$(STD) -pthread
 TARGET = ping_subnet
 INSTALL_DIR = /usr/bin
 INSTALL_PATH = $(INSTALL_DIR)/$(TARGET)
