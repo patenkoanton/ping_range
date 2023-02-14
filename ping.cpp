@@ -1,50 +1,110 @@
 #include <iostream>
 #include <string>
 #include <netinet/ip_icmp.h>    // icmphdr
+#include <thread>
+#include <map>
+#include <unistd.h>     // read()
 #include "ping.h"
 #include "subnet.h"
 #include "socket.h"
 #include "factory.h"
 
-#define RECEIVE_BUFFER_SIZE         (1024)
-#define SOCKET_TIMEOUT_SEC          (2)
+#define HOST_TIMEOUT_SEC            (2)     // expect host to reply within this time
 #define ICMP_REPLY_EXPECTED_SIZE    (sizeof(iphdr) + sizeof(icmphdr))
 
 
 Ping::Ping(std::shared_ptr<Subnet> subnet)
 {
     this->subnet = subnet;
-    this->socket = factory_create_object<Socket>(SOCKET_TIMEOUT_SEC, subnet);
+    this->socket = factory_create_object<Socket>(subnet);
     if (this->socket == nullptr) {
         throw std::string("failed to create Socket object.");
     }
 }
 
+
 void Ping::ping()
 {
-    std::vector<char> receive_buffer(RECEIVE_BUFFER_SIZE);
+    std::thread sender(&Ping::sender_thread, this);
+    std::thread receiver(&Ping::receiver_thread, this);
+    std::thread timer(&Ping::timer_thread, this);
+    std::thread printer(&Ping::printer_thread, this);
 
-    // Ping every host in the list
-    for (auto host : this->subnet->hosts) {
+    sender.join();
+    printer.join();
+    timer.join();
+    receiver.~thread();
+}
+
+
+void Ping::sender_thread()
+{
+    for (auto &host : this->subnet->hosts) {
         if (this->send_icmp_request(host) < 0) {
             std::cout << "WARNING: failed to send ICMP request." << std::endl;
             continue;
         }
 
-        // Wait for reply...
-        host_status_t host_status;
-        auto receive_status = this->receive_icmp_reply(host, receive_buffer);
-        if (receive_status < 0) {
-            std::cout << "WARNING: failed to receive ICMP reply." << std::endl;
-            continue;
-        } else if (receive_status == 0) {
-            host_status = offline;
-        // Got valid reply...
-        } else {
-            host_status = this->parse_host_status(receive_buffer);
-        }
+        std::lock_guard<std::mutex> guard(this->my_mutex);
+        this->pending_hosts.push_back({host, pending, std::chrono::system_clock::now()});
+    }
+}
 
-        this->show_host_status(host, host_status);
+
+void Ping::receiver_thread()
+{
+    std::vector<char> receive_buffer(ICMP_REPLY_EXPECTED_SIZE);
+    while (1) {
+        auto bytes_received = read(this->socket->hsocket, receive_buffer.data(), ICMP_REPLY_EXPECTED_SIZE);        // TODO: put read() inside Socket class.
+        if (bytes_received != ICMP_REPLY_EXPECTED_SIZE) {
+            continue;
+        }
+        auto ip_header = (iphdr *)receive_buffer.data();
+        auto replier = factory_create_object<IPAddress, uint32_t>(ntohl(ip_header->saddr));
+
+        // Only set status if the host is pending.
+        // If status is set to online/offline - assume the reply has already been received before.
+        std::lock_guard<std::mutex> guard(this->my_mutex);
+        for (auto &host_it : this->pending_hosts) {
+            if (*replier == *host_it.host) {
+                if (host_it.status == pending) {
+                    host_it.status = this->parse_host_status(receive_buffer);
+                }
+                break;
+            }
+        }
+    }
+}
+
+
+void Ping::timer_thread()
+{
+    while (1) {
+        std::lock_guard<std::mutex> guard(this->my_mutex);
+        for (auto &pending_it : this->pending_hosts) {
+            if (pending_it.status == pending) {
+                std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - pending_it.send_time;
+                if (elapsed_seconds.count() >= HOST_TIMEOUT_SEC) {
+                    pending_it.status = offline;
+                }
+            }
+        }
+    }
+}
+
+
+void Ping::printer_thread()
+{
+    while (1) {
+        std::lock_guard<std::mutex> guard(this->my_mutex);
+        auto pending_it = this->pending_hosts.begin();
+        while (pending_it != this->pending_hosts.end()) {
+            if (pending_it->status == pending) {
+                break;
+            }
+            this->show_host_status(pending_it->host, pending_it->status);
+            this->pending_hosts.erase(pending_it++);
+        }
     }
 }
 
@@ -64,6 +124,12 @@ host_status_t Ping::parse_host_status(const std::vector<char> &receive_buffer) c
 // Prints host IP and online status in a readable form.
 void Ping::show_host_status(std::shared_ptr<IPAddress> &host, host_status_t status) const
 {
+    std::map<host_status_t, std::string> status_string = {
+        { pending, "[PENDING]" },
+        { online, "[ONLINE]" },
+        { offline, "[OFFLINE]" },
+    };
+
     std::cout << host->to_string() << " ";
 
     auto hostname = host->to_hostname();
@@ -71,13 +137,7 @@ void Ping::show_host_status(std::shared_ptr<IPAddress> &host, host_status_t stat
         std::cout << '(' << hostname << ") ";
     }
 
-    if (status == online) {
-        std::cout << "[ONLINE]";
-    } else {
-        std::cout << "[OFFLINE]";
-    }
-
-    std::cout << std::endl;
+    std::cout << status_string[status] << std::endl;
 }
 
 
@@ -93,29 +153,6 @@ int Ping::send_icmp_request(std::shared_ptr<IPAddress> &dest_host) const
 
     // Send
     return this->socket->send_packet(&icmp_header, sizeof(icmp_header), dest_host);
-}
-
-
-/* Return value:
-    * negative   -   error
-    * 0         -   host offline
-    * positive  -   sucess: received reply from a host */
-ssize_t Ping::receive_icmp_reply(std::shared_ptr<IPAddress> &host, std::vector<char> &receive_buffer) const
-{
-    // Keep receiving until the replier IP is right.
-    ssize_t bytes_received = 0;
-    auto replier = factory_create_object<IPAddress, uint32_t>(0);
-    while (*replier != *host) {
-        bytes_received = this->socket->receive_packet(receive_buffer);
-        if (bytes_received <= 0) {
-            break;
-        } else if (bytes_received == ICMP_REPLY_EXPECTED_SIZE) {
-            auto ip_header = (iphdr *)receive_buffer.data();
-            *replier = ntohl(ip_header->saddr);
-        }
-    }
-
-    return bytes_received;
 }
 
 
