@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <iostream>
 #include <linux/filter.h>
-#include <memory>
 #include "socket.h"
 #include "subnet.h"
 
