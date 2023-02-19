@@ -130,7 +130,7 @@ void Ping::show_host_status(std::shared_ptr<IPAddress> &host, host_status_t stat
         { offline, "[OFFLINE]" },
     };
 
-    std::cout << host->to_string() << " ";
+    std::cout << *host << " ";
 
     auto hostname = host->to_hostname();
     if (!hostname.empty()) {

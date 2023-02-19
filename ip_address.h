@@ -9,13 +9,12 @@
 class IPAddress {
     uint32_t host_order = 0;
     uint32_t network_order = 0;
+    std::string to_string() const;
 public:
     IPAddress(uint32_t ip_host_order);
     IPAddress(const std::string &ip_string);
-    uint32_t to_network() const;
     uint32_t to_host() const;
-    std::string to_string() const;
-    in_addr *to_addr() const;
+    const in_addr *to_addr() const;
     std::string to_hostname() const;
 
     // Make calculations easier.
@@ -26,7 +25,6 @@ public:
     bool operator!=(const IPAddress &arg) const;
     bool operator==(const IPAddress &arg) const;
     IPAddress operator++(int);
-    IPAddress operator=(uint32_t arg);
     friend std::ostream& operator<<(std::ostream& stream, const IPAddress& arg);
 };
 

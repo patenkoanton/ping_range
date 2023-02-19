@@ -37,8 +37,8 @@ int main(int argc, char *argv[])
     }
 
     // Show subnet info including the list of hosts.
-    std::cout << "Subnet: " << subnet->subnet->to_string() << std::endl;
-    std::cout << "Broadcast: " << subnet->broadcast->to_string() << std::endl;
+    std::cout << "Subnet: " << *subnet->subnet << std::endl;
+    std::cout << "Broadcast: " << *subnet->broadcast << std::endl;
     std::cout << std::endl;
 
     // Perform ping.
