@@ -33,15 +33,16 @@ void Ping::ping()
     std::thread sender(&Ping::sender_thread, this);
     std::thread receiver(&Ping::receiver_thread, this);
     std::thread timer(&Ping::timer_thread, this);
-    std::thread printer(&Ping::printer_thread, this);
+    std::thread finalizer(&Ping::finalizer_thread, this);
 
     sender.join();
-    printer.join();
+    receiver.join();
     timer.join();
-    receiver.~thread();
+    finalizer.join();
 }
 
 
+// Sends ICMP request to every host in the subnet.
 void Ping::sender_thread()
 {
     for (auto &host : this->subnet->hosts) {
@@ -56,10 +57,11 @@ void Ping::sender_thread()
 }
 
 
+// Wait for ICMP reply from every 'pending' host.
 void Ping::receiver_thread()
 {
     std::vector<char> receive_buffer(RECEIVE_BUFFER_SIZE);
-    while (1) {
+    while (this->keep_running()) {
         auto bytes_received = read(this->socket->hsocket, receive_buffer.data(), RECEIVE_BUFFER_SIZE);        // TODO: put read() inside Socket class.
         if (bytes_received != ICMP_REPLY_EXPECTED_SIZE) {
             continue;
@@ -82,9 +84,10 @@ void Ping::receiver_thread()
 }
 
 
+// Sets host to 'offline' if no reply received within HOST_TIMEOUT_SEC.
 void Ping::timer_thread()
 {
-    while (1) {
+    while (this->keep_running()) {
         std::lock_guard<std::mutex> guard(this->my_mutex);
         for (auto &pending_it : this->pending_hosts) {
             if (pending_it.status == pending) {
@@ -98,9 +101,10 @@ void Ping::timer_thread()
 }
 
 
-void Ping::printer_thread()
+// Prints host status and removes it from 'pending' list.
+void Ping::finalizer_thread()
 {
-    while (1) {
+    while (this->keep_running()) {
         std::lock_guard<std::mutex> guard(this->my_mutex);
         auto pending_it = this->pending_hosts.begin();
         while (pending_it != this->pending_hosts.end()) {
@@ -109,8 +113,16 @@ void Ping::printer_thread()
             }
             this->show_host_status(pending_it->host, pending_it->status);
             this->pending_hosts.erase(pending_it++);
+            this->finalized_hosts++;
         }
     }
+}
+
+
+// Returns 'true' until we ping (and finalize) all hosts.
+bool Ping::keep_running()
+{
+    return this->finalized_hosts < this->subnet->hosts.size();
 }
 
 

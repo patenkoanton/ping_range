@@ -23,9 +23,6 @@ struct pending_host {
 };
 
 class Ping {
-    std::list<pending_host> pending_hosts;
-    std::mutex my_mutex;
-
     std::shared_ptr<Subnet> subnet;
     std::shared_ptr<Socket> socket;
 
@@ -33,10 +30,17 @@ class Ping {
     host_status_t parse_host_status(const std::vector<char> &receive_buffer) const;
     void show_host_status(std::shared_ptr<IPAddress> &host, host_status_t status) const;
     uint16_t generate_internet_checksum(const void *packet, int packet_size) const;
+
+    // Parallel execution.
     void sender_thread();
     void receiver_thread();
     void timer_thread();
-    void printer_thread();
+    void finalizer_thread();
+    bool keep_running();
+
+    std::list<pending_host> pending_hosts;
+    uint32_t finalized_hosts = 0;
+    std::mutex my_mutex;
 public:
     Ping(std::shared_ptr<Subnet> subnet);
     void ping();
