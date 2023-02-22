@@ -4,6 +4,21 @@ I'm tired of writing TODOs in random places so I'll continue here.
 * Add README.md
 * Issue described in 15dc408 is fixed, but still reproducable if we run ping_subnet, and in parallel - ping the host from that subnet.
 In that case ping_subnet might still freeze. Find a way to fix it. POssible solution - use icmp_seq field.
+* We are getting a weird bug if we add a new field to Ping class and rebuild the project without rebuilding the factory.o:
+
+ping_subnet: malloc.c:2374: sysmalloc: Assertion `(old_top == (((mbinptr) (((char *) &((av)->bins[((1) - 1) * 2])) - __builtin_offsetof (struct malloc_chunk, fd)))) && old_size == 0) || ((unsigned long) (old_size)
+ >= (unsigned long)((((__builtin_offsetof (struct malloc_chunk, fd_nextsize))+((2 *(sizeof(size_t))) - 1)) & ~((2 *(sizeof(size_t))) - 1))) && ((old_top)->size & 0x1) && ((unsigned long) old_end & pagemask) == 0)'
+ failed.
+Aborted
+
+Steps to reproduce:
+        - git reset --hard 4ffb42f
+        - make && make install
+        - add a new field "uint_32t temp = 0" into the body of Ping class.
+        - make && make install && ./ping_subnet 157.240.8.32/27
+However, the bug goes away if we run 'make clean' or remove factory.o so it gets rebuilt.
+Find out what is this strange behavior of factory object (memory related?)
+
 
 =========== Ideas ======================
 * Add support for Windows, use autotools if required.
