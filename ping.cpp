@@ -3,7 +3,6 @@
 #include <netinet/ip_icmp.h>    // icmphdr
 #include <thread>
 #include <map>
-#include <unistd.h>     // read()
 #include "ping.h"
 #include "subnet.h"
 #include "socket.h"
@@ -62,7 +61,7 @@ void Ping::receiver_thread()
 {
     std::vector<char> receive_buffer(RECEIVE_BUFFER_SIZE);
     while (this->keep_running()) {
-        auto bytes_received = read(this->socket->hsocket, receive_buffer.data(), RECEIVE_BUFFER_SIZE);        // TODO: put read() inside Socket class.
+        auto bytes_received = this->socket->receive_packet(receive_buffer);
         if (bytes_received != ICMP_REPLY_EXPECTED_SIZE) {
             continue;
         }

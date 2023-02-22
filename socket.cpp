@@ -1,7 +1,7 @@
 #include <string>
 #include <cstring>  // strerror
 #include <netdb.h>
-#include <unistd.h>
+#include <unistd.h> // close()
 #include <iostream>
 #include <linux/filter.h>
 #include "socket.h"
@@ -50,20 +50,16 @@ int Socket::send_packet(const void *packet, size_t size, std::shared_ptr<IPAddre
 }
 
 
-/* Returns number of bytes received if successful.
- * If failed:
- *      0   - no reply
- *      -1  - general error
- */
+// Returns number of bytes read from socket.
+// Prints warning when recv() fails.
 ssize_t Socket::receive_packet(std::vector<char> &buffer)
 {
-    auto bytes_received = recvfrom(this->hsocket, buffer.data(), buffer.capacity(), 0, NULL, NULL);
+    auto bytes_received = recv(this->hsocket, buffer.data(), buffer.capacity(), 0);
     if (bytes_received < 0) {
-        if (errno == EWOULDBLOCK) {
-            return 0;      // No reply before the socket timeout. Host is down/does not reply.
+        // We use a non-blocking socket so we can ignore blocking-related error codes.
+        if (errno != EWOULDBLOCK && errno != EAGAIN) {
+            this->show_general_warning();
         }
-        this->show_general_warning();
-        return -1;
     }
 
     return bytes_received;
