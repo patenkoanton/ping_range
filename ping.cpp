@@ -12,6 +12,11 @@
 #define HOST_TIMEOUT_SEC            (2)     // expect host to reply within this time
 #define ICMP_REPLY_EXPECTED_SIZE    (sizeof(iphdr) + sizeof(icmphdr))
 
+// Needs to be bigger than ICMP packet.
+// Otherwise we might receive a bigger packet, but its size will get trimmed down to ICMP_REPLY_EXPECTED_SIZE.
+// Making us think that we received ICMP, when in reality we didn't.
+#define RECEIVE_BUFFER_SIZE         (ICMP_REPLY_EXPECTED_SIZE + 1)
+
 
 Ping::Ping(std::shared_ptr<Subnet> subnet)
 {
@@ -53,9 +58,9 @@ void Ping::sender_thread()
 
 void Ping::receiver_thread()
 {
-    std::vector<char> receive_buffer(ICMP_REPLY_EXPECTED_SIZE);
+    std::vector<char> receive_buffer(RECEIVE_BUFFER_SIZE);
     while (1) {
-        auto bytes_received = read(this->socket->hsocket, receive_buffer.data(), ICMP_REPLY_EXPECTED_SIZE);        // TODO: put read() inside Socket class.
+        auto bytes_received = read(this->socket->hsocket, receive_buffer.data(), RECEIVE_BUFFER_SIZE);        // TODO: put read() inside Socket class.
         if (bytes_received != ICMP_REPLY_EXPECTED_SIZE) {
             continue;
         }
