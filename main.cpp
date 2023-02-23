@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    // Show subnet info including the list of hosts.
+    // Show subnet info.
     std::cout << "Subnet: " << *subnet->subnet << std::endl;
     std::cout << "Broadcast: " << *subnet->broadcast << std::endl;
     std::cout << std::endl;
