@@ -42,7 +42,7 @@ int Socket::send_packet(const void *packet, size_t size, std::shared_ptr<IPAddre
     };
 
     if (sendto(this->hsocket, packet, size, 0, (sockaddr *)&dest_info, sizeof(sockaddr)) < 0) {
-        this->show_general_warning();
+        this->show_errno();
         return -1;
     }
     
@@ -58,7 +58,7 @@ ssize_t Socket::receive_packet(std::vector<char> &buffer)
     if (bytes_received < 0) {
         // We use a non-blocking socket so we can ignore blocking-related error codes.
         if (errno != EWOULDBLOCK && errno != EAGAIN) {
-            this->show_general_warning();
+            this->show_errno();
         }
     }
 
@@ -138,7 +138,7 @@ void Socket::close_socket()
 }
 
 
-void Socket::show_general_warning()
+void Socket::show_errno()
 {
     std::cout << "WARNING: " << std::strerror(errno) << ". ";
 }
