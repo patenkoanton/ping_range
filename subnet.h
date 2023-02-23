@@ -8,7 +8,7 @@
 
 
 class Subnet {
-    int generate_hosts(std::vector<std::shared_ptr<IPAddress>> &hosts);
+    void generate_hosts(std::vector<std::shared_ptr<IPAddress>> &hosts);
     std::shared_ptr<IPAddress> generate_subnet_address(std::string &input_address, int mask);
     std::shared_ptr<IPAddress> generate_broadcast_address(int mask);
     std::pair<std::string, int> parse_input_address_string(std::string &input_address_string);

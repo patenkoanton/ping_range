@@ -34,9 +34,7 @@ Subnet::Subnet(std::string &input_address_string)
     }
 
     // Go through all possible hosts in subnet.
-    if (this->generate_hosts(this->hosts) < 0) {
-        throw std::string("Failed to generate hosts.");
-    }
+    this->generate_hosts(this->hosts);
 }
 
 
@@ -77,15 +75,13 @@ std::shared_ptr<IPAddress> Subnet::generate_broadcast_address(int mask)
 }
 
 
-int Subnet::generate_hosts(std::vector<std::shared_ptr<IPAddress>> &hosts)
+void Subnet::generate_hosts(std::vector<std::shared_ptr<IPAddress>> &hosts)
 {
     auto host = *this->subnet + 1;
     while (host < *this->broadcast) {
         hosts.push_back(std::make_shared<IPAddress>(host));
         host++;
     }
-
-    return 0;
 }
 
 
