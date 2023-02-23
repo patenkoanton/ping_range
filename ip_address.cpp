@@ -90,7 +90,7 @@ bool IPAddress::operator==(const IPAddress &arg) const
 IPAddress IPAddress::operator++(int)
 {
     IPAddress old = *this;
-    (this->host_order)++;
+    this->host_order++;
     this->network_order = htonl(this->host_order);
 
     return old;
