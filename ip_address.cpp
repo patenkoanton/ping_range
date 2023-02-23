@@ -5,8 +5,11 @@
 
 IPAddress::IPAddress(const std::string &ip_string)
 {
+    auto source = ip_string.c_str();
+    auto dest = (in_addr *)&this->network_order;
+
     // Convert from IP string to a number representation.
-    if (inet_aton(ip_string.c_str(), (in_addr *)&this->network_order) == 0) {
+    if (inet_aton(source, dest) == 0) {
         throw std::string("Invalid IP address provided.");
     }
 
