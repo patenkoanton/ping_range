@@ -103,9 +103,6 @@ int Socket::configure_socket(const std::shared_ptr<Subnet> &target_subnet)
  * Detailed bug desription: see commit 15dc408.
  * More info on BPF:
  *      https://www.kernel.org/doc/html/latest/networking/filter.html
- * Method arguments:
- *      > subnet address
- *      > bitmask (e.g. 0xFFFF0000 for /16 mask) in host order
  */
 int Socket::apply_subnet_bpf_filter(const std::shared_ptr<Subnet> &target_subnet)
 {
