@@ -18,6 +18,8 @@ Steps to reproduce:
         - make && make install && ./ping_subnet 157.240.8.32/27
 However, the bug goes away if we run 'make clean' or remove factory.o so it gets rebuilt.
 Find out what is this strange behavior of factory object (memory related?)
+It could be something template-related. Maybe templates are generated in a way that affects memory and is dependend on the size of class.
+I.e. adding new members to a class messes up with generated template methods.
 
 
 =========== Ideas ======================
