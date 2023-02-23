@@ -118,12 +118,12 @@ int Socket::apply_subnet_bpf_filter(const std::shared_ptr<Subnet> &target_subnet
         { 0x6, 0, 0, 0x00000000     },      // ret      #0              // drop packet
     };
 
-    struct sock_fprog my_bpf = {
+    struct sock_fprog bpf_filter = {
         .len = sizeof(code) / sizeof(sock_filter),
         .filter = code,
     };
 
-    if (setsockopt(this->hsocket, SOL_SOCKET, SO_ATTACH_FILTER, &my_bpf, sizeof(my_bpf)) < 0) {
+    if (setsockopt(this->hsocket, SOL_SOCKET, SO_ATTACH_FILTER, &bpf_filter, sizeof(bpf_filter)) < 0) {
         std::cerr << "ERROR: could not apply socket filter" << std::endl;
         return -1;
     }
