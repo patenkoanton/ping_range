@@ -65,5 +65,5 @@ bool Main::help_message_requested(int argc, char **argv)
 void Main::show_help()
 {
     std::cout << std::endl;
-    std::cout << "Usage: sudo ./ping_subnet [subnet_ip_address]/[mask]" << std::endl;
+    std::cout << "Usage: ./ping_subnet [subnet_ip_address]/[mask]" << std::endl;
 }
