@@ -1,12 +1,14 @@
 CC = g++
 STD = c++11
-CFLAGS = -Wall -g3 --std=$(STD) -pthread
+CFLAGS = -Wall -g3 --std=$(STD)
+OTHER_FLAGS = `wx-config --cxxflags` `wx-config --libs` -pthread
 SRC_DIR = .
 TARGET_EXT = .out
 
 # each target to be listed here
 APPS = \
 	ping_subnet \
+	ping_subnet_gui \
 
 # each target needs to have a similar variable: [target_name]_DEPENDENCIES
 ping_subnet_DEPENDENCIES = $(addsuffix .o, \
@@ -17,10 +19,15 @@ ping_subnet_DEPENDENCIES = $(addsuffix .o, \
 	factory \
 	ip_address \
 )
+ping_subnet_gui_DEPENDENCIES = $(addsuffix .o, \
+	gui_app \
+	gui_mainframe \
+)
 
 # each dependency variable to be listed here
 OBJECTS = \
 	$(ping_subnet_DEPENDENCIES) \
+	$(ping_subnet_gui_DEPENDENCIES) \
 
 .PHONY: all $(APPS) clean install uninstall
 
@@ -29,16 +36,15 @@ all: $(APPS)
 $(APPS): %: $(addsuffix $(TARGET_EXT), %)
 
 $(addsuffix $(TARGET_EXT), %):
-	@$(MAKE) \
+	@$(MAKE) generic_target \
 		DEPENDENCIES=$(addsuffix _DEPENDENCIES, $*) \
-		TARGET=$@ \
-		generic_target
+		TARGET=$@
 
 generic_target: $($(DEPENDENCIES))
-	$(CC) $(CFLAGS) $^ -o $(TARGET)
+	$(CC) $(CFLAGS) $^ -o $(TARGET) $(OTHER_FLAGS)
 
 %.o: $(SRC_DIR)/%.cpp $(SRC_DIR)/%.h
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@ $(OTHER_FLAGS)
 
 TARGETS = $(addsuffix $(TARGET_EXT), $(APPS))
 clean:
