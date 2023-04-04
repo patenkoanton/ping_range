@@ -30,4 +30,5 @@ I.e. adding new members to a class messes up with generated template methods.
             See README for more info.
     And put all this info into readme (once README is created).
 * move GUI modules into "gui" folder and remove "gui_" prefix.
+* create src and build folders
 
