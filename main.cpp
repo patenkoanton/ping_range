@@ -2,7 +2,7 @@
 #include <string>
 #include <set>
 #include "main.h"
-#include "ping.h"
+#include "orchestrator.h"
 #include "factory.h"
 
 #define MIN_ARGC    (2)
@@ -20,30 +20,8 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    // Generate address range.
     std::string address_and_mask = argv[1];
-    auto subnet = factory_create_object<Subnet, std::string&>(address_and_mask);
-    if (subnet == nullptr) {
-        std::cerr << "ERROR: failed to create Subnet object." << std::endl;
-        Main::show_help();
-        return 0;
-    }
-
-    // Create ping object.
-    auto ping = factory_create_object<Ping>(subnet);
-    if (ping == nullptr) {
-        Main::show_help();
-        return 0;
-    }
-
-    // Show subnet info.
-    std::cout << "Subnet: " << *subnet->subnet << std::endl;
-    std::cout << "Broadcast: " << *subnet->broadcast << std::endl;
-    std::cout << std::endl;
-
-    // Perform ping.
-    ping->ping();
-    return 0;
+    return factory_create_object<Orchestrator, std::string&>(address_and_mask)->start();
 }
 
 

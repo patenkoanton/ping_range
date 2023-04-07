@@ -6,6 +6,7 @@
 #include "subnet.h"
 #include "socket.h"
 #include "ip_address.h"
+#include "orchestrator.h"
 
 
 /* Return class <T> object wrapped in shared_ptr. */
@@ -28,3 +29,4 @@ template std::shared_ptr<Subnet> factory_create_object<Subnet, std::string&>(std
 template std::shared_ptr<Socket> factory_create_object<Socket, std::shared_ptr<Subnet>>(std::shared_ptr<Subnet>);
 template std::shared_ptr<IPAddress> factory_create_object<IPAddress, uint32_t>(uint32_t);
 template std::shared_ptr<IPAddress> factory_create_object<IPAddress, std::string&>(std::string&);
+template std::shared_ptr<Orchestrator> factory_create_object<Orchestrator, std::string&>(std::string&);
