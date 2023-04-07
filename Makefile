@@ -3,15 +3,18 @@ STD = c++11
 CFLAGS = -Wall -g3 --std=$(STD)
 OTHER_FLAGS = `wx-config --cxxflags` `wx-config --libs` -pthread
 SRC_DIR = .
-TARGET_EXT = .out
+TARGET_EXT = out
+INSTALL_DIR = /usr/bin
+BUILD_DIR = build
+TARGETS = $(patsubst $(BUILD_DIR)/%, %, $(shell find $(BUILD_DIR) -name '*.$(TARGET_EXT)' 2>/dev/null))
 
-# each target to be listed here
+# IMPORTANT: Each target to be listed here
 APPS = \
 	ping_subnet \
 	ping_subnet_gui \
 
-# each target needs to have a similar variable: [target_name]_DEPENDENCIES
-ping_subnet_DEPENDENCIES = $(addsuffix .o, \
+# IMPORTANT: Each target needs to have a similar variable: [target_name]_DEPENDENCIES
+ping_subnet_DEPENDENCIES = $(patsubst %, $(BUILD_DIR)/%.o, \
 	main \
 	ping \
 	subnet \
@@ -19,50 +22,51 @@ ping_subnet_DEPENDENCIES = $(addsuffix .o, \
 	factory \
 	ip_address \
 )
-ping_subnet_gui_DEPENDENCIES = $(addsuffix .o, \
+ping_subnet_gui_DEPENDENCIES = $(patsubst %, $(BUILD_DIR)/%.o, \
 	gui_app \
 	gui_mainframe \
 )
-
-# each dependency variable to be listed here
-OBJECTS = \
-	$(ping_subnet_DEPENDENCIES) \
-	$(ping_subnet_gui_DEPENDENCIES) \
 
 .PHONY: all $(APPS) clean install uninstall
 
 all: $(APPS)
 
-$(APPS): %: $(addsuffix $(TARGET_EXT), %)
+# generate rules for each [app]
+define BUILD_TARGET
 
-$(addsuffix $(TARGET_EXT), %):
-	@$(MAKE) generic_target \
-		DEPENDENCIES=$(addsuffix _DEPENDENCIES, $*) \
-		TARGET=$@
+# every [app] depends on its [app].out
+$(1): $(BUILD_DIR) $(BUILD_DIR)/$(1).$(TARGET_EXT)
 
-generic_target: $($(DEPENDENCIES))
-	$(CC) $(CFLAGS) $^ -o $(TARGET) $(OTHER_FLAGS)
+# every [app].out depends on its dependencies
+$(BUILD_DIR)/$(1).$(TARGET_EXT): $$($(1)_DEPENDENCIES)
+	$(CC) $(CFLAGS) $$^ -o $$@ $(OTHER_FLAGS)
+endef
+# WARNING: dont add space after BUILD_TARGET's comma otherwise everything will break!
+$(foreach i, $(APPS), $(eval $(call BUILD_TARGET,$(i))))
 
-%.o: $(SRC_DIR)/%.cpp $(SRC_DIR)/%.h
+# create a build folder
+$(BUILD_DIR):
+	mkdir -p $@
+
+# every *.o depends on its *.cpp and *.h
+$(BUILD_DIR)/%.o: $(addprefix $(SRC_DIR)/, %.cpp %.h)
 	$(CC) $(CFLAGS) -c $< -o $@ $(OTHER_FLAGS)
 
-TARGETS = $(addsuffix $(TARGET_EXT), $(APPS))
 clean:
-	rm -f $(TARGETS)
-	rm -f $(OBJECTS)
+	rm -rf $(BUILD_DIR)
 
+# install / uninstall each [target]
+install: $(addprefix install_, $(TARGETS))
+uninstall: $(addprefix uninstall_, $(TARGETS))
 
-# TODO: uncomment and fix
+define INSTALL_TARGET
+install_$(1): 
+	@echo "Installing $(BUILD_DIR)/$(1)..."
+	@sudo setcap CAP_NET_RAW=eip $(BUILD_DIR)/$(1)
+	@sudo ln -fs $(BUILD_DIR)/$(1) $(INSTALL_DIR)/$(1)
 
-# # install / uninstall
-# INSTALL_DIR = /usr/bin
-
-# install:
-# 	@echo "\nInstalling to $(INSTALL_DIR)..."
-# 	@sudo cp $(TARGET) $(INSTALL_PATH)
-# 	@echo "Setting CAP_NET_RAW capability for $(TARGET) executable..."
-# 	@sudo setcap cap_net_raw=eip $(TARGET) cap_net_raw=eip $(INSTALL_PATH)
-
-# uninstall:
-# 	@sudo rm -f $(INSTALL_PATH)
-# 	@echo "Uninstall complete..."
+uninstall_$(1):
+	@echo "Uninstalling $(1)..."
+	@sudo rm -f $(INSTALL_DIR)/$(1)
+endef
+$(foreach i, $(TARGETS), $(eval $(call INSTALL_TARGET,$(i))))
