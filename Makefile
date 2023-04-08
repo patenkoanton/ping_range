@@ -28,6 +28,14 @@ ping_subnet_DEPENDENCIES = $(patsubst %, $(BUILD_DIR)/%.o, \
 ping_subnet_gui_DEPENDENCIES = $(patsubst %, $(BUILD_DIR)/%.o, \
 	gui_app \
 	gui_mainframe \
+	ping \
+	subnet \
+	socket \
+	factory \
+	ip_address \
+	orchestrator \
+	output_stream_base \
+	output_stream_gui \
 )
 
 .PHONY: all $(APPS) clean install uninstall

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wx/wx.h>
+#include <wx/listctrl.h>
 
 class Mainframe : public wxFrame {
     wxPanel *panel;
@@ -12,10 +13,11 @@ class Mainframe : public wxFrame {
     wxTextCtrl *mask_input;
     wxStaticText *mask_label;
 
-    wxTextCtrl *output;
+    wxListCtrl *output;
 
     void run_button_handler(wxCommandEvent &event);
     void create_controls();
+    void show_output(std::string &arg);
 public:
     Mainframe(const wxString& title);
 };
