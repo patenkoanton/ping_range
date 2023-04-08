@@ -15,7 +15,7 @@
     * 2) Calculate broadcast address.
     * 3) Store all possible hosts in subnet into vector.
  */
-Subnet::Subnet(std::string &input_address_string)
+Subnet::Subnet(std::string &input_address_string, OutputStreamBase &stream) : output_stream(stream)
 {
     std::pair<std::string, int> subnet_address_and_mask = this->parse_input_address_string(input_address_string);
     auto input_address = subnet_address_and_mask.first;
@@ -42,13 +42,12 @@ Subnet::Subnet(std::string &input_address_string)
 std::shared_ptr<IPAddress> Subnet::generate_subnet_address(std::string &input_address_string, int mask)
 {
     if (mask < 1 || mask > 32) {
-        std::cerr << "ERROR: invalid subnet mask provided." << std::endl;
+        this->output_stream << "ERROR: invalid subnet mask provided." << std::endl;
         return nullptr;
     }
 
     auto input_ip = factory_create_object<IPAddress, std::string&>(input_address_string);
     if (input_ip == nullptr) {
-        std::cerr << "ERROR: failed to create IP address object." << std::endl;
         return nullptr;
     }
 
@@ -57,7 +56,7 @@ std::shared_ptr<IPAddress> Subnet::generate_subnet_address(std::string &input_ad
 
     // Verify non-network bits not set in the input (similar to what tcmpdump does).
     if ((*input_ip & ~this->bitmask) != 0) {
-        std::cerr << "ERROR: non-network bits set in " << input_address_string << "." << std::endl;
+        this->output_stream << "ERROR: non-network bits set in " << input_address_string << "." << std::endl;
         return nullptr;
     }
 
@@ -104,7 +103,7 @@ std::pair<std::string, int> Subnet::parse_input_address_string(std::string &inpu
         try {
             mask = std::stoi(std::string(input_address_string, slash_pos + 1));
         } catch (std::invalid_argument &) {
-            std::cout << "WARNING: empty subnet mask." << std::endl;
+            this->output_stream << "WARNING: empty subnet mask." << std::endl;
             mask = -1;
         }
     }

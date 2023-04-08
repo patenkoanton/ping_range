@@ -22,6 +22,8 @@ ping_subnet_DEPENDENCIES = $(patsubst %, $(BUILD_DIR)/%.o, \
 	factory \
 	ip_address \
 	orchestrator \
+	output_stream_base \
+	output_stream_console \
 )
 ping_subnet_gui_DEPENDENCIES = $(patsubst %, $(BUILD_DIR)/%.o, \
 	gui_app \

@@ -17,12 +17,12 @@
 #define RECEIVE_BUFFER_SIZE         (ICMP_REPLY_EXPECTED_SIZE + 1)
 
 
-Ping::Ping(std::shared_ptr<Subnet> subnet)
+Ping::Ping(std::shared_ptr<Subnet> subnet, OutputStreamBase &stream) : output_stream(stream)
 {
     this->subnet = subnet;
-    this->socket = factory_create_object<Socket>(subnet);
+    this->socket = factory_create_object<Socket, std::shared_ptr<Subnet>, OutputStreamBase&>(subnet, this->output_stream);
     if (this->socket == nullptr) {
-        throw std::string("failed to create Socket object.");
+        throw std::string("failed to open socket.");
     }
 }
 
@@ -46,7 +46,7 @@ void Ping::sender_thread()
 {
     for (auto &host : this->subnet->hosts) {
         if (this->send_icmp_request(host) < 0) {
-            std::cout << "WARNING: failed to send ICMP request." << std::endl;
+            this->output_stream << "WARNING: failed to send ICMP request." << std::endl;
             continue;
         }
 
@@ -146,13 +146,13 @@ void Ping::show_host_status(std::shared_ptr<IPAddress> &host, host_status_t stat
         { offline, "[OFFLINE]" },
     };
 
-    std::cout << *host << " " << status_string[status] << " ";
+    this->output_stream << host->to_string() << " " << status_string[status] << " ";
 
     auto hostname = host->to_hostname();
     if (!hostname.empty()) {
-        std::cout << '(' << hostname << ") ";
+        this->output_stream << "(" << hostname << ") ";
     }
-    std::cout << std::endl;
+    this->output_stream << std::endl;
 }
 
 

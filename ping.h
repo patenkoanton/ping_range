@@ -9,6 +9,7 @@
 #include "subnet.h"
 #include "socket.h"
 #include "ip_address.h"
+#include "output_stream_base.h"
 
 enum host_status_t {
     pending,
@@ -23,6 +24,7 @@ struct pending_host {
 };
 
 class Ping {
+    OutputStreamBase &output_stream;
     std::shared_ptr<Subnet> subnet;
     std::shared_ptr<Socket> socket;
 
@@ -42,7 +44,7 @@ class Ping {
     uint32_t finalized_hosts = 0;
     std::mutex my_mutex;
 public:
-    Ping(std::shared_ptr<Subnet> subnet);
+    Ping(std::shared_ptr<Subnet> subnet, OutputStreamBase &stream);
     void ping();
 };
 

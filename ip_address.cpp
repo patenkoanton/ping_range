@@ -103,9 +103,3 @@ std::string IPAddress::to_string() const
     return std::string(ip_string);
 }
 
-
-std::ostream& operator<<(std::ostream& stream, const IPAddress& arg)
-{
-    stream << arg.to_string();
-    return stream;
-}

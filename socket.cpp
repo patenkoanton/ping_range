@@ -10,7 +10,7 @@
 
 // NOTE: we pass target_subnet by value because Socket::Socket shares the ownership of the object.
 // It's being passed by reference to other Socket::members because we don't want them to own the object.
-Socket::Socket(const std::shared_ptr<Subnet> target_subnet)
+Socket::Socket(const std::shared_ptr<Subnet> target_subnet, OutputStreamBase &stream) : output_stream(stream)
 {
     // Open socket
     if (this->open_socket() < 0) {
@@ -70,15 +70,15 @@ int Socket::open_socket()
 {
     protoent *protocol = NULL;
     if ((protocol = getprotobyname("icmp")) == NULL) {
-        std::cerr << "ERROR: failed to get ICMP protocol info." << std::endl;
+        this->output_stream << "ERROR: failed to get ICMP protocol info." << std::endl;
         return -1;
     }
 
     this->hsocket = socket(AF_INET, SOCK_RAW | SOCK_NONBLOCK, protocol->p_proto);
     if (this->hsocket < 0) {
-        std::cerr << "ERROR: " << std::strerror(errno) << ". ";
-        std::cerr << "Try running 'make install' before executing ping_subnet." << std::endl;
-        std::cerr << "See README for more info." << std::endl;
+        this->output_stream << "ERROR: " << std::strerror(errno) << ". ";
+        this->output_stream << "Try running 'make install' before running the app." << std::endl;
+        this->output_stream << "See README for more info." << std::endl;
         return -1;
     }
 
@@ -90,7 +90,7 @@ int Socket::configure_socket(const std::shared_ptr<Subnet> &target_subnet)
 {
     // Apply subnet filter
     if (this-apply_subnet_bpf_filter(target_subnet) < 0) {
-        std::cerr << "ERROR: failed to apply BPF filter." << std::endl;     // TODO: change to warning???
+        this->output_stream << "ERROR: failed to apply BPF filter." << std::endl;     // TODO: change to warning???
         return -1;
     }
 
@@ -124,7 +124,6 @@ int Socket::apply_subnet_bpf_filter(const std::shared_ptr<Subnet> &target_subnet
     };
 
     if (setsockopt(this->hsocket, SOL_SOCKET, SO_ATTACH_FILTER, &bpf_filter, sizeof(bpf_filter)) < 0) {
-        std::cerr << "ERROR: could not apply socket filter" << std::endl;
         return -1;
     }
 
@@ -140,5 +139,5 @@ void Socket::close_socket()
 
 void Socket::show_errno()
 {
-    std::cout << "WARNING: " << std::strerror(errno) << ". ";
+    this->output_stream << "WARNING: " << std::strerror(errno) << ". ";
 }

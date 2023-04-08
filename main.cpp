@@ -4,6 +4,7 @@
 #include "main.h"
 #include "orchestrator.h"
 #include "factory.h"
+#include "output_stream_console.h"
 
 #define MIN_ARGC    (2)
 
@@ -20,8 +21,10 @@ int main(int argc, char *argv[])
         return 0;
     }
 
+    // TODO: handle error codes returned from start() method.
     std::string address_and_mask = argv[1];
-    return factory_create_object<Orchestrator, std::string&>(address_and_mask)->start();
+    OutputStreamConsole stream_console;
+    return factory_create_object<Orchestrator, std::string&, OutputStreamBase&>(address_and_mask, stream_console)->start();
 }
 
 
