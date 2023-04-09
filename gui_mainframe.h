@@ -23,7 +23,6 @@ class Mainframe : public wxFrame {
     void run_button_handler(wxCommandEvent &event);
     std::thread run_button_handler_thread;
     void create_controls();
-    void show_output(std::string &arg);
 public:
     Mainframe(const wxString& title);
 };
