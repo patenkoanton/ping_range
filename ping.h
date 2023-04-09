@@ -43,9 +43,11 @@ class Ping {
     std::list<pending_host> pending_hosts;
     uint32_t finalized_hosts = 0;
     std::mutex my_mutex;
+    bool stop_requested = false;		// TODO: make it thread-safe.
 public:
     Ping(std::shared_ptr<Subnet> subnet, OutputStreamBase &stream);
     void ping();
+    void stop();
 };
 
 #endif

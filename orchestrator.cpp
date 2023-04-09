@@ -12,8 +12,8 @@ int Orchestrator::start()
     }
 
     // Create ping object.
-    auto ping = factory_create_object<Ping, std::shared_ptr<Subnet>, OutputStreamBase&>(subnet, this->output_stream);
-    if (ping == nullptr) {
+    this->ping = factory_create_object<Ping, std::shared_ptr<Subnet>, OutputStreamBase&>(subnet, this->output_stream);
+    if (this->ping == nullptr) {
         return -1;
     }
 
@@ -23,6 +23,12 @@ int Orchestrator::start()
 
     // Perform ping.
     // TODO: ping->ping() should return a code.
-    ping->ping();
+    this->ping->ping();
     return 0;
+}
+
+void Orchestrator::stop()
+{
+    std::cout << "Requesting to stop..." << std::endl;
+    this->ping->stop();
 }

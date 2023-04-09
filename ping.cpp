@@ -29,6 +29,8 @@ Ping::Ping(std::shared_ptr<Subnet> subnet, OutputStreamBase &stream) : output_st
 
 void Ping::ping()
 {
+    this->stop_requested = false;
+
     std::thread sender(&Ping::sender_thread, this);
     std::thread receiver(&Ping::receiver_thread, this);
     std::thread timer(&Ping::timer_thread, this);
@@ -106,7 +108,7 @@ void Ping::finalizer_thread()
     while (this->keep_running()) {
         std::lock_guard<std::mutex> guard(this->my_mutex);
         auto pending_it = this->pending_hosts.begin();
-        while (pending_it != this->pending_hosts.end()) {
+        while (pending_it != this->pending_hosts.end() && this->keep_running()) {
             if (pending_it->status == pending) {
                 break;
             }
@@ -118,10 +120,15 @@ void Ping::finalizer_thread()
 }
 
 
-// Returns 'true' until we ping (and finalize) all hosts.
+// Returns 'true' until we ping (and finalize) all hosts, unless 'stop' requested.
 bool Ping::keep_running()
 {
-    return this->finalized_hosts < this->subnet->hosts.size();
+    return (this->finalized_hosts < this->subnet->hosts.size()) && !this->stop_requested;
+}
+
+void Ping::stop()
+{
+    this->stop_requested = true;
 }
 
 
