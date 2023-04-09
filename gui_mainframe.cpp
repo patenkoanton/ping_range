@@ -1,7 +1,6 @@
 #include "gui_mainframe.h"
 #include "orchestrator.h"
 #include "factory.h"
-#include "output_stream_gui.h"
 
 enum ElementID {
     RUN_BUTTON_ID = 2,
@@ -28,16 +27,22 @@ void Mainframe::create_controls()
     this->mask_input = new wxTextCtrl(panel, MASK_INPUT_ID, wxEmptyString, wxPoint(300, 80), wxSize(200, 50));
     this->mask_label = new wxStaticText(panel, wxID_ANY, "Mask", wxPoint(240, 96));
 
-    this->output = new wxListCtrl(panel, wxID_ANY, wxPoint(30, 200), wxSize(745, 420));
-}
+    this->text_output = new wxTextCtrl(panel, wxID_ANY, wxEmptyString, wxPoint(30, 200), wxSize(745, 420), wxTE_MULTILINE | wxTE_READONLY);
 
+    this->text_output_stream = std::make_shared<std::ostream>(this->text_output);
+    this->text_output_stream_inferface = std::make_shared<OutputStreamGUI>(this->text_output_stream);
+}
 
 void Mainframe::run_button_handler(wxCommandEvent &event)
 {
-    wxLogStatus("Button clicked: %s", this->subnet_input->GetValue());
+    // TODO: fix this because we don't want to wait forever after pressing "Run" repeatedly
+    if (this->run_button_handler_thread.joinable()) {
+        this->run_button_handler_thread.join();
+    }
 
-    OutputStreamGUI stream(this->output);
-    std::string address_and_mask = (std::string)this->subnet_input->GetValue() + "/" + (std::string)this->mask_input->GetValue();
-    auto orchestrator =  factory_create_object<Orchestrator, std::string&, OutputStreamBase&>(address_and_mask, stream);
-    orchestrator->start();
+    this->text_output->Clear();
+    this->run_button_handler_thread = std::thread([this]() {
+        std::string address_and_mask = (std::string)this->subnet_input->GetValue() + "/" + (std::string)this->mask_input->GetValue();
+        factory_create_object<Orchestrator, std::string&, OutputStreamBase&>(address_and_mask, *this->text_output_stream_inferface)->start();
+    });
 }

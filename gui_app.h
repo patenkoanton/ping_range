@@ -6,3 +6,5 @@ class App : public wxApp {
 public:
     bool OnInit();
 };
+
+wxDECLARE_APP(App);

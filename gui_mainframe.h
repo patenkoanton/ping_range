@@ -1,7 +1,10 @@
 #pragma once
 
 #include <wx/wx.h>
-#include <wx/listctrl.h>
+#include <thread>
+#include <iostream>
+#include <memory>
+#include "output_stream_gui.h"
 
 class Mainframe : public wxFrame {
     wxPanel *panel;
@@ -13,9 +16,12 @@ class Mainframe : public wxFrame {
     wxTextCtrl *mask_input;
     wxStaticText *mask_label;
 
-    wxListCtrl *output;
+    wxTextCtrl *text_output;
+    std::shared_ptr<std::ostream> text_output_stream;
+    std::shared_ptr<OutputStreamGUI> text_output_stream_inferface;
 
     void run_button_handler(wxCommandEvent &event);
+    std::thread run_button_handler_thread;
     void create_controls();
     void show_output(std::string &arg);
 public:
