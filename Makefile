@@ -13,21 +13,18 @@ APPS = \
 	ping_subnet \
 	ping_subnet_gui \
 
-# IMPORTANT: Each target needs to have a similar variable: [target_name]_DEPENDENCIES
-ping_subnet_DEPENDENCIES = $(patsubst %, $(BUILD_DIR)/%.o, \
+# IMPORTANT: Each target needs to have a similar variable: [target_name]_DEPS
+ping_subnet_DEPS = $(patsubst %, $(BUILD_DIR)/%.o, \
 	main \
-	ping \
-	subnet \
-	socket \
-	factory \
-	ip_address \
-	orchestrator \
-	output_stream_base \
 	output_stream_console \
 )
-ping_subnet_gui_DEPENDENCIES = $(patsubst %, $(BUILD_DIR)/%.o, \
+ping_subnet_gui_DEPS = $(patsubst %, $(BUILD_DIR)/%.o, \
 	gui_app \
 	gui_mainframe \
+	output_stream_gui \
+)
+
+COMMON_DEPS = $(patsubst %, $(BUILD_DIR)/%.o, \
 	ping \
 	subnet \
 	socket \
@@ -35,7 +32,6 @@ ping_subnet_gui_DEPENDENCIES = $(patsubst %, $(BUILD_DIR)/%.o, \
 	ip_address \
 	orchestrator \
 	output_stream_base \
-	output_stream_gui \
 )
 
 .PHONY: all $(APPS) clean install uninstall
@@ -49,7 +45,7 @@ define BUILD_TARGET
 $(1): $(BUILD_DIR) $(BUILD_DIR)/$(1).$(TARGET_EXT)
 
 # every [app].out depends on its dependencies
-$(BUILD_DIR)/$(1).$(TARGET_EXT): $$($(1)_DEPENDENCIES)
+$(BUILD_DIR)/$(1).$(TARGET_EXT): $$($(1)_DEPS) $(COMMON_DEPS)
 	$(CC) $(CFLAGS) $$^ -o $$@ $(OTHER_FLAGS)
 endef
 # WARNING: dont add space after BUILD_TARGET's comma otherwise everything will break!
