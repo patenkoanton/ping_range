@@ -1,14 +1,14 @@
 #pragma once
 #include <string>
 #include <memory>
-#include "output_stream_base.h"
+#include "output_stream.h"
 #include "ping.h"
 
 class Orchestrator {
-    OutputStreamBase &output_stream;
+    OutputStream &output_stream;
     std::shared_ptr<Ping> ping;
 public:
-    Orchestrator(OutputStreamBase &stream);
+    Orchestrator(OutputStream &stream);
     int start(std::string &address_and_mask);
     void stop();
 };

@@ -3,9 +3,9 @@
 #include <string>
 #include <iostream>
 #include <memory>
-#include "output_stream_base.h"
+#include "output_stream.h"
 
-class OutputStreamGUI : public OutputStreamBase {
+class OutputStreamGUI : public OutputStream {
     std::shared_ptr<std::ostream> stream;
 protected:
     virtual void show_output(std::string &arg);

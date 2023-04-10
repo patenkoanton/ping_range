@@ -15,7 +15,7 @@
     * 2) Calculate broadcast address.
     * 3) Store all possible hosts in subnet into vector.
  */
-Subnet::Subnet(std::string &input_address_string, OutputStreamBase &stream) : output_stream(stream)
+Subnet::Subnet(std::string &input_address_string, OutputStream &stream) : output_stream(stream)
 {
     std::pair<std::string, int> subnet_address_and_mask = this->parse_input_address_string(input_address_string);
     auto input_address = subnet_address_and_mask.first;

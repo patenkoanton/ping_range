@@ -17,9 +17,9 @@
 #define RECEIVE_BUFFER_SIZE         (ICMP_REPLY_EXPECTED_SIZE + 1)
 
 
-Ping::Ping(OutputStreamBase &stream) : output_stream(stream)
+Ping::Ping(OutputStream &stream) : output_stream(stream)
 {
-    this->socket = factory_create_object<Socket, OutputStreamBase&>(this->output_stream);
+    this->socket = factory_create_object<Socket, OutputStream&>(this->output_stream);
     if (this->socket == nullptr) {
         throw std::string("failed to open socket.");
     }

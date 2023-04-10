@@ -31,7 +31,7 @@ COMMON_DEPS = $(patsubst %, $(BUILD_DIR)/%.o, \
 	factory \
 	ip_address \
 	orchestrator \
-	output_stream_base \
+	output_stream \
 )
 
 .PHONY: all $(APPS) clean install uninstall

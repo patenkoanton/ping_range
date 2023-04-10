@@ -3,9 +3,9 @@
 #include "subnet.h"
 #include "ping.h"
 
-Orchestrator::Orchestrator(OutputStreamBase &stream) : output_stream(stream)
+Orchestrator::Orchestrator(OutputStream &stream) : output_stream(stream)
 {
-    this->ping = factory_create_object<Ping, OutputStreamBase&>(this->output_stream);
+    this->ping = factory_create_object<Ping, OutputStream&>(this->output_stream);
     if (this->ping == nullptr) {
         throw std::string("failed to initialize Ping");
     }
@@ -15,7 +15,7 @@ Orchestrator::Orchestrator(OutputStreamBase &stream) : output_stream(stream)
 int Orchestrator::start(std::string &address_and_mask)
 {
     // Generate subnet (address range).
-    auto subnet = factory_create_object<Subnet, std::string&, OutputStreamBase&>(address_and_mask, this->output_stream);
+    auto subnet = factory_create_object<Subnet, std::string&, OutputStream&>(address_and_mask, this->output_stream);
     if (subnet == nullptr) {
         return -1;
     }

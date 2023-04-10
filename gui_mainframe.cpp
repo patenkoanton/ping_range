@@ -33,7 +33,7 @@ void Mainframe::create_controls()
     this->text_output = new wxTextCtrl(panel, wxID_ANY, wxEmptyString, wxPoint(30, 200), wxSize(745, 420), wxTE_MULTILINE | wxTE_READONLY);
     this->text_output_stream = std::make_shared<std::ostream>(this->text_output);
     this->output_to_gui = std::make_shared<OutputStreamGUI>(this->text_output_stream);
-    this->orchestrator = factory_create_object<Orchestrator, OutputStreamBase&>(*this->output_to_gui);
+    this->orchestrator = factory_create_object<Orchestrator, OutputStream&>(*this->output_to_gui);
 }
 
 // Sends a stop signal to main application and waits for thread to finish.

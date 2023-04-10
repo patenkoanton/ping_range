@@ -7,7 +7,7 @@
 #include "socket.h"
 #include "ip_address.h"
 #include "orchestrator.h"
-#include "output_stream_base.h"
+#include "output_stream.h"
 
 
 /* Return class <T> object wrapped in shared_ptr. */
@@ -25,9 +25,9 @@ template<class T, class... Args> std::shared_ptr<T> factory_create_object(Args..
 }
 
 // Instance.
-template std::shared_ptr<Ping> factory_create_object<Ping, OutputStreamBase&>(OutputStreamBase&);
-template std::shared_ptr<Subnet> factory_create_object<Subnet, std::string&, OutputStreamBase&>(std::string&, OutputStreamBase&);
-template std::shared_ptr<Socket> factory_create_object<Socket, OutputStreamBase&>(OutputStreamBase&);
+template std::shared_ptr<Ping> factory_create_object<Ping, OutputStream&>(OutputStream&);
+template std::shared_ptr<Subnet> factory_create_object<Subnet, std::string&, OutputStream&>(std::string&, OutputStream&);
+template std::shared_ptr<Socket> factory_create_object<Socket, OutputStream&>(OutputStream&);
 template std::shared_ptr<IPAddress> factory_create_object<IPAddress, uint32_t>(uint32_t);
 template std::shared_ptr<IPAddress> factory_create_object<IPAddress, std::string&>(std::string&);
-template std::shared_ptr<Orchestrator> factory_create_object<Orchestrator, OutputStreamBase&>(OutputStreamBase&);
+template std::shared_ptr<Orchestrator> factory_create_object<Orchestrator, OutputStream&>(OutputStream&);

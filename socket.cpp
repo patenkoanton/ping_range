@@ -8,7 +8,7 @@
 #include "subnet.h"
 
 
-Socket::Socket(OutputStreamBase &stream) : output_stream(stream)
+Socket::Socket(OutputStream &stream) : output_stream(stream)
 {
     protoent *protocol = NULL;
     if ((protocol = getprotobyname("icmp")) == NULL) {
