@@ -3,12 +3,12 @@
 
 OutputStream& OutputStream::operator<<(std::string arg)
 {
-    this->show_output(arg);
+    this->stream << arg;
     return *this;
 }
 
 OutputStream& OutputStream::operator<<(std::ostream& (*arg)(std::ostream&))
 {
-    this->show_output(arg);
+    this->stream << arg;
     return *this;
 }

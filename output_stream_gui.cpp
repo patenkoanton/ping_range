@@ -7,16 +7,18 @@
 // Instead, we have to use ugly CallAfter() construction for 'async' output, otherwise everything will crash.
 // See manual for more details.
 
-void OutputStreamGUI::show_output(std::string &arg)
+OutputStream& OutputStreamGUI::operator<<(std::string arg)
 {
     wxGetApp().CallAfter([this, arg](){
-        *this->stream << arg;
+        this->stream << arg;
     });
+    return *this;
 }
 
-void OutputStreamGUI::show_output(std::ostream& (*arg)(std::ostream&))
+OutputStream& OutputStreamGUI::operator<<(std::ostream& (*arg)(std::ostream&))
 {
     wxGetApp().CallAfter([this, arg](){
-        *this->stream << arg;
+        this->stream << arg;
     });
+    return *this;
 }

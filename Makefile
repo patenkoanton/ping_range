@@ -16,7 +16,6 @@ APPS = \
 # IMPORTANT: Each target needs to have a similar variable: [target_name]_DEPS
 ping_subnet_DEPS = $(patsubst %, $(BUILD_DIR)/%.o, \
 	main \
-	output_stream_console \
 )
 ping_subnet_gui_DEPS = $(patsubst %, $(BUILD_DIR)/%.o, \
 	gui_app \
