@@ -24,8 +24,13 @@ class Mainframe : public wxFrame {
     std::shared_ptr<OutputStreamGUI> output_to_gui;
     std::shared_ptr<Orchestrator> orchestrator;
 
+    // Useful methods
     void create_controls();
+    void stop();
+
+    // Event handlers
     void run_button_handler(wxCommandEvent &event);
+    void close_event_handler(wxCloseEvent &event);
 public:
     Mainframe(const wxString& title);
 };

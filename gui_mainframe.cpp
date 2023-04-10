@@ -19,6 +19,8 @@ Mainframe::Mainframe(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
 void Mainframe::create_controls()
 {
     this->panel = new wxPanel(this);
+    this->Bind(wxEVT_CLOSE_WINDOW, &Mainframe::close_event_handler, this);
+
     this->run_button = new wxButton(panel, RUN_BUTTON_ID, "Run", wxPoint(350, 150), wxSize(100, 25));
     this->run_button->Bind(wxEVT_BUTTON, &Mainframe::run_button_handler, this);
 
@@ -34,16 +36,27 @@ void Mainframe::create_controls()
     this->orchestrator = factory_create_object<Orchestrator, OutputStreamBase&>(*this->output_to_gui);
 }
 
-void Mainframe::run_button_handler(wxCommandEvent &event)
+// Sends a stop signal to main application and waits for thread to finish.
+void Mainframe::stop()
 {
     if (this->run_button_handler_thread.joinable()) {
         this->orchestrator->stop();
         this->run_button_handler_thread.join();
     }
+}
 
+void Mainframe::run_button_handler(wxCommandEvent &event)
+{
+    this->stop();
     this->text_output->Clear();
     this->run_button_handler_thread = std::thread([this]() {
         std::string address_and_mask = (std::string)this->subnet_input->GetValue() + "/" + (std::string)this->mask_input->GetValue();
         this->orchestrator->start(address_and_mask);
     });
+}
+
+void Mainframe::close_event_handler(wxCloseEvent &event)
+{
+    this->stop();
+    this->Destroy();
 }

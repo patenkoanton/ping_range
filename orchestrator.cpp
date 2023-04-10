@@ -32,6 +32,5 @@ int Orchestrator::start(std::string &address_and_mask)
 
 void Orchestrator::stop()
 {
-    std::cout << "Requesting to stop..." << std::endl;
     this->ping->stop();
 }
