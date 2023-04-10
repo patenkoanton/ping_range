@@ -12,8 +12,6 @@ class Mainframe : public wxFrame {
 
     wxButton *run_button;
     std::thread run_button_handler_thread;
-    void run_button_handler(wxCommandEvent &event);
-    std::shared_ptr<Orchestrator> orchestrator;
 
     wxTextCtrl *subnet_input;
     wxStaticText *subnet_label;
@@ -23,9 +21,11 @@ class Mainframe : public wxFrame {
 
     wxTextCtrl *text_output;
     std::shared_ptr<std::ostream> text_output_stream;
-    std::shared_ptr<OutputStreamGUI> text_output_stream_inferface;
+    std::shared_ptr<OutputStreamGUI> output_to_gui;
+    std::shared_ptr<Orchestrator> orchestrator;
 
     void create_controls();
+    void run_button_handler(wxCommandEvent &event);
 public:
     Mainframe(const wxString& title);
 };
