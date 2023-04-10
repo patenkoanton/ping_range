@@ -28,6 +28,7 @@ class Ping {
     std::shared_ptr<Subnet> subnet;
     std::shared_ptr<Socket> socket;
 
+    void init(std::shared_ptr<Subnet> subnet);
     int send_icmp_request(std::shared_ptr<IPAddress> &dest_host) const;
     host_status_t parse_host_status(const std::vector<char> &receive_buffer) const;
     void show_host_status(std::shared_ptr<IPAddress> &host, host_status_t status) const;
@@ -41,12 +42,12 @@ class Ping {
     bool keep_running();
 
     std::list<pending_host> pending_hosts;
-    uint32_t finalized_hosts = 0;
+    uint32_t finalized_hosts;
     std::mutex my_mutex;
-    bool stop_requested = false;		// TODO: make it thread-safe.
+    bool stop_requested = false;        // TODO: make it thread-safe.
 public:
-    Ping(std::shared_ptr<Subnet> subnet, OutputStreamBase &stream);
-    void ping();
+    Ping(OutputStreamBase &stream);
+    void ping(std::shared_ptr<Subnet> subnet);
     void stop();
 };
 

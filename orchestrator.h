@@ -5,13 +5,10 @@
 #include "ping.h"
 
 class Orchestrator {
-    std::string address_and_mask;
     OutputStreamBase &output_stream;
     std::shared_ptr<Ping> ping;
 public:
-    Orchestrator(std::string address_and_mask, OutputStreamBase &stream) :
-                address_and_mask(address_and_mask),
-                output_stream(stream) {};
-    int start();
+    Orchestrator(OutputStreamBase &stream);
+    int start(std::string &address_and_mask);
     void stop();
 };

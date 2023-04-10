@@ -31,6 +31,7 @@ void Mainframe::create_controls()
     this->text_output = new wxTextCtrl(panel, wxID_ANY, wxEmptyString, wxPoint(30, 200), wxSize(745, 420), wxTE_MULTILINE | wxTE_READONLY);
     this->text_output_stream = std::make_shared<std::ostream>(this->text_output);
     this->text_output_stream_inferface = std::make_shared<OutputStreamGUI>(this->text_output_stream);
+    this->orchestrator = factory_create_object<Orchestrator, OutputStreamBase&>(*this->text_output_stream_inferface);
 }
 
 void Mainframe::run_button_handler(wxCommandEvent &event)
@@ -43,7 +44,6 @@ void Mainframe::run_button_handler(wxCommandEvent &event)
     this->text_output->Clear();
     this->run_button_handler_thread = std::thread([this]() {
         std::string address_and_mask = (std::string)this->subnet_input->GetValue() + "/" + (std::string)this->mask_input->GetValue();
-        this->orchestrator = factory_create_object<Orchestrator, std::string&, OutputStreamBase&>(address_and_mask, *this->text_output_stream_inferface);
-        this->orchestrator->start();
+        this->orchestrator->start(address_and_mask);
     });
 }

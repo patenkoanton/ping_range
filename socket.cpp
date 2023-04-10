@@ -8,19 +8,20 @@
 #include "subnet.h"
 
 
-// NOTE: we pass target_subnet by value because Socket::Socket shares the ownership of the object.
-// It's being passed by reference to other Socket::members because we don't want them to own the object.
-Socket::Socket(const std::shared_ptr<Subnet> target_subnet, OutputStreamBase &stream) : output_stream(stream)
+Socket::Socket(OutputStreamBase &stream) : output_stream(stream)
 {
-    // Open socket
-    if (this->open_socket() < 0) {
-        throw std::string("failed to open socket.");
+    protoent *protocol = NULL;
+    if ((protocol = getprotobyname("icmp")) == NULL) {
+        throw std::string("failed to get ICMP protocol info.");
     }
 
-    // Configure socket
-    if (this->configure_socket(target_subnet) < 0) {
-        this->close_socket();
-        throw std::string("failed to configure socket.");
+    this->hsocket = socket(AF_INET, SOCK_RAW | SOCK_NONBLOCK, protocol->p_proto);
+    if (this->hsocket < 0) {
+        this->output_stream << "Try running 'make install' before running the app." << std::endl;
+        this->output_stream << "See README for more info." << std::endl;
+
+        auto exception = "ERROR: " + (std::string)std::strerror(errno) + ". ";
+        throw std::string(exception);
     }
 }
 
@@ -66,27 +67,7 @@ ssize_t Socket::receive_packet(std::vector<char> &buffer)
 }
 
 
-int Socket::open_socket()
-{
-    protoent *protocol = NULL;
-    if ((protocol = getprotobyname("icmp")) == NULL) {
-        this->output_stream << "ERROR: failed to get ICMP protocol info." << std::endl;
-        return -1;
-    }
-
-    this->hsocket = socket(AF_INET, SOCK_RAW | SOCK_NONBLOCK, protocol->p_proto);
-    if (this->hsocket < 0) {
-        this->output_stream << "ERROR: " << std::strerror(errno) << ". ";
-        this->output_stream << "Try running 'make install' before running the app." << std::endl;
-        this->output_stream << "See README for more info." << std::endl;
-        return -1;
-    }
-
-    return 0;
-}
-
-
-int Socket::configure_socket(const std::shared_ptr<Subnet> &target_subnet)
+int Socket::configure(const std::shared_ptr<Subnet> &target_subnet)
 {
     // Apply subnet filter
     if (this-apply_subnet_bpf_filter(target_subnet) < 0) {

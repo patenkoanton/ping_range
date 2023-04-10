@@ -17,19 +17,18 @@
 #define RECEIVE_BUFFER_SIZE         (ICMP_REPLY_EXPECTED_SIZE + 1)
 
 
-Ping::Ping(std::shared_ptr<Subnet> subnet, OutputStreamBase &stream) : output_stream(stream)
+Ping::Ping(OutputStreamBase &stream) : output_stream(stream)
 {
-    this->subnet = subnet;
-    this->socket = factory_create_object<Socket, std::shared_ptr<Subnet>, OutputStreamBase&>(subnet, this->output_stream);
+    this->socket = factory_create_object<Socket, OutputStreamBase&>(this->output_stream);
     if (this->socket == nullptr) {
         throw std::string("failed to open socket.");
     }
 }
 
 
-void Ping::ping()
+void Ping::ping(std::shared_ptr<Subnet> subnet)
 {
-    this->stop_requested = false;
+    this->init(subnet);
 
     std::thread sender(&Ping::sender_thread, this);
     std::thread receiver(&Ping::receiver_thread, this);
@@ -40,6 +39,18 @@ void Ping::ping()
     receiver.join();
     timer.join();
     finalizer.join();
+}
+
+
+void Ping::init(std::shared_ptr<Subnet> subnet)
+{
+    this->subnet = subnet;
+    this->pending_hosts.clear();
+    this->finalized_hosts = 0;
+    this->stop_requested = false;
+    if (this->socket->configure(this->subnet) < 0) {
+        // Non-critical. Ignore for now.
+    }
 }
 
 

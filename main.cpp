@@ -22,9 +22,9 @@ int main(int argc, char *argv[])
     }
 
     // TODO: handle error codes returned from start() method.
+    OutputStreamConsole stream_to_console;
     std::string address_and_mask = argv[1];
-    OutputStreamConsole stream_console;
-    return factory_create_object<Orchestrator, std::string&, OutputStreamBase&>(address_and_mask, stream_console)->start();
+    return factory_create_object<Orchestrator, OutputStreamBase&>(stream_to_console)->start(address_and_mask);
 }
 
 
