@@ -26,11 +26,13 @@ class Mainframe : public wxFrame {
 
     // Useful methods
     void create_controls();
+    void run();
     void stop();
 
     // Event handlers
     void run_button_handler(wxCommandEvent &event);
     void close_event_handler(wxCloseEvent &event);
+    void key_event_handler(wxKeyEvent &event);
 public:
     Mainframe(const wxString& title);
 };
