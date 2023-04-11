@@ -7,7 +7,7 @@ Orchestrator::Orchestrator(OutputStream &stream) : output_stream(stream)
 {
     this->ping = factory_create_object<Ping, OutputStream&>(this->output_stream);
     if (this->ping == nullptr) {
-        throw std::string("failed to initialize Ping");
+        throw std::string("failed to initialize Ping.");
     }
 }
 
