@@ -6,6 +6,7 @@
 #include <memory>
 #include <mutex>
 #include <list>
+#include <atomic>
 #include "subnet.h"
 #include "socket.h"
 #include "ip_address.h"
@@ -42,9 +43,9 @@ class Ping {
     bool keep_running();
 
     std::list<pending_host> pending_hosts;
-    uint32_t finalized_hosts;
     std::mutex my_mutex;
-    bool stop_requested = false;        // TODO: make it thread-safe.
+    std::atomic<uint32_t> finalized_hosts;
+    std::atomic<bool> stop_requested;
 public:
     Ping(OutputStream &stream);
     void ping(std::shared_ptr<Subnet> subnet);

@@ -32,4 +32,5 @@ I.e. adding new members to a class messes up with generated template methods.
     And put all this info into readme (once README is created).
 * move GUI modules into "gui" folder and remove "gui_" prefix.
 * create src and build folders
+* switch from std::thread to std::async if possible.
 
