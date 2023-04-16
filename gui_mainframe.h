@@ -8,6 +8,10 @@
 #include "output_stream_gui.h"
 
 class Mainframe : public wxFrame {
+    wxMenuBar *menu_bar;
+    wxMenu *file_menu;
+    wxMenuItem *file_menu_save_item;
+
     wxPanel *panel;
 
     wxButton *run_button;
@@ -39,6 +43,7 @@ class Mainframe : public wxFrame {
     void run_button_handler(wxCommandEvent &event);
     void close_event_handler(wxCloseEvent &event);
     void key_event_handler(wxKeyEvent &event);
+    void save_event_handler(wxCommandEvent& event);
 public:
     Mainframe(const wxString& title);
 };

@@ -4,6 +4,7 @@
 #include "output_stream_gui.h"
 
 #define GAUGE_RANGE (100)
+#define LOGFILE_NAME (std::string("./ping_subnet.log"))
 
 enum ElementID {
     RUN_BUTTON_ID = 2,
@@ -16,8 +17,6 @@ enum ElementID {
 Mainframe::Mainframe(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
 {
     this->create_controls();
-    this->CreateStatusBar();
-    this->CreateToolBar();
 }
 
 void Mainframe::create_controls()
@@ -27,6 +26,21 @@ void Mainframe::create_controls()
     font.MakeLarger();
     this->SetFont(font);
 
+    // Create menubar
+    this->menu_bar = new wxMenuBar();
+    this->file_menu = new wxMenu();
+
+    // 'Save' option
+    this->file_menu_save_item = new wxMenuItem(this->file_menu, wxID_SAVE, "Save");
+    this->file_menu->Append(this->file_menu_save_item);
+    this->file_menu_save_item->Enable(false);       // disable until the ping is finished
+    this->file_menu->Bind(wxEVT_MENU, &Mainframe::save_event_handler, this, wxID_SAVE);
+
+    // Complete menubar
+    this->menu_bar->Append(this->file_menu, "File");
+    this->SetMenuBar(this->menu_bar);
+
+    // Create controls
     this->Bind(wxEVT_CLOSE_WINDOW, &Mainframe::close_event_handler, this);
 
     this->panel = new wxPanel(this, wxID_ANY);
@@ -58,6 +72,7 @@ void Mainframe::stop()
         this->run_button_handler_thread.join();
     }
 
+    // TODO: set gauge progress to 0
     if (this->gauge_update_thread.joinable()) {
         this->gauge_update_thread.join();
     }
@@ -90,10 +105,17 @@ void Mainframe::close_event_handler(wxCloseEvent &event)
     this->Destroy();
 }
 
+void Mainframe::save_event_handler(wxCommandEvent& event)
+{
+    this->text_output->SaveFile(LOGFILE_NAME);
+    wxLogMessage("Log saved to %s", LOGFILE_NAME);
+}
+
 void Mainframe::run()
 {
     this->stop();
     this->text_output->Clear();
+    this->file_menu_save_item->Enable(false);
     this->run_button_handler_thread = std::thread([this]() {
         std::string address_and_mask = (std::string)this->subnet_input->GetValue() + "/" + (std::string)this->mask_input->GetValue();
         this->orchestrator->start(address_and_mask);
@@ -105,5 +127,7 @@ void Mainframe::run()
             progress = this->orchestrator->get_progress();
             this->gauge->SetValue(progress);
         }
+
+        this->file_menu_save_item->Enable(true);
     });
 }
