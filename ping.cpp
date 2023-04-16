@@ -41,6 +41,12 @@ void Ping::ping(std::shared_ptr<Subnet> subnet)
     finalizer.join();
 }
 
+uint16_t Ping::get_progress()
+{
+    auto ratio = (float)this->finalized_hosts / (float)this->subnet->hosts.size();
+    return (uint16_t)(ratio * 100);
+}
+
 
 void Ping::init(std::shared_ptr<Subnet> subnet)
 {

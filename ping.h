@@ -50,6 +50,7 @@ public:
     Ping(OutputStream &stream);
     void ping(std::shared_ptr<Subnet> subnet);
     void stop();
+    uint16_t get_progress();     // returns % of hosts finalized
 };
 
 #endif

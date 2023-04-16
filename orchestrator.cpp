@@ -34,3 +34,9 @@ void Orchestrator::stop()
 {
     this->ping->stop();
 }
+
+
+uint16_t Orchestrator::get_progress()
+{
+    return this->ping->get_progress();
+}

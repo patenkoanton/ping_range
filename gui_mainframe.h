@@ -19,10 +19,16 @@ class Mainframe : public wxFrame {
     wxTextCtrl *mask_input;
     wxStaticText *mask_label;
 
+    wxGauge *gauge;
+    std::thread gauge_update_thread;
+
     wxTextCtrl *text_output;
     std::shared_ptr<std::ostream> text_output_stream;
     std::shared_ptr<OutputStreamGUI> output_to_gui;
     std::shared_ptr<Orchestrator> orchestrator;
+
+    // Initiate stop for all threads/components.
+    bool stop_now = false;
 
     // Useful methods
     void create_controls();
