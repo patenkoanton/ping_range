@@ -19,6 +19,11 @@ Mainframe::Mainframe(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
 
 void Mainframe::create_controls()
 {
+    // Set font style for the whole window.
+    auto font = this->GetFont();
+    font.MakeLarger();
+    this->SetFont(font);
+
     this->Bind(wxEVT_CLOSE_WINDOW, &Mainframe::close_event_handler, this);
 
     this->panel = new wxPanel(this);
