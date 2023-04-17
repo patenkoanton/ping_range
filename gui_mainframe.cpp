@@ -66,18 +66,14 @@ void Mainframe::create_controls()
 // Sends a stop signal to main application and waits for thread to finish.
 void Mainframe::stop()
 {
-    this->stop_now = true;
-    if (this->run_button_handler_thread.joinable()) {
-        this->orchestrator->stop();
-        this->run_button_handler_thread.join();
+    this->orchestrator->stop();
+    if (this->execution_thread.joinable()) {
+        this->execution_thread.join();
     }
 
-    // TODO: set gauge progress to 0
-    if (this->gauge_update_thread.joinable()) {
-        this->gauge_update_thread.join();
+    if (this->progress_tracking_thread.joinable()) {
+        this->progress_tracking_thread.join();
     }
-
-    this->stop_now = false;
 }
 
 void Mainframe::run_button_handler(wxCommandEvent &event)
@@ -115,17 +111,21 @@ void Mainframe::run()
 {
     this->stop();
     this->text_output->Clear();
+    this->gauge->SetValue(0);
     this->file_menu_save_item->Enable(false);
-    this->run_button_handler_thread = std::thread([this]() {
+
+    this->execution_thread = std::thread([this]() {
         std::string address_and_mask = (std::string)this->subnet_input->GetValue() + "/" + (std::string)this->mask_input->GetValue();
-        this->orchestrator->start(address_and_mask);
+        if (this->orchestrator->start(address_and_mask) < 0) {
+            return;
+        }
     });
 
-    gauge_update_thread = std::thread([this]() {
-        auto progress = 0;
-        while (progress < GAUGE_RANGE && !this->stop_now) {
-            progress = this->orchestrator->get_progress();
+    this->progress_tracking_thread = std::thread([this]() {
+        auto progress = this->orchestrator->get_progress();
+        while (progress >= 0 && progress <= GAUGE_RANGE) {
             this->gauge->SetValue(progress);
+            progress = this->orchestrator->get_progress();
         }
 
         this->file_menu_save_item->Enable(true);

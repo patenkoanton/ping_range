@@ -46,11 +46,12 @@ class Ping {
     std::mutex my_mutex;
     std::atomic<uint32_t> finalized_hosts;
     std::atomic<bool> stop_requested;
+    std::atomic<bool> running;
 public:
     Ping(OutputStream &stream);
     void ping(std::shared_ptr<Subnet> subnet);
     void stop();
-    uint16_t get_progress();     // returns % of hosts finalized
+    int get_progress();     // returns % of hosts finalized
 };
 
 #endif

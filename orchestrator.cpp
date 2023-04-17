@@ -36,7 +36,7 @@ void Orchestrator::stop()
 }
 
 
-uint16_t Orchestrator::get_progress()
+int Orchestrator::get_progress()
 {
     return this->ping->get_progress();
 }

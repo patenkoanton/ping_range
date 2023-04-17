@@ -15,7 +15,7 @@ class Mainframe : public wxFrame {
     wxPanel *panel;
 
     wxButton *run_button;
-    std::thread run_button_handler_thread;
+    std::thread execution_thread;
 
     wxTextCtrl *subnet_input;
     wxStaticText *subnet_label;
@@ -24,15 +24,12 @@ class Mainframe : public wxFrame {
     wxStaticText *mask_label;
 
     wxGauge *gauge;
-    std::thread gauge_update_thread;
+    std::thread progress_tracking_thread;
 
     wxTextCtrl *text_output;
     std::shared_ptr<std::ostream> text_output_stream;
     std::shared_ptr<OutputStreamGUI> output_to_gui;
     std::shared_ptr<Orchestrator> orchestrator;
-
-    // Initiate stop for all threads/components.
-    bool stop_now = false;
 
     // Useful methods
     void create_controls();
