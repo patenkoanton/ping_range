@@ -7,7 +7,7 @@ wxIMPLEMENT_APP(App);
 
 bool App::OnInit()
 {
-    auto frame = new Mainframe("C++ GUI");
+    auto frame = new Mainframe("PING SUBNET", "./ping_subnet.log");
     frame->SetClientSize(800, 670);
     frame->Center();
     frame->Show();

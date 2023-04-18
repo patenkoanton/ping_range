@@ -23,7 +23,7 @@ class Mainframe : public wxFrame {
     wxTextCtrl *mask_input;
     wxStaticText *mask_label;
 
-    wxGauge *gauge;
+    wxGauge *progress_bar;
     std::thread progress_tracking_thread;
 
     wxTextCtrl *text_output;
@@ -32,6 +32,8 @@ class Mainframe : public wxFrame {
     std::shared_ptr<Orchestrator> orchestrator;
 
     // Useful methods
+    void set_font();
+    void create_menu();
     void create_controls();
     void run();
     void stop();
@@ -41,6 +43,9 @@ class Mainframe : public wxFrame {
     void close_event_handler(wxCloseEvent &event);
     void key_event_handler(wxKeyEvent &event);
     void save_event_handler(wxCommandEvent& event);
+
+    // Private vars
+    const std::string logfile_name;
 public:
-    Mainframe(const wxString& title);
+    Mainframe(const wxString &title, const std::string &logfile);
 };

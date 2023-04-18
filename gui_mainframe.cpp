@@ -4,28 +4,36 @@
 #include "output_stream_gui.h"
 
 #define GAUGE_RANGE (100)
-#define LOGFILE_NAME (std::string("./ping_subnet.log"))
 
 enum ElementID {
-    RUN_BUTTON_ID = 2,
-    SUBNET_INPUT_ID,
-    MASK_INPUT_ID,
-    TEXT_OUTPUT_ID,
-    GAUGE_ID,
+    TEXT_OUTPUT_ID = 2,
 };
 
-Mainframe::Mainframe(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
+Mainframe::Mainframe(const wxString &title, const std::string &logfile) : wxFrame(nullptr, wxID_ANY, title), logfile_name(logfile)
 {
+    // UI controls
+    this->set_font();
+    this->create_menu();
     this->create_controls();
+
+    // Infrastructure
+    this->text_output_stream = std::make_shared<std::ostream>(this->text_output);
+    this->output_to_gui = std::make_shared<OutputStreamGUI>(*this->text_output_stream);
+    this->orchestrator = factory_create_object<Orchestrator, OutputStream&>(*this->output_to_gui);
 }
 
-void Mainframe::create_controls()
+
+void Mainframe::set_font()
 {
     // Set font style for the whole window.
     auto font = this->GetFont();
     font.MakeLarger();
     this->SetFont(font);
+}
 
+
+void Mainframe::create_menu()
+{
     // Create menubar
     this->menu_bar = new wxMenuBar();
     this->file_menu = new wxMenu();
@@ -39,28 +47,29 @@ void Mainframe::create_controls()
     // Complete menubar
     this->menu_bar->Append(this->file_menu, "File");
     this->SetMenuBar(this->menu_bar);
+}
 
+
+void Mainframe::create_controls()
+{
     // Create controls
-    this->Bind(wxEVT_CLOSE_WINDOW, &Mainframe::close_event_handler, this);
-
     this->panel = new wxPanel(this, wxID_ANY);
     this->panel->Bind(wxEVT_CHAR_HOOK, &Mainframe::key_event_handler, this);
 
-    this->run_button = new wxButton(panel, RUN_BUTTON_ID, "Run", wxPoint(350, 140), wxSize(100, 25));
+    this->run_button = new wxButton(panel, wxID_ANY, "Run", wxPoint(350, 140), wxSize(100, 25));
     this->run_button->Bind(wxEVT_BUTTON, &Mainframe::run_button_handler, this);
 
-    this->subnet_input = new wxTextCtrl(panel, SUBNET_INPUT_ID, wxEmptyString, wxPoint(300, 30), wxSize(200, 50));
+    this->subnet_input = new wxTextCtrl(panel, wxID_ANY, wxEmptyString, wxPoint(300, 30), wxSize(200, 50));
     this->subnet_label = new wxStaticText(panel, wxID_ANY, "Subnet", wxPoint(240, 46));
 
-    this->mask_input = new wxTextCtrl(panel, MASK_INPUT_ID, wxEmptyString, wxPoint(300, 80), wxSize(200, 50));
+    this->mask_input = new wxTextCtrl(panel, wxID_ANY, wxEmptyString, wxPoint(300, 80), wxSize(200, 50));
     this->mask_label = new wxStaticText(panel, wxID_ANY, "Mask", wxPoint(240, 96));
 
-    this->gauge = new wxGauge(panel, GAUGE_ID, GAUGE_RANGE, wxPoint(30, 635), wxSize(400, 20));
-
+    this->progress_bar = new wxGauge(panel, wxID_ANY, GAUGE_RANGE, wxPoint(30, 635), wxSize(400, 20));
     this->text_output = new wxTextCtrl(panel, TEXT_OUTPUT_ID, wxEmptyString, wxPoint(30, 200), wxSize(745, 420), wxTE_MULTILINE | wxTE_READONLY);
-    this->text_output_stream = std::make_shared<std::ostream>(this->text_output);
-    this->output_to_gui = std::make_shared<OutputStreamGUI>(*this->text_output_stream);
-    this->orchestrator = factory_create_object<Orchestrator, OutputStream&>(*this->output_to_gui);
+
+    // Handle 'close' event, otherwise we'll crash after closing the app.
+    this->Bind(wxEVT_CLOSE_WINDOW, &Mainframe::close_event_handler, this);
 }
 
 // Sends a stop signal to main application and waits for thread to finish.
@@ -103,15 +112,15 @@ void Mainframe::close_event_handler(wxCloseEvent &event)
 
 void Mainframe::save_event_handler(wxCommandEvent& event)
 {
-    this->text_output->SaveFile(LOGFILE_NAME);
-    wxLogMessage("Log saved to %s", LOGFILE_NAME);
+    this->text_output->SaveFile(this->logfile_name);
+    wxLogMessage("Log saved to %s", this->logfile_name);
 }
 
 void Mainframe::run()
 {
     this->stop();
     this->text_output->Clear();
-    this->gauge->SetValue(0);
+    this->progress_bar->SetValue(0);
     this->file_menu_save_item->Enable(false);
 
     this->execution_thread = std::thread([this]() {
@@ -124,7 +133,7 @@ void Mainframe::run()
     this->progress_tracking_thread = std::thread([this]() {
         auto progress = this->orchestrator->get_progress();
         while (progress >= 0 && progress <= GAUGE_RANGE) {
-            this->gauge->SetValue(progress);
+            this->progress_bar->SetValue(progress);
             progress = this->orchestrator->get_progress();
         }
 
