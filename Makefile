@@ -1,8 +1,10 @@
 CC = g++
 STD = c++11
 CFLAGS = -Wall -g3 --std=$(STD)
+# include headers
+CFLAGS += -I$(SRC_DIR)/ping_subnet_gui -I$(SRC_DIR)/ping_subnet -I$(SRC_DIR)/common
 OTHER_FLAGS = `wx-config --cxxflags` `wx-config --libs` -pthread
-SRC_DIR = .
+SRC_DIR = src
 TARGET_EXT = out
 INSTALL_DIR = /usr/bin
 BUILD_DIR = build
@@ -14,16 +16,16 @@ APPS = \
 	ping_subnet_gui \
 
 # IMPORTANT: Each target needs to have a similar variable: [target_name]_DEPS
-ping_subnet_DEPS = $(patsubst %, $(BUILD_DIR)/%.o, \
+ping_subnet_DEPS = $(patsubst %, $(BUILD_DIR)/ping_subnet/%.o, \
 	main \
 )
-ping_subnet_gui_DEPS = $(patsubst %, $(BUILD_DIR)/%.o, \
+ping_subnet_gui_DEPS = $(patsubst %, $(BUILD_DIR)/ping_subnet_gui/%.o, \
 	gui_app \
 	gui_mainframe \
 	output_stream_gui \
 )
 
-COMMON_DEPS = $(patsubst %, $(BUILD_DIR)/%.o, \
+COMMON_DEPS = $(patsubst %, $(BUILD_DIR)/common/%.o, \
 	ping \
 	subnet \
 	socket \
@@ -41,18 +43,17 @@ all: $(APPS)
 define BUILD_TARGET
 
 # every [app] depends on its [app].out
-$(1): $(BUILD_DIR) $(BUILD_DIR)/$(1).$(TARGET_EXT)
+$(1): $(BUILD_DIR)/$(1)/ $(BUILD_DIR)/common/ $(BUILD_DIR)/$(1)/$(1).$(TARGET_EXT)
+
+$(BUILD_DIR)/%/:
+	mkdir -p $$@
 
 # every [app].out depends on its dependencies
-$(BUILD_DIR)/$(1).$(TARGET_EXT): $$($(1)_DEPS) $(COMMON_DEPS)
+$(BUILD_DIR)/$(1)/$(1).$(TARGET_EXT): $$($(1)_DEPS) $(COMMON_DEPS)
 	$(CC) $(CFLAGS) $$^ -o $$@ $(OTHER_FLAGS)
 endef
 # WARNING: dont add space after BUILD_TARGET's comma otherwise everything will break!
 $(foreach i, $(APPS), $(eval $(call BUILD_TARGET,$(i))))
-
-# create a build folder
-$(BUILD_DIR):
-	mkdir -p $@
 
 # every *.o depends on its *.cpp and *.h
 $(BUILD_DIR)/%.o: $(addprefix $(SRC_DIR)/, %.cpp %.h)
