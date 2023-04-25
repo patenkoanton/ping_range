@@ -20,7 +20,7 @@ However, the bug goes away if we run 'make clean' or remove factory.o so it gets
 Find out what is this strange behavior of factory object (memory related?)
 It could be something template-related. Maybe templates are generated in a way that affects memory and is dependend on the size of class.
 I.e. adding new members to a class messes up with generated template methods.
-* add const to all instances of passing std::string as a parameter
+* add const everywhere possible
 * replace passing std::shared_ptr<> with references.
 
 =========== Ideas ======================
@@ -30,8 +30,4 @@ I.e. adding new members to a class messes up with generated template methods.
     To:
             See README for more info.
     And put all this info into readme (once README is created).
-* move GUI modules into "gui" folder and remove "gui_" prefix.
-* create src and build folders
-* switch from std::thread to std::async if possible.
-* replace macros with 'const' as much as we can.
 

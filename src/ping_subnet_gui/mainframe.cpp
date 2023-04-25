@@ -3,7 +3,6 @@
 #include "orchestrator.h"
 #include "output_stream_gui.h"
 
-#define GAUGE_RANGE (100)
 
 enum ElementID {
     TEXT_OUTPUT_ID = 2,
@@ -65,7 +64,7 @@ void Mainframe::create_controls()
     this->mask_input = new wxTextCtrl(panel, wxID_ANY, wxEmptyString, wxPoint(300, 80), wxSize(200, 50));
     this->mask_label = new wxStaticText(panel, wxID_ANY, "Mask", wxPoint(240, 96));
 
-    this->progress_bar = new wxGauge(panel, wxID_ANY, GAUGE_RANGE, wxPoint(30, 635), wxSize(400, 20));
+    this->progress_bar = new wxGauge(panel, wxID_ANY, this->gauge_range, wxPoint(30, 635), wxSize(400, 20));
     this->text_output = new wxTextCtrl(panel, TEXT_OUTPUT_ID, wxEmptyString, wxPoint(30, 200), wxSize(745, 420), wxTE_MULTILINE | wxTE_READONLY);
 
     // Handle 'close' event, otherwise we'll crash after closing the app.
@@ -132,7 +131,7 @@ void Mainframe::run()
 
     this->progress_tracking_thread = std::thread([this]() {
         auto progress = this->orchestrator->get_progress();
-        while (progress >= 0 && progress <= GAUGE_RANGE) {
+        while (progress >= 0 && progress <= this->gauge_range) {
             this->progress_bar->SetValue(progress);
             progress = this->orchestrator->get_progress();
         }

@@ -6,12 +6,10 @@
 #include "factory.h"
 #include "output_stream.h"
 
-#define MIN_ARGC    (2)
-
 
 int main(int argc, char *argv[])
 {
-    if (Main::argc_is_incorrect(argc, MIN_ARGC)) {
+    if (Main::argc_is_incorrect(argc)) {
         Main::show_help();
         return 0;
     }
@@ -28,9 +26,9 @@ int main(int argc, char *argv[])
 }
 
 
-bool Main::argc_is_incorrect(int argc, int min_argc)
+bool Main::argc_is_incorrect(int argc)
 {
-    return argc < min_argc;
+    return argc < Main::min_argc;
 }
 
 

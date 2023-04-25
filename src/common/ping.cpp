@@ -1,20 +1,11 @@
 #include <iostream>
 #include <string>
-#include <netinet/ip_icmp.h>    // icmphdr
 #include <thread>
 #include <map>
 #include "ping.h"
 #include "subnet.h"
 #include "socket.h"
 #include "factory.h"
-
-#define HOST_TIMEOUT_SEC            (2)     // expect host to reply within this time
-#define ICMP_REPLY_EXPECTED_SIZE    (sizeof(iphdr) + sizeof(icmphdr))
-
-// Needs to be bigger than ICMP packet.
-// Otherwise we might receive a bigger packet, but its size will get trimmed down to ICMP_REPLY_EXPECTED_SIZE.
-// Making us think that we received ICMP, when in reality we didn't.
-#define RECEIVE_BUFFER_SIZE         (ICMP_REPLY_EXPECTED_SIZE + 1)
 
 
 Ping::Ping(OutputStream &stream) : output_stream(stream)
@@ -86,10 +77,10 @@ void Ping::sender_thread()
 // Wait for ICMP reply from every 'pending' host.
 void Ping::receiver_thread()
 {
-    std::vector<char> receive_buffer(RECEIVE_BUFFER_SIZE);
+    std::vector<char> receive_buffer(this->receive_buffer_size);
     while (this->keep_running()) {
         auto bytes_received = this->socket->receive_packet(receive_buffer);
-        if (bytes_received != ICMP_REPLY_EXPECTED_SIZE) {
+        if (bytes_received != this->icmp_reply_expected_size) {
             continue;
         }
         auto ip_header = (iphdr *)receive_buffer.data();
@@ -110,7 +101,7 @@ void Ping::receiver_thread()
 }
 
 
-// Sets host to 'offline' if no reply received within HOST_TIMEOUT_SEC.
+// Sets host to 'offline' if no reply received within timeout.
 void Ping::timer_thread()
 {
     while (this->keep_running()) {
@@ -118,7 +109,7 @@ void Ping::timer_thread()
         for (auto &pending_it : this->pending_hosts) {
             if (pending_it.status == pending) {
                 std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - pending_it.send_time;
-                if (elapsed_seconds.count() >= HOST_TIMEOUT_SEC) {
+                if (elapsed_seconds.count() >= this->host_timeout_sec) {
                     pending_it.status = offline;
                 }
             }

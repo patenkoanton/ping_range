@@ -7,8 +7,6 @@
 #include "ip_address.h"
 #include "factory.h"
 
-#define IPv4_SIZE_BITS  (32)
-
 
 /* Simple sequence:
     * 1) Apply mask to calculate subnet address.
@@ -52,7 +50,7 @@ std::shared_ptr<IPAddress> Subnet::generate_subnet_address(std::string &input_ad
     }
 
     // Generate a bitmask.
-    this->bitmask = 0xFFFFFFFF << (IPv4_SIZE_BITS - mask);
+    this->bitmask = 0xFFFFFFFF << (this->ipv4_size_bits - mask);
 
     // Verify non-network bits not set in the input (similar to what tcmpdump does).
     if ((*input_ip & ~this->bitmask) != 0) {
@@ -67,7 +65,7 @@ std::shared_ptr<IPAddress> Subnet::generate_subnet_address(std::string &input_ad
 
 std::shared_ptr<IPAddress> Subnet::generate_broadcast_address(int mask)
 {
-    uint32_t max_number_of_addresses = std::pow(2, IPv4_SIZE_BITS - mask);
+    uint32_t max_number_of_addresses = std::pow(2, this->ipv4_size_bits - mask);
     auto broadcast = *this->subnet + max_number_of_addresses - 1;
 
     return std::make_shared<IPAddress>(broadcast);
@@ -97,7 +95,7 @@ std::pair<std::string, int> Subnet::parse_input_address_string(std::string &inpu
     size_t slash_pos = input_address_string.find('/');
     if (slash_pos == std::string::npos) {       // no slash '/'
         address = input_address_string;
-        mask = IPv4_SIZE_BITS;
+        mask = this->ipv4_size_bits;
     } else {
         address = std::string(input_address_string, 0, slash_pos);
         try {

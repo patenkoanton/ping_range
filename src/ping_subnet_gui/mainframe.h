@@ -46,6 +46,7 @@ class Mainframe : public wxFrame {
 
     // Private vars
     const std::string logfile_name;
+    const int gauge_range = 100;
 public:
     Mainframe(const wxString &title, const std::string &logfile);
 };

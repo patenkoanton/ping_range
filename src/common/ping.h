@@ -7,6 +7,7 @@
 #include <mutex>
 #include <list>
 #include <atomic>
+#include <netinet/ip_icmp.h>    // icmphdr
 #include "subnet.h"
 #include "socket.h"
 #include "ip_address.h"
@@ -47,6 +48,11 @@ class Ping {
     std::atomic<uint32_t> finalized_hosts;
     std::atomic<bool> stop_requested;
     std::atomic<bool> running;
+
+    // Constants.
+    const uint32_t host_timeout_sec = 2;                                            // expect host to reply within this time
+    const uint32_t icmp_reply_expected_size = sizeof(iphdr) + sizeof(icmphdr);
+    const uint32_t receive_buffer_size = this->icmp_reply_expected_size + 1;        // has to be bigger than ICMP packet
 public:
     Ping(OutputStream &stream);
     void ping(std::shared_ptr<Subnet> subnet);
