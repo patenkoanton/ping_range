@@ -1,5 +1,4 @@
-#ifndef _SOCKET_H
-#define _SOCKET_H
+#pragma once
 
 #include "subnet.h"
 #include "ip_address.h"
@@ -17,6 +16,3 @@ public:
     ssize_t receive_packet(std::vector<char> &buffer);
     int configure(const std::shared_ptr<Subnet> &target_subnet);
 };
-
-
-#endif  // _SOCKET_H

@@ -1,5 +1,4 @@
-#ifndef _PING_H_
-#define _PING_H_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -59,5 +58,3 @@ public:
     void stop();
     int get_progress();     // returns % of hosts finalized
 };
-
-#endif

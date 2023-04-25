@@ -1,5 +1,4 @@
-#ifndef _MAIN_H_
-#define _MAIN_H_
+#pragma once
 
 #include <string>
 
@@ -11,5 +10,3 @@ struct Main {
     // Constants.
     static const int min_argc = 2;
 };
-
-#endif  // _MAIN_H_

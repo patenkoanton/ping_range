@@ -1,5 +1,4 @@
-#ifndef _SUBNET_H
-#define _SUBNET_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -24,5 +23,3 @@ public:
     std::shared_ptr<IPAddress> broadcast;
     uint32_t bitmask;     // in host order (required for Socket configuration)
 };
-
-#endif  // _SUBNET_H

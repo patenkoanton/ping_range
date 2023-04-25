@@ -1,5 +1,4 @@
-#ifndef _IP_ADDRESS_H
-#define _IP_ADDRESS_H
+#pragma once
 
 #include <stdint.h>
 #include <string>
@@ -26,6 +25,3 @@ public:
     IPAddress operator++(int);
     std::string to_string() const;
 };
-
-
-#endif // _IP_ADDRESS_H
