@@ -22,8 +22,8 @@ $(PING_SUBNET)_DEPS = $(patsubst %, $(PING_SUBNET)/%.o, \
 )
 
 $(PING_SUBNET_GUI)_DEPS = $(patsubst %, $(PING_SUBNET_GUI)/%.o, \
-	gui_app \
-	gui_mainframe \
+	main \
+	mainframe \
 	output_stream_gui \
 )
 

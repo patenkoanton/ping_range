@@ -1,5 +1,5 @@
 #include "output_stream_gui.h"
-#include "gui_app.h"
+#include "main.h"
 
 // This class is redirecting output to our GUI main form.
 // Because in wxwidgets the form can only be updated from the main thread, and this thing is running in a parallel thread,

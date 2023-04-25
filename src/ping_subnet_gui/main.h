@@ -2,9 +2,9 @@
 
 #include <wx/wx.h>
 
-class App : public wxApp {
+class Main : public wxApp {
 public:
     bool OnInit();
 };
 
-wxDECLARE_APP(App);
+wxDECLARE_APP(Main);

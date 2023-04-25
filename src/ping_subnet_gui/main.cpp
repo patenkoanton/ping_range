@@ -1,11 +1,11 @@
 #include <wx/wx.h>
 
-#include "gui_app.h"
-#include "gui_mainframe.h"
+#include "main.h"
+#include "mainframe.h"
 
-wxIMPLEMENT_APP(App);
+wxIMPLEMENT_APP(Main);
 
-bool App::OnInit()
+bool Main::OnInit()
 {
     auto frame = new Mainframe("PING SUBNET", "./ping_subnet.log");
     frame->SetClientSize(800, 670);

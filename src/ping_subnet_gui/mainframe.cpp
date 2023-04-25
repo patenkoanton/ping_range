@@ -1,4 +1,4 @@
-#include "gui_mainframe.h"
+#include "mainframe.h"
 #include "factory.h"
 #include "orchestrator.h"
 #include "output_stream_gui.h"
