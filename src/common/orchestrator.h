@@ -6,10 +6,10 @@
 
 class Orchestrator {
     OutputStream &output_stream;
-    std::shared_ptr<Ping> ping;
+    const std::shared_ptr<Ping> ping;
 public:
     Orchestrator(OutputStream &stream);
-    int start(std::string &address_and_mask);
+    int start(const std::string &address_and_mask);
     void stop();
     int get_progress();     // returns the % of finalized hosts
 };

@@ -33,16 +33,16 @@ Socket::~Socket()
 
 
 // If failed to send - prints warning and exits with error.
-int Socket::send_packet(const void *packet, size_t size, std::shared_ptr<IPAddress> dest)
+int Socket::send_packet(const void *packet, size_t size, std::shared_ptr<IPAddress> dest) const
 {
     // Structure includes destination host IP address info
-    sockaddr_in dest_info = {
+    const sockaddr_in dest_info = {
         .sin_family = AF_INET,
         .sin_port = htons(0),
         .sin_addr = *dest->to_addr(),
     };
 
-    if (sendto(this->hsocket, packet, size, 0, (sockaddr *)&dest_info, sizeof(sockaddr)) < 0) {
+    if (sendto(this->hsocket, packet, size, 0, (const sockaddr *)&dest_info, sizeof(sockaddr)) < 0) {
         this->show_errno();
         return -1;
     }
@@ -53,9 +53,9 @@ int Socket::send_packet(const void *packet, size_t size, std::shared_ptr<IPAddre
 
 // Returns number of bytes read from socket.
 // Prints warning when recv() fails.
-ssize_t Socket::receive_packet(std::vector<char> &buffer)
+ssize_t Socket::receive_packet(std::vector<char> &buffer) const
 {
-    auto bytes_received = recv(this->hsocket, buffer.data(), buffer.capacity(), 0);
+    const auto bytes_received = recv(this->hsocket, buffer.data(), buffer.capacity(), 0);
     if (bytes_received < 0) {
         // We use a non-blocking socket so we can ignore blocking-related error codes.
         if (errno != EWOULDBLOCK && errno != EAGAIN) {
@@ -67,7 +67,7 @@ ssize_t Socket::receive_packet(std::vector<char> &buffer)
 }
 
 
-int Socket::configure(const std::shared_ptr<Subnet> &target_subnet)
+int Socket::configure(const std::shared_ptr<Subnet> &target_subnet) const
 {
     // Apply subnet filter
     if (this-apply_subnet_bpf_filter(target_subnet) < 0) {
@@ -85,11 +85,11 @@ int Socket::configure(const std::shared_ptr<Subnet> &target_subnet)
  * More info on BPF:
  *      https://www.kernel.org/doc/html/latest/networking/filter.html
  */
-int Socket::apply_subnet_bpf_filter(const std::shared_ptr<Subnet> &target_subnet)
+int Socket::apply_subnet_bpf_filter(const std::shared_ptr<Subnet> &target_subnet) const
 {
-    auto bitmask = target_subnet->bitmask;
-    auto subnet_ip = target_subnet->subnet->to_host();
-    struct sock_filter code[] = {
+    const auto bitmask = target_subnet->bitmask;
+    const auto subnet_ip = target_subnet->subnet->to_host();
+    sock_filter code[] = {
         { 0x30, 0, 0, 0x00000009    },     // ldb      [09]            // load protocol type located at 9-th byte of packet (see struct iphdr)
         { 0x15, 0, 4, 0x00000001    },     // jeq      #0x1            // packet protocol type should be ICMP (0x01) (see /etc/protocols), otherwise drop packet
         { 0x20, 0, 0, 0x0000000c    },     // ld       [12]            // extract source IP
@@ -99,7 +99,7 @@ int Socket::apply_subnet_bpf_filter(const std::shared_ptr<Subnet> &target_subnet
         { 0x6, 0, 0, 0x00000000     },      // ret      #0              // drop packet
     };
 
-    struct sock_fprog bpf_filter = {
+    const sock_fprog bpf_filter = {
         .len = sizeof(code) / sizeof(sock_filter),
         .filter = code,
     };
@@ -112,13 +112,13 @@ int Socket::apply_subnet_bpf_filter(const std::shared_ptr<Subnet> &target_subnet
 }
 
 
-void Socket::close_socket()
+void Socket::close_socket() const
 {
     close(this->hsocket);
 }
 
 
-void Socket::show_errno()
+void Socket::show_errno() const
 {
     this->output_stream << "WARNING: " << std::strerror(errno) << ". ";
 }

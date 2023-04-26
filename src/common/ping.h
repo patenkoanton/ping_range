@@ -43,7 +43,7 @@ class Ping {
     bool keep_running();
 
     std::list<pending_host> pending_hosts;
-    std::mutex my_mutex;
+    std::mutex global_ping_mutex;
     std::atomic<uint32_t> finalized_hosts;
     std::atomic<bool> stop_requested;
     std::atomic<bool> running;

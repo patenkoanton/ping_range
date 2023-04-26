@@ -8,9 +8,8 @@
 #include "factory.h"
 
 
-Ping::Ping(OutputStream &stream) : output_stream(stream)
+Ping::Ping(OutputStream &stream) : output_stream(stream), socket(factory_create_object<Socket, OutputStream&>(this->output_stream))
 {
-    this->socket = factory_create_object<Socket, OutputStream&>(this->output_stream);
     if (this->socket == nullptr) {
         throw std::string("failed to open socket.");
     }
@@ -41,7 +40,7 @@ int Ping::get_progress()
     if (this->running == false) {
         return -1;
     }
-    auto ratio = (float)this->finalized_hosts / (float)this->subnet->hosts.size();
+    const auto ratio = (float)this->finalized_hosts / (float)this->subnet->hosts.size();
     return (int)(ratio * 100);
 }
 
@@ -68,7 +67,7 @@ void Ping::sender_thread()
             continue;
         }
 
-        std::lock_guard<std::mutex> guard(this->my_mutex);
+        std::lock_guard<std::mutex> guard(this->global_ping_mutex);
         this->pending_hosts.push_back({host, pending, std::chrono::system_clock::now()});
     }
 }
@@ -83,12 +82,12 @@ void Ping::receiver_thread()
         if (bytes_received != this->icmp_reply_expected_size) {
             continue;
         }
-        auto ip_header = (iphdr *)receive_buffer.data();
-        auto replier = factory_create_object<IPAddress, uint32_t>(ntohl(ip_header->saddr));
+        const auto ip_header = (iphdr *)receive_buffer.data();
+        const auto replier = factory_create_object<IPAddress, uint32_t>(ntohl(ip_header->saddr));
 
         // Only set status if the host is pending.
         // If status is set to online/offline - assume the reply has already been received before.
-        std::lock_guard<std::mutex> guard(this->my_mutex);
+        std::lock_guard<std::mutex> guard(this->global_ping_mutex);
         for (auto &host_it : this->pending_hosts) {
             if (*replier == *host_it.host) {
                 if (host_it.status == pending) {
@@ -105,7 +104,7 @@ void Ping::receiver_thread()
 void Ping::timer_thread()
 {
     while (this->keep_running()) {
-        std::lock_guard<std::mutex> guard(this->my_mutex);
+        std::lock_guard<std::mutex> guard(this->global_ping_mutex);
         for (auto &pending_it : this->pending_hosts) {
             if (pending_it.status == pending) {
                 std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - pending_it.send_time;
@@ -122,7 +121,7 @@ void Ping::timer_thread()
 void Ping::finalizer_thread()
 {
     while (this->keep_running()) {
-        std::lock_guard<std::mutex> guard(this->my_mutex);
+        std::lock_guard<std::mutex> guard(this->global_ping_mutex);
         auto pending_it = this->pending_hosts.begin();
         while (pending_it != this->pending_hosts.end() && this->keep_running()) {
             if (pending_it->status == pending) {
@@ -151,7 +150,7 @@ void Ping::stop()
 // Read host status from ICMP reply payload.
 host_status_t Ping::parse_host_status(const std::vector<char> &receive_buffer) const
 {
-    auto icmp_header = (icmphdr *)(receive_buffer.data() + sizeof(iphdr));
+    auto icmp_header = (const icmphdr *)(receive_buffer.data() + sizeof(iphdr));
     if (icmp_header->type == 0) {
         return online;
     }
@@ -163,15 +162,15 @@ host_status_t Ping::parse_host_status(const std::vector<char> &receive_buffer) c
 // Prints host IP and online status in a readable form.
 void Ping::show_host_status(std::shared_ptr<IPAddress> &host, host_status_t status) const
 {
-    std::map<host_status_t, std::string> status_string = {
+    const std::map<host_status_t, std::string> status_string = {
         { pending, "[PENDING]" },
         { online, "[ONLINE]" },
         { offline, "[OFFLINE]" },
     };
 
-    this->output_stream << host->to_string() << " " << status_string[status] << " ";
+    this->output_stream << host->to_string() << " " << status_string.at(status) << " ";
 
-    auto hostname = host->to_hostname();
+    const auto hostname = host->to_hostname();
     if (!hostname.empty()) {
         this->output_stream << "(" << hostname << ") ";
     }

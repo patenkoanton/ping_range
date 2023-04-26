@@ -13,7 +13,7 @@
     * 2) Calculate broadcast address.
     * 3) Store all possible hosts in subnet into vector.
  */
-Subnet::Subnet(std::string &input_address_string, OutputStream &stream) : output_stream(stream)
+Subnet::Subnet(const std::string &input_address_string, OutputStream &stream) : output_stream(stream)
 {
     std::pair<std::string, int> subnet_address_and_mask = this->parse_input_address_string(input_address_string);
     auto input_address = subnet_address_and_mask.first;
@@ -37,14 +37,14 @@ Subnet::Subnet(std::string &input_address_string, OutputStream &stream) : output
 
 
 // Use input address and mask to generate subnet address.
-std::shared_ptr<IPAddress> Subnet::generate_subnet_address(std::string &input_address_string, int mask)
+std::shared_ptr<IPAddress> Subnet::generate_subnet_address(const std::string &input_address_string, int mask)
 {
     if (mask < 1 || mask > 32) {
         this->output_stream << "ERROR: invalid subnet mask provided." << std::endl;
         return nullptr;
     }
 
-    auto input_ip = factory_create_object<IPAddress, std::string&>(input_address_string);
+    auto input_ip = factory_create_object<IPAddress, const std::string&>(input_address_string);
     if (input_ip == nullptr) {
         return nullptr;
     }
@@ -87,12 +87,12 @@ void Subnet::generate_hosts(std::vector<std::shared_ptr<IPAddress>> &hosts)
  *      * if no mask provided - mask will be set to 32
  *      * slash without mask - mask will be set to -1 (invalid)
  */
-std::pair<std::string, int> Subnet::parse_input_address_string(std::string &input_address_string)
+std::pair<std::string, int> Subnet::parse_input_address_string(const std::string &input_address_string) const
 {
     std::string address;
     int mask = 0;
 
-    size_t slash_pos = input_address_string.find('/');
+    const size_t slash_pos = input_address_string.find('/');
     if (slash_pos == std::string::npos) {       // no slash '/'
         address = input_address_string;
         mask = this->ipv4_size_bits;

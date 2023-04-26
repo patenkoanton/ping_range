@@ -33,7 +33,7 @@ uint32_t IPAddress::to_host() const
 // Return IP address packed into in_addr in network order.
 const in_addr * IPAddress::to_addr() const
 {
-    return (in_addr *)&this->network_order;
+    return (const in_addr *)&this->network_order;
 }
 
 
@@ -99,7 +99,7 @@ IPAddress IPAddress::operator++(int)
 
 std::string IPAddress::to_string() const
 {
-    char *ip_string = inet_ntoa(*this->to_addr());
+    auto ip_string = inet_ntoa(*this->to_addr());
     return std::string(ip_string);
 }
 
