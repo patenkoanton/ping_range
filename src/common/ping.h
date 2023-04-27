@@ -29,10 +29,10 @@ class Ping {
     std::shared_ptr<Subnet> subnet;
     std::shared_ptr<Socket> socket;
 
-    void init(std::shared_ptr<Subnet> subnet);
-    int send_icmp_request(std::shared_ptr<IPAddress> &dest_host) const;
+    void init(const Subnet &subnet);
+    int send_icmp_request(const IPAddress &dest_host) const;
     host_status_t parse_host_status(const std::vector<char> &receive_buffer) const;
-    void show_host_status(std::shared_ptr<IPAddress> &host, host_status_t status) const;
+    void show_host_status(const IPAddress &host, host_status_t status) const;
     uint16_t generate_internet_checksum(const void *packet, int packet_size) const;
 
     // Parallel execution.
@@ -54,7 +54,7 @@ class Ping {
     const uint32_t receive_buffer_size = this->icmp_reply_expected_size + 1;        // has to be bigger than ICMP packet
 public:
     Ping(OutputStream &stream);
-    void ping(std::shared_ptr<Subnet> subnet);
+    void ping(const Subnet &subnet);
     void stop();
     int get_progress();     // returns % of hosts finalized
 };

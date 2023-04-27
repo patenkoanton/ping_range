@@ -33,13 +33,13 @@ Socket::~Socket()
 
 
 // If failed to send - prints warning and exits with error.
-int Socket::send_packet(const void *packet, size_t size, std::shared_ptr<IPAddress> dest) const
+int Socket::send_packet(const void *packet, size_t size, const IPAddress &dest) const
 {
     // Structure includes destination host IP address info
     const sockaddr_in dest_info = {
         .sin_family = AF_INET,
         .sin_port = htons(0),
-        .sin_addr = *dest->to_addr(),
+        .sin_addr = *dest.to_addr(),
     };
 
     if (sendto(this->hsocket, packet, size, 0, (const sockaddr *)&dest_info, sizeof(sockaddr)) < 0) {
@@ -67,7 +67,7 @@ ssize_t Socket::receive_packet(std::vector<char> &buffer) const
 }
 
 
-int Socket::configure(const std::shared_ptr<Subnet> &target_subnet) const
+int Socket::configure(const Subnet &target_subnet) const
 {
     // Apply subnet filter
     if (this-apply_subnet_bpf_filter(target_subnet) < 0) {
@@ -85,10 +85,10 @@ int Socket::configure(const std::shared_ptr<Subnet> &target_subnet) const
  * More info on BPF:
  *      https://www.kernel.org/doc/html/latest/networking/filter.html
  */
-int Socket::apply_subnet_bpf_filter(const std::shared_ptr<Subnet> &target_subnet) const
+int Socket::apply_subnet_bpf_filter(const Subnet &target_subnet) const
 {
-    const auto bitmask = target_subnet->bitmask;
-    const auto subnet_ip = target_subnet->subnet->to_host();
+    const auto bitmask = target_subnet.bitmask;
+    const auto subnet_ip = target_subnet.subnet->to_host();
     sock_filter code[] = {
         { 0x30, 0, 0, 0x00000009    },     // ldb      [09]            // load protocol type located at 9-th byte of packet (see struct iphdr)
         { 0x15, 0, 4, 0x00000001    },     // jeq      #0x1            // packet protocol type should be ICMP (0x01) (see /etc/protocols), otherwise drop packet

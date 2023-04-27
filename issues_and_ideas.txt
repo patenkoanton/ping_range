@@ -4,7 +4,6 @@ I'm tired of writing TODOs in random places so I'll continue here.
 * Add README.md
 * Issue described in 15dc408 is fixed, but still reproducable if we run ping_subnet, and in parallel - ping the host from that subnet.
 In that case ping_subnet might still freeze. Find a way to fix it. POssible solution - use icmp_seq field.
-* replace passing std::shared_ptr<> with references (and add missing 'const' qualifiers).
 
 =========== Ideas ======================
 * Add support for Windows, use autotools if required.

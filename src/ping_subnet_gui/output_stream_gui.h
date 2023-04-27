@@ -2,7 +2,6 @@
 
 #include <string>
 #include <iostream>
-#include <memory>
 #include "output_stream.h"
 
 struct OutputStreamGUI : public OutputStream {

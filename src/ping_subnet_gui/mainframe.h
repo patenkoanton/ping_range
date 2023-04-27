@@ -3,7 +3,6 @@
 #include <wx/wx.h>
 #include <thread>
 #include <iostream>
-#include <memory>
 #include "orchestrator.h"
 #include "output_stream_gui.h"
 

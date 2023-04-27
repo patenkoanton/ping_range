@@ -1,5 +1,4 @@
 #include <iostream>
-#include <memory>
 #include <string>
 #include "factory.h"
 #include "ping.h"

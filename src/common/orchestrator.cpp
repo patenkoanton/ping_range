@@ -25,7 +25,7 @@ int Orchestrator::start(const std::string &address_and_mask)
 
     // Perform ping.
     // TODO: ping->ping() should return a code.
-    this->ping->ping(subnet);
+    this->ping->ping(*subnet);
     return 0;
 }
 

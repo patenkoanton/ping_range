@@ -16,7 +16,7 @@ Ping::Ping(OutputStream &stream) : output_stream(stream), socket(factory_create_
 }
 
 
-void Ping::ping(std::shared_ptr<Subnet> subnet)
+void Ping::ping(const Subnet &subnet)
 {
     this->init(subnet);
 
@@ -45,14 +45,14 @@ int Ping::get_progress()
 }
 
 
-void Ping::init(std::shared_ptr<Subnet> subnet)
+void Ping::init(const Subnet &subnet)
 {
-    this->subnet = subnet;
+    this->subnet = std::make_shared<Subnet>(subnet);
     this->pending_hosts.clear();
     this->finalized_hosts = 0;
     this->running = true;
     this->stop_requested = false;
-    if (this->socket->configure(this->subnet) < 0) {
+    if (this->socket->configure(*this->subnet) < 0) {
         // Non-critical. Ignore for now.
     }
 }
@@ -61,8 +61,8 @@ void Ping::init(std::shared_ptr<Subnet> subnet)
 // Sends ICMP request to every host in the subnet.
 void Ping::sender_thread()
 {
-    for (auto &host : this->subnet->hosts) {
-        if (this->send_icmp_request(host) < 0) {
+    for (auto host : this->subnet->hosts) {
+        if (this->send_icmp_request(*host) < 0) {
             this->output_stream << "WARNING: failed to send ICMP request." << std::endl;
             continue;
         }
@@ -127,7 +127,7 @@ void Ping::finalizer_thread()
             if (pending_it->status == pending) {
                 break;
             }
-            this->show_host_status(pending_it->host, pending_it->status);
+            this->show_host_status(*pending_it->host, pending_it->status);
             this->pending_hosts.erase(pending_it++);
             this->finalized_hosts++;
         }
@@ -160,7 +160,7 @@ host_status_t Ping::parse_host_status(const std::vector<char> &receive_buffer) c
 
 
 // Prints host IP and online status in a readable form.
-void Ping::show_host_status(std::shared_ptr<IPAddress> &host, host_status_t status) const
+void Ping::show_host_status(const IPAddress &host, host_status_t status) const
 {
     const std::map<host_status_t, std::string> status_string = {
         { pending, "[PENDING]" },
@@ -168,9 +168,9 @@ void Ping::show_host_status(std::shared_ptr<IPAddress> &host, host_status_t stat
         { offline, "[OFFLINE]" },
     };
 
-    this->output_stream << host->to_string() << " " << status_string.at(status) << " ";
+    this->output_stream << host.to_string() << " " << status_string.at(status) << " ";
 
-    const auto hostname = host->to_hostname();
+    const auto hostname = host.to_hostname();
     if (!hostname.empty()) {
         this->output_stream << "(" << hostname << ") ";
     }
@@ -178,7 +178,7 @@ void Ping::show_host_status(std::shared_ptr<IPAddress> &host, host_status_t stat
 }
 
 
-int Ping::send_icmp_request(std::shared_ptr<IPAddress> &dest_host) const
+int Ping::send_icmp_request(const IPAddress &dest_host) const
 {
     // Fill the packet
     icmphdr icmp_header = {
