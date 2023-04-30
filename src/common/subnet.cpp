@@ -44,22 +44,18 @@ std::unique_ptr<IPAddress> Subnet::generate_subnet_address(const std::string &in
         return nullptr;
     }
 
-    auto input_ip = factory_create_object<IPAddress, const std::string&>(input_address_string);
-    if (input_ip == nullptr) {
-        return nullptr;
-    }
-
     // Generate a bitmask.
     this->bitmask = 0xFFFFFFFF << (this->ipv4_size_bits - mask);
 
     // Verify non-network bits not set in the input (similar to what tcmpdump does).
-    if ((*input_ip & ~this->bitmask) != 0) {
+    auto input_ip = IPAddress(input_address_string);
+    if ((input_ip & ~this->bitmask) != 0) {
         this->output_stream << "ERROR: non-network bits set in " << input_address_string << "." << std::endl;
         return nullptr;
     }
 
     // Apply a bitmask.
-    return factory_create_object<IPAddress, IPAddress>(*input_ip & this->bitmask);
+    return factory_make_unique<IPAddress, IPAddress>(input_ip & this->bitmask);
 }
 
 
@@ -68,13 +64,13 @@ std::unique_ptr<IPAddress> Subnet::generate_broadcast_address(int mask)
     uint32_t max_number_of_addresses = std::pow(2, this->ipv4_size_bits - mask);
     auto broadcast = *this->subnet + max_number_of_addresses - 1;
 
-    return factory_create_object<IPAddress, IPAddress>(broadcast);
+    return factory_make_unique<IPAddress, IPAddress>(broadcast);
 }
 
 
 void Subnet::generate_hosts(std::vector<std::unique_ptr<IPAddress>> &hosts)
 {
-    auto host = factory_create_object<IPAddress, IPAddress>(*this->subnet + 1);
+    auto host = factory_make_unique<IPAddress, IPAddress>(*this->subnet + 1);
     // TODO: check host for nullptr
     while (*host < *this->broadcast) {
         hosts.push_back(std::move(host));

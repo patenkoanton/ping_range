@@ -20,7 +20,7 @@ Mainframe::Mainframe(const wxString &title, const std::string &logfile) : wxFram
     this->output_to_gui = std::make_unique<OutputStreamGUI>(*this->text_output_stream);
 
     // TODO: check for nullptr
-    this->orchestrator = factory_create_object<Orchestrator, OutputStream&>(*this->output_to_gui);
+    this->orchestrator = factory_make_unique<Orchestrator, OutputStream&>(*this->output_to_gui);
 }
 
 

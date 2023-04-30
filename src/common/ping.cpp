@@ -8,7 +8,7 @@
 #include "factory.h"
 
 
-Ping::Ping(OutputStream &stream) : output_stream(stream), socket(factory_create_object<Socket, OutputStream&>(this->output_stream))
+Ping::Ping(OutputStream &stream) : output_stream(stream), socket(factory_make_unique<Socket, OutputStream&>(this->output_stream))
 {
     if (this->socket == nullptr) {
         throw std::string("failed to open socket.");
@@ -83,7 +83,7 @@ void Ping::receiver_thread()
             continue;
         }
         const auto ip_header = (iphdr *)receive_buffer.data();
-        const auto replier = factory_create_object<IPAddress, uint32_t>(ntohl(ip_header->saddr));
+        const auto replier = factory_make_unique<IPAddress, uint32_t>(ntohl(ip_header->saddr));
 
         // TODO: check replier for nullptr
 
