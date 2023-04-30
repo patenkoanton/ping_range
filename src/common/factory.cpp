@@ -31,3 +31,21 @@ template std::unique_ptr<IPAddress> factory_make_unique<IPAddress, uint32_t>(uin
 template std::unique_ptr<IPAddress> factory_make_unique<IPAddress, const std::string&>(const std::string&);
 template std::unique_ptr<IPAddress> factory_make_unique<IPAddress, IPAddress>(IPAddress);
 template std::unique_ptr<Orchestrator> factory_make_unique<Orchestrator, OutputStream&>(OutputStream&);
+
+
+/* Returns class <T> object wrapped in shared_ptr. */
+template<class T, class... Args> std::shared_ptr<T> factory_make_shared(Args... args)
+{
+    T *object_p;
+    try {
+        object_p = new T(args...);
+    } catch (std::string& exception) {
+        std::cerr << "ERROR: " + exception << std::endl;
+        return nullptr;
+    }
+
+    return std::shared_ptr<T>(object_p);
+}
+
+// Instance.
+template std::shared_ptr<IPAddress> factory_make_shared<IPAddress, IPAddress>(IPAddress);

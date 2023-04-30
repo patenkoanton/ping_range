@@ -19,7 +19,7 @@ enum host_status_t {
 };
 
 struct pending_host {
-    IPAddress host;         // TODO: make shared_ptr
+    std::shared_ptr<IPAddress> host;
     host_status_t status;
     std::chrono::time_point<std::chrono::system_clock> send_time;
 };

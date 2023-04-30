@@ -68,7 +68,7 @@ void Ping::sender_thread()
         }
 
         std::lock_guard<std::mutex> guard(this->global_ping_mutex);
-        this->pending_hosts.push_back({*host, pending, std::chrono::system_clock::now()});
+        this->pending_hosts.push_back({host, pending, std::chrono::system_clock::now()});
     }
 }
 
@@ -82,16 +82,14 @@ void Ping::receiver_thread()
         if (bytes_received != this->icmp_reply_expected_size) {
             continue;
         }
-        const auto ip_header = (iphdr *)receive_buffer.data();
-        const auto replier = factory_make_unique<IPAddress, uint32_t>(ntohl(ip_header->saddr));
-
-        // TODO: check replier for nullptr
 
         // Only set status if the host is pending.
         // If status is set to online/offline - assume the reply has already been received before.
         std::lock_guard<std::mutex> guard(this->global_ping_mutex);
+        const auto ip_header = (iphdr *)receive_buffer.data();
+        const auto replier = IPAddress(ntohl(ip_header->saddr));
         for (auto &host_it : this->pending_hosts) {
-            if (*replier == host_it.host) {
+            if (replier == *host_it.host) {
                 if (host_it.status == pending) {
                     host_it.status = this->parse_host_status(receive_buffer);
                 }
@@ -129,7 +127,7 @@ void Ping::finalizer_thread()
             if (pending_it->status == pending) {
                 break;
             }
-            this->show_host_status(pending_it->host, pending_it->status);
+            this->show_host_status(*pending_it->host, pending_it->status);
             this->pending_hosts.erase(pending_it++);
             this->finalized_hosts++;
         }

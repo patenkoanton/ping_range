@@ -68,12 +68,12 @@ std::unique_ptr<IPAddress> Subnet::generate_broadcast_address(int mask)
 }
 
 
-void Subnet::generate_hosts(std::vector<std::unique_ptr<IPAddress>> &hosts)
+void Subnet::generate_hosts(std::vector<std::shared_ptr<IPAddress>> &hosts)
 {
-    auto host = factory_make_unique<IPAddress, IPAddress>(*this->subnet + 1);
+    auto host = factory_make_shared<IPAddress, IPAddress>(*this->subnet + 1);
     // TODO: check host for nullptr
     while (*host < *this->broadcast) {
-        hosts.push_back(std::move(host));
+        hosts.push_back(host);
         (*host)++;
     }
 }
