@@ -16,9 +16,9 @@ Ping::Ping(OutputStream &stream) : output_stream(stream), socket(factory_create_
 }
 
 
-void Ping::ping(const Subnet &subnet)
+void Ping::ping(std::unique_ptr<Subnet> subnet)
 {
-    this->init(subnet);
+    this->init(std::move(subnet));
 
     std::thread sender(&Ping::sender_thread, this);
     std::thread receiver(&Ping::receiver_thread, this);
@@ -45,9 +45,9 @@ int Ping::get_progress()
 }
 
 
-void Ping::init(const Subnet &subnet)
+void Ping::init(std::unique_ptr<Subnet> subnet)
 {
-    this->subnet = std::make_shared<Subnet>(subnet);
+    this->subnet = std::move(subnet);
     this->pending_hosts.clear();
     this->finalized_hosts = 0;
     this->running = true;
@@ -61,14 +61,14 @@ void Ping::init(const Subnet &subnet)
 // Sends ICMP request to every host in the subnet.
 void Ping::sender_thread()
 {
-    for (auto host : this->subnet->hosts) {
+    for (auto &host : this->subnet->hosts) {
         if (this->send_icmp_request(*host) < 0) {
             this->output_stream << "WARNING: failed to send ICMP request." << std::endl;
             continue;
         }
 
         std::lock_guard<std::mutex> guard(this->global_ping_mutex);
-        this->pending_hosts.push_back({host, pending, std::chrono::system_clock::now()});
+        this->pending_hosts.push_back({*host, pending, std::chrono::system_clock::now()});
     }
 }
 
@@ -85,11 +85,13 @@ void Ping::receiver_thread()
         const auto ip_header = (iphdr *)receive_buffer.data();
         const auto replier = factory_create_object<IPAddress, uint32_t>(ntohl(ip_header->saddr));
 
+        // TODO: check replier for nullptr
+
         // Only set status if the host is pending.
         // If status is set to online/offline - assume the reply has already been received before.
         std::lock_guard<std::mutex> guard(this->global_ping_mutex);
         for (auto &host_it : this->pending_hosts) {
-            if (*replier == *host_it.host) {
+            if (*replier == host_it.host) {
                 if (host_it.status == pending) {
                     host_it.status = this->parse_host_status(receive_buffer);
                 }
@@ -127,7 +129,7 @@ void Ping::finalizer_thread()
             if (pending_it->status == pending) {
                 break;
             }
-            this->show_host_status(*pending_it->host, pending_it->status);
+            this->show_host_status(pending_it->host, pending_it->status);
             this->pending_hosts.erase(pending_it++);
             this->finalized_hosts++;
         }

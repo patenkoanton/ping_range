@@ -19,17 +19,17 @@ enum host_status_t {
 };
 
 struct pending_host {
-    std::shared_ptr<IPAddress> host;
+    IPAddress host;         // TODO: make shared_ptr
     host_status_t status;
     std::chrono::time_point<std::chrono::system_clock> send_time;
 };
 
 class Ping {
     OutputStream &output_stream;
-    std::shared_ptr<Subnet> subnet;
-    std::shared_ptr<Socket> socket;
+    std::unique_ptr<Subnet> subnet;
+    std::unique_ptr<Socket> socket;
 
-    void init(const Subnet &subnet);
+    void init(std::unique_ptr<Subnet> subnet);
     int send_icmp_request(const IPAddress &dest_host) const;
     host_status_t parse_host_status(const std::vector<char> &receive_buffer) const;
     void show_host_status(const IPAddress &host, host_status_t status) const;
@@ -54,7 +54,7 @@ class Ping {
     const uint32_t receive_buffer_size = this->icmp_reply_expected_size + 1;        // has to be bigger than ICMP packet
 public:
     Ping(OutputStream &stream);
-    void ping(const Subnet &subnet);
+    void ping(std::unique_ptr<Subnet> subnet);
     void stop();
     int get_progress();     // returns % of hosts finalized
 };

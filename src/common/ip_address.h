@@ -11,6 +11,7 @@ class IPAddress {
 public:
     IPAddress(uint32_t ip_host_order);
     IPAddress(const std::string &ip_string);
+    IPAddress(const IPAddress &) = default;     // good enough
     uint32_t to_host() const;
     const in_addr *to_addr() const;
     std::string to_hostname() const;

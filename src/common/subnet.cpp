@@ -37,7 +37,7 @@ Subnet::Subnet(const std::string &input_address_string, OutputStream &stream) : 
 
 
 // Use input address and mask to generate subnet address.
-std::shared_ptr<IPAddress> Subnet::generate_subnet_address(const std::string &input_address_string, int mask)
+std::unique_ptr<IPAddress> Subnet::generate_subnet_address(const std::string &input_address_string, int mask)
 {
     if (mask < 1 || mask > 32) {
         this->output_stream << "ERROR: invalid subnet mask provided." << std::endl;
@@ -59,25 +59,26 @@ std::shared_ptr<IPAddress> Subnet::generate_subnet_address(const std::string &in
     }
 
     // Apply a bitmask.
-    return std::make_shared<IPAddress>(*input_ip & this->bitmask);
+    return factory_create_object<IPAddress, IPAddress>(*input_ip & this->bitmask);
 }
 
 
-std::shared_ptr<IPAddress> Subnet::generate_broadcast_address(int mask)
+std::unique_ptr<IPAddress> Subnet::generate_broadcast_address(int mask)
 {
     uint32_t max_number_of_addresses = std::pow(2, this->ipv4_size_bits - mask);
     auto broadcast = *this->subnet + max_number_of_addresses - 1;
 
-    return std::make_shared<IPAddress>(broadcast);
+    return factory_create_object<IPAddress, IPAddress>(broadcast);
 }
 
 
-void Subnet::generate_hosts(std::vector<std::shared_ptr<IPAddress>> &hosts)
+void Subnet::generate_hosts(std::vector<std::unique_ptr<IPAddress>> &hosts)
 {
-    auto host = *this->subnet + 1;
-    while (host < *this->broadcast) {
-        hosts.push_back(std::make_shared<IPAddress>(host));
-        host++;
+    auto host = factory_create_object<IPAddress, IPAddress>(*this->subnet + 1);
+    // TODO: check host for nullptr
+    while (*host < *this->broadcast) {
+        hosts.push_back(std::move(host));
+        (*host)++;
     }
 }
 

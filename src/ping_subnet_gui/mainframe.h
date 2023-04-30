@@ -26,9 +26,9 @@ class Mainframe : public wxFrame {
     std::thread progress_tracking_thread;
 
     wxTextCtrl *text_output;
-    std::shared_ptr<std::ostream> text_output_stream;
-    std::shared_ptr<OutputStreamGUI> output_to_gui;
-    std::shared_ptr<Orchestrator> orchestrator;
+    std::unique_ptr<std::ostream> text_output_stream;
+    std::unique_ptr<OutputStreamGUI> output_to_gui;
+    std::unique_ptr<Orchestrator> orchestrator;
 
     // Useful methods
     void set_font();

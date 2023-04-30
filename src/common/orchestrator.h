@@ -6,7 +6,7 @@
 
 class Orchestrator {
     OutputStream &output_stream;
-    const std::shared_ptr<Ping> ping;
+    const std::unique_ptr<Ping> ping;
 public:
     Orchestrator(OutputStream &stream);
     int start(const std::string &address_and_mask);

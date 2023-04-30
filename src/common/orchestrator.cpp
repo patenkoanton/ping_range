@@ -14,7 +14,7 @@ Orchestrator::Orchestrator(OutputStream &stream) : output_stream(stream), ping(f
 int Orchestrator::start(const std::string &address_and_mask)
 {
     // Generate subnet (address range).
-    const auto subnet = factory_create_object<Subnet, const std::string&, OutputStream&>(address_and_mask, this->output_stream);
+    auto subnet = factory_create_object<Subnet, const std::string&, OutputStream&>(address_and_mask, this->output_stream);
     if (subnet == nullptr) {
         return -1;
     }
@@ -25,7 +25,7 @@ int Orchestrator::start(const std::string &address_and_mask)
 
     // Perform ping.
     // TODO: ping->ping() should return a code.
-    this->ping->ping(*subnet);
+    this->ping->ping(std::move(subnet));
     return 0;
 }
 

@@ -22,6 +22,8 @@ int main(int argc, char *argv[])
     // TODO: handle error codes returned from start() method.
     OutputStream stream_to_console(std::cout);
     const std::string address_and_mask = argv[1];
+
+    // TODO: check orchestrator for nullptr
     return factory_create_object<Orchestrator, OutputStream&>(stream_to_console)->start(address_and_mask);
 }
 

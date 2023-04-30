@@ -1,5 +1,5 @@
 CC = g++
-STD = c++11
+STD = c++14
 CFLAGS = -Wall -g3 --std=$(STD) -pthread
 CFLAGS += -I$(SRC_DIR)/ping_subnet_gui -I$(SRC_DIR)/ping_subnet -I$(SRC_DIR)/common
 OTHER_FLAGS = `wx-config --cxxflags` `wx-config --libs`
