@@ -16,10 +16,9 @@ Mainframe::Mainframe(const wxString &title, const std::string &logfile) : wxFram
     this->create_controls();
 
     // Infrastructure
-    this->text_output_stream = std::make_unique<std::ostream>(this->text_output);
-    this->output_to_gui = std::make_unique<OutputStreamGUI>(*this->text_output_stream);
-
     // TODO: check for nullptr
+    this->text_output_stream = factory_make_unique<std::ostream, wxTextCtrl*>(this->text_output);
+    this->output_to_gui = factory_make_unique<OutputStreamGUI, std::ostream&>(*this->text_output_stream);
     this->orchestrator = factory_make_unique<Orchestrator, OutputStream&>(*this->output_to_gui);
 }
 

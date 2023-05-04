@@ -13,10 +13,11 @@ TARGETS = \
 
 # IMPORTANT: Each target needs to have a similar variable: [target_name]_DEPS
 $(PING_SUBNET)_DEPS = $(filter %.o, $(patsubst src/%.cpp, build/$(PING_SUBNET)/%.o, $(wildcard src/$(PING_SUBNET)/* src/common/*)))
-$(PING_SUBNET)_CPPFLAGS = -Isrc/$(PING_SUBNET)
+$(PING_SUBNET)_CPPFLAGS += -Isrc/$(PING_SUBNET)
 
 $(PING_SUBNET_GUI)_DEPS = $(filter %.o, $(patsubst src/%.cpp, build/$(PING_SUBNET_GUI)/%.o, $(wildcard src/$(PING_SUBNET_GUI)/* src/common/*)))
-$(PING_SUBNET_GUI)_CPPFLAGS = `wx-config --cxxflags` `wx-config --libs`
+$(PING_SUBNET_GUI)_CPPFLAGS += -D__GUI__
+$(PING_SUBNET_GUI)_CPPFLAGS += `wx-config --cxxflags` `wx-config --libs`
 $(PING_SUBNET_GUI)_CPPFLAGS += -Isrc/$(PING_SUBNET_GUI)
 
 .PHONY: all clean install uninstall
