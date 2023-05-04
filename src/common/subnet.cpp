@@ -21,15 +21,9 @@ Subnet::Subnet(const std::string &input_address_string, OutputStream &stream) : 
 
     // Calculate subnet address.
     this->subnet = this->generate_subnet_address(input_address, input_mask);
-    if (this->subnet == nullptr) {
-        throw std::string("Failed to generate subnet address.");
-    }
 
     // Calculate broadcast address.
     this->broadcast = this->generate_broadcast_address(input_mask);
-    if (this->broadcast == nullptr) {
-        throw std::string("Failed to generate broadcast address.");
-    }
 
     // Go through all possible hosts in subnet.
     this->generate_hosts(this->hosts);
@@ -44,7 +38,7 @@ std::unique_ptr<IPAddress> Subnet::generate_subnet_address(const std::string &in
         return nullptr;
     }
 
-    // Generate a bitmask.
+    // Generate bitmask.
     this->bitmask = 0xFFFFFFFF << (this->ipv4_size_bits - mask);
 
     // Verify non-network bits not set in the input (similar to what tcmpdump does).
@@ -54,7 +48,7 @@ std::unique_ptr<IPAddress> Subnet::generate_subnet_address(const std::string &in
         return nullptr;
     }
 
-    // Apply a bitmask.
+    // Apply bitmask.
     return factory_make_unique<IPAddress, IPAddress>(input_ip & this->bitmask);
 }
 
@@ -71,7 +65,6 @@ std::unique_ptr<IPAddress> Subnet::generate_broadcast_address(int mask)
 void Subnet::generate_hosts(std::vector<std::shared_ptr<IPAddress>> &hosts)
 {
     auto host = factory_make_shared<IPAddress, IPAddress>(*this->subnet + 1);
-    // TODO: check host for nullptr
     while (*host < *this->broadcast) {
         hosts.push_back(host);
         (*host)++;

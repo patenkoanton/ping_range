@@ -3,17 +3,6 @@
 #include <thread>
 #include <map>
 #include "ping.h"
-#include "subnet.h"
-#include "socket.h"
-#include "factory.h"
-
-
-Ping::Ping(OutputStream &stream) : output_stream(stream), socket(factory_make_unique<Socket, OutputStream&>(this->output_stream))
-{
-    if (this->socket == nullptr) {
-        throw std::string("failed to open socket.");
-    }
-}
 
 
 void Ping::ping(std::unique_ptr<Subnet> subnet)

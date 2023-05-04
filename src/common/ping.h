@@ -11,6 +11,7 @@
 #include "socket.h"
 #include "ip_address.h"
 #include "output_stream.h"
+#include "factory.h"
 
 enum host_status_t {
     pending,
@@ -53,7 +54,7 @@ class Ping {
     const uint32_t icmp_reply_expected_size = sizeof(iphdr) + sizeof(icmphdr);
     const uint32_t receive_buffer_size = this->icmp_reply_expected_size + 1;        // has to be bigger than ICMP packet
 public:
-    Ping(OutputStream &stream);
+    Ping(OutputStream &stream) : output_stream(stream), socket(factory_make_unique<Socket, OutputStream&>(this->output_stream)) {};
     void ping(std::unique_ptr<Subnet> subnet);
     void stop();
     int get_progress();     // returns % of hosts finalized

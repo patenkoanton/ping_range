@@ -9,15 +9,16 @@
 #include "output_stream.h"
 
 
-/* Returns class <T> object wrapped in unique_ptr. */
+// Return class <T> object wrapped in unique_ptr.
+// Throw std::string if allocation fails.
 template<class T, class... Args> std::unique_ptr<T> factory_make_unique(Args... args)
 {
     T *object_p;
     try {
         object_p = new T(args...);
     } catch (std::string& exception) {
-        std::cerr << "ERROR: " + exception << std::endl;
-        return nullptr;
+        std::cerr << "ERROR: " + exception << ". Failed to allocate memory for application." << std::endl;
+        throw exception;
     }
 
     return std::unique_ptr<T>(object_p);        // gets moved (magic semantics of std::unique_ptr)
@@ -42,15 +43,16 @@ template std::unique_ptr<OutputStreamGUI> factory_make_unique<OutputStreamGUI, s
 #endif  // __GUI__
 
 
-/* Returns class <T> object wrapped in shared_ptr. */
+// Return class <T> object wrapped in shared_ptr.
+// Throw std::string if allocation fails.
 template<class T, class... Args> std::shared_ptr<T> factory_make_shared(Args... args)
 {
     T *object_p;
     try {
         object_p = new T(args...);
     } catch (std::string& exception) {
-        std::cerr << "ERROR: " + exception << std::endl;
-        return nullptr;
+        std::cerr << "ERROR: " + exception << ". Failed to allocate memory for application." << std::endl;
+        throw exception;
     }
 
     return std::shared_ptr<T>(object_p);
