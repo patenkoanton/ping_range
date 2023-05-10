@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
     const std::string address_and_mask = argv[1];
 
     // TODO: handle error codes returned from start() method.
-    return factory_make_unique<Orchestrator, OutputStream&>(stream_to_console)->start(address_and_mask);
+    return Factory::make_unique<Orchestrator, OutputStream&>(stream_to_console)->start(address_and_mask);
 }
 
 

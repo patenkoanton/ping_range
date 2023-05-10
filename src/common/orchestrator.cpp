@@ -6,7 +6,7 @@
 int Orchestrator::start(const std::string &address_and_mask)
 {
     // Generate subnet (address range).
-    auto subnet = factory_make_unique<Subnet, const std::string&, OutputStream&>(address_and_mask, this->output_stream);
+    auto subnet = Factory::make_unique<Subnet, const std::string&, OutputStream&>(address_and_mask, this->output_stream);
 
     // Show subnet info.
     this->output_stream << "Subnet: " << subnet->subnet->to_string() << std::endl;
