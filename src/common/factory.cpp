@@ -10,18 +10,18 @@
 
 
 // Return class <T> object wrapped in unique_ptr.
-// Throw std::string if allocation fails.
+// Throw if allocation fails.
 template<class T, class... Args> std::unique_ptr<T> Factory::make_unique(Args... args)
 {
-    T *object_p;
     try {
-        object_p = new T(args...);
-    } catch (std::string& exception) {
-        std::cerr << "ERROR: " + exception << ". Failed to allocate memory for application." << std::endl;
-        throw exception;
+        return std::make_unique<T>(args...);
+    } catch (std::bad_alloc &exc) {
+        std::cerr << "ERROR: failed to allocate memory for application. " << exc.what() << std::endl;
+        throw exc;
+    } catch (std::string &exc) {
+        std::cerr << "ERROR: internal error. " << exc << std::endl;
+        throw exc;
     }
-
-    return std::unique_ptr<T>(object_p);        // gets moved (magic semantics of std::unique_ptr)
 }
 
 // 'Unique' instances.
@@ -44,18 +44,19 @@ template std::unique_ptr<OutputStreamGUI> Factory::make_unique<OutputStreamGUI, 
 
 
 // Return class <T> object wrapped in shared_ptr.
-// Throw std::string if allocation fails.
+// Throw if allocation fails.
 template<class T, class... Args> std::shared_ptr<T> Factory::make_shared(Args... args)
 {
-    T *object_p;
     try {
-        object_p = new T(args...);
-    } catch (std::string& exception) {
-        std::cerr << "ERROR: " + exception << ". Failed to allocate memory for application." << std::endl;
-        throw exception;
+        return std::make_shared<T>(args...);
+    } catch (std::bad_alloc &exc) {
+        std::cerr << "ERROR: failed to allocate memory for application. " << exc.what() << std::endl;
+        throw exc;
+    } catch (std::string &exc) {
+        std::cerr << "ERROR: internal error. " << exc << std::endl;
+        throw exc;
     }
 
-    return std::shared_ptr<T>(object_p);
 }
 
 // 'Shared' instances.

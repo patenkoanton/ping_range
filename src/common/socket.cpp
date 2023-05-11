@@ -12,16 +12,16 @@ Socket::Socket(OutputStream &stream) : output_stream(stream)
 {
     protoent *protocol = NULL;
     if ((protocol = getprotobyname("icmp")) == NULL) {
-        throw std::string("failed to get ICMP protocol info.");
+        throw std::string("Failed to get ICMP protocol info.");
     }
 
     this->hsocket = socket(AF_INET, SOCK_RAW | SOCK_NONBLOCK, protocol->p_proto);
     if (this->hsocket < 0) {
-        this->output_stream << "Try running 'make install' before running the app." << std::endl;
-        this->output_stream << "See README for more info." << std::endl;
+        std::cerr << std::endl;
+        std::cerr << "Try running 'make install' before running the app." << std::endl;
+        std::cerr << "See README for more info." << std::endl;
 
-        auto exception = "ERROR: " + (std::string)std::strerror(errno) + ". ";
-        throw std::string(exception);
+        throw std::string(std::strerror(errno));
     }
 }
 
