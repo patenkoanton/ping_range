@@ -6,13 +6,14 @@
 #include <linux/filter.h>
 #include "socket.h"
 #include "subnet.h"
+#include "custom_exception.h"
 
 
 Socket::Socket(OutputStream &stream) : output_stream(stream)
 {
     protoent *protocol = NULL;
     if ((protocol = getprotobyname("icmp")) == NULL) {
-        throw std::string("Failed to get ICMP protocol info.");
+        throw CustomException("Failed to get ICMP protocol info.");
     }
 
     this->hsocket = socket(AF_INET, SOCK_RAW | SOCK_NONBLOCK, protocol->p_proto);
@@ -21,7 +22,7 @@ Socket::Socket(OutputStream &stream) : output_stream(stream)
         std::cerr << "Try running 'make install' before running the app." << std::endl;
         std::cerr << "See README for more info." << std::endl;
 
-        throw std::string(std::strerror(errno));
+        throw CustomException(std::strerror(errno));
     }
 }
 

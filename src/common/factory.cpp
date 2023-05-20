@@ -7,7 +7,10 @@
 #include "ip_address.h"
 #include "orchestrator.h"
 #include "output_stream.h"
+#include "custom_exception.h"
 
+// Private helpers (declarations).
+static CustomException factory_get_custom_exception(std::string info, const std::exception &exc);
 
 // Return class <T> object wrapped in unique_ptr.
 // Throw if allocation fails.
@@ -15,12 +18,12 @@ template<class T, class... Args> std::unique_ptr<T> Factory::make_unique(Args...
 {
     try {
         return std::make_unique<T>(args...);
-    } catch (std::bad_alloc &exc) {
-        std::cerr << "ERROR: failed to allocate memory for application. " << exc.what() << std::endl;
-        throw exc;
-    } catch (std::string &exc) {
-        std::cerr << "ERROR: internal error. " << exc << std::endl;
-        throw exc;
+    } catch (std::bad_alloc &exc) {     // thrown by std::make_unique
+        throw factory_get_custom_exception("failed to allocate memory for application", exc);
+    } catch (CustomException &exc) {
+        throw factory_get_custom_exception("internal error", exc);
+    } catch (std::exception &exc) {
+        throw factory_get_custom_exception("unexpected error", exc);
     }
 }
 
@@ -49,15 +52,31 @@ template<class T, class... Args> std::shared_ptr<T> Factory::make_shared(Args...
 {
     try {
         return std::make_shared<T>(args...);
-    } catch (std::bad_alloc &exc) {
-        std::cerr << "ERROR: failed to allocate memory for application. " << exc.what() << std::endl;
-        throw exc;
-    } catch (std::string &exc) {
-        std::cerr << "ERROR: internal error. " << exc << std::endl;
-        throw exc;
+    } catch (std::bad_alloc &exc) {     // thrown by std::make_shared
+        throw factory_get_custom_exception("failed to allocate memory for application", exc);
+    } catch (CustomException &exc) {
+        throw factory_get_custom_exception("internal error", exc);
+    } catch (std::exception &exc) {
+        throw factory_get_custom_exception("unexpected error", exc);
     }
-
 }
 
 // 'Shared' instances.
 template std::shared_ptr<IPAddress> Factory::make_shared<IPAddress, IPAddress>(IPAddress);
+
+// Private helpers (definitions).
+
+// Returns custom exception containing properly formatted info.
+static CustomException factory_get_custom_exception(std::string info, const std::exception &exc)
+{
+    // Make sure info does not repeat itself.
+    // Comes in use when factory is called recursively.
+    std::string exc_info = exc.what();
+    if (exc_info.find(info) != std::string::npos) {
+        return CustomException(exc_info);
+    }
+
+    auto full_info = "ERROR: " + info + ". ";
+    full_info += exc_info + ".";
+    return CustomException(full_info);
+}

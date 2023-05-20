@@ -6,6 +6,7 @@
 int Orchestrator::start(const std::string &address_and_mask)
 {
     // Generate subnet (address range).
+    // Subnet has to be generated every time we run ping so it can't be initialized in constructor.
     auto subnet = Factory::make_unique<Subnet, const std::string&, OutputStream&>(address_and_mask, this->output_stream);
 
     // Show subnet info.

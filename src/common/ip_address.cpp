@@ -1,6 +1,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include "ip_address.h"
+#include "custom_exception.h"
 
 
 IPAddress::IPAddress(const std::string &ip_string)
@@ -10,7 +11,7 @@ IPAddress::IPAddress(const std::string &ip_string)
 
     // Convert from IP string to a number representation.
     if (inet_aton(source, dest) == 0) {
-        throw std::string("Invalid IP address provided.");
+        throw CustomException("Invalid IP address provided.");
     }
 
     this->host_order = ntohl(this->network_order);
