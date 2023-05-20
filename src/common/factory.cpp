@@ -72,13 +72,13 @@ static CustomException factory_get_custom_exception(std::string info, const std:
     // Make sure info does not repeat itself.
     // Comes in use when factory is called recursively.
     std::string exc_info = exc.what();
-    if (exc_info.find(info) != std::string::npos) {
-        return CustomException(exc_info);
+    if (exc_info.find(info) == std::string::npos) {
+        auto full_info = "ERROR: " + info + ". ";
+        if (exc_info.empty() == false) {
+            full_info += exc_info + ".";
+        }
+        return CustomException(full_info);
     }
 
-    auto full_info = "ERROR: " + info + ". ";
-    if (exc_info != "") {
-        full_info += exc_info + ".";
-    }
-    return CustomException(full_info);
+    return CustomException(exc_info);
 }
