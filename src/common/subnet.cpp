@@ -41,7 +41,7 @@ std::unique_ptr<IPAddress> Subnet::generate_subnet_address(const std::string &in
     // Generate bitmask.
     this->bitmask = 0xFFFFFFFF << (this->ipv4_size_bits - mask);
 
-    // Verify non-network bits not set in the input (similar to what tcmpdump does).
+    // Verify non-network bits not set in the input (similar to what tcpdump does).
     auto input_ip = IPAddress(input_address_string);
     if ((input_ip & ~this->bitmask) != 0) {
         this->output_stream << "ERROR: non-network bits set in " << input_address_string << "." << std::endl;
@@ -64,10 +64,10 @@ std::unique_ptr<IPAddress> Subnet::generate_broadcast_address(int mask)
 
 void Subnet::generate_hosts(std::vector<std::shared_ptr<IPAddress>> &hosts)
 {
-    auto host = Factory::make_shared<IPAddress, IPAddress>(*this->subnet + 1);
-    while (*host < *this->broadcast) {
-        hosts.push_back(host);
-        (*host)++;
+    auto host = *this->subnet + 1;
+    while (host < *this->broadcast) {
+        hosts.push_back(Factory::make_shared<IPAddress, IPAddress>(host));
+        host++;
     }
 }
 
