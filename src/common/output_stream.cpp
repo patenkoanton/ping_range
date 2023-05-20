@@ -1,7 +1,7 @@
 #include "output_stream.h"
 
 
-OutputStream& OutputStream::operator<<(const std::string &arg)
+OutputStream& OutputStream::operator<<(std::string arg)
 {
     this->stream << arg;
     return *this;
