@@ -77,6 +77,8 @@ static CustomException factory_get_custom_exception(std::string info, const std:
     }
 
     auto full_info = "ERROR: " + info + ". ";
-    full_info += exc_info + ".";
+    if (exc_info != "") {
+        full_info += exc_info + ".";
+    }
     return CustomException(full_info);
 }

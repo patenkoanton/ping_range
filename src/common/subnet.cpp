@@ -6,6 +6,7 @@
 #include "subnet.h"
 #include "ip_address.h"
 #include "factory.h"
+#include "custom_exception.h"
 
 
 /* Simple sequence:
@@ -21,6 +22,9 @@ Subnet::Subnet(const std::string &input_address_string, OutputStream &stream) : 
 
     // Calculate subnet address.
     this->subnet = this->generate_subnet_address(input_address, input_mask);
+    if (this->subnet == nullptr) {
+        throw CustomException("");	// no extra info required
+    }
 
     // Calculate broadcast address.
     this->broadcast = this->generate_broadcast_address(input_mask);
