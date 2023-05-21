@@ -38,7 +38,7 @@ Subnet::Subnet(const std::string &input_address_string, OutputStream &stream) : 
 std::unique_ptr<IPAddress> Subnet::generate_subnet_address(const std::string &input_address_string, int mask)
 {
     if (mask < 1 || mask > 32) {
-        this->output_stream << "ERROR: invalid subnet mask provided." << std::endl;
+        std::cerr << "ERROR: invalid subnet mask provided." << std::endl;
         return nullptr;
     }
 
@@ -48,7 +48,7 @@ std::unique_ptr<IPAddress> Subnet::generate_subnet_address(const std::string &in
     // Verify non-network bits not set in the input (similar to what tcpdump does).
     auto input_ip = IPAddress(input_address_string);
     if ((input_ip & ~this->bitmask) != 0) {
-        this->output_stream << "ERROR: non-network bits set in " << input_address_string << "." << std::endl;
+        std::cerr << "ERROR: non-network bits set in " << input_address_string << "." << std::endl;
         return nullptr;
     }
 
@@ -95,7 +95,7 @@ std::pair<std::string, int> Subnet::parse_input_address_string(const std::string
         try {
             mask = std::stoi(std::string(input_address_string, slash_pos + 1));
         } catch (std::invalid_argument &) {
-            this->output_stream << "WARNING: empty subnet mask." << std::endl;
+            std::cerr << "WARNING: empty subnet mask." << std::endl;
             mask = -1;
         }
     }
