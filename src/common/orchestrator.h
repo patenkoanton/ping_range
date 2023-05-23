@@ -6,10 +6,10 @@
 
 class Orchestrator {
     OutputStream &output_stream;
-    const std::unique_ptr<Ping> ping;
+    std::unique_ptr<Ping> ping;
 public:
-    Orchestrator(OutputStream &stream) : output_stream(stream), ping(Factory::make_unique<Ping, OutputStream&>(stream)) {};
-    int start(const std::string &address_and_mask);
-    void stop();
-    int get_progress();     // returns the % of finalized hosts
+    Orchestrator(OutputStream &stream) noexcept : output_stream(stream) {};
+    int start(const std::string &address_and_mask) noexcept;
+    void stop() noexcept;
+    int get_progress() noexcept;     // returns the % of finalized hosts
 };

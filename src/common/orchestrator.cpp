@@ -1,31 +1,38 @@
 #include "orchestrator.h"
 #include "factory.h"
 #include "subnet.h"
+#include "custom_exception.h"
 
 
-int Orchestrator::start(const std::string &address_and_mask)
+// Prepares and runs 'ping'.
+// Keeps all the exceptions contained.
+// Returns 0 for success, negative for error.
+int Orchestrator::start(const std::string &address_and_mask) noexcept
 {
-    // Generate subnet (address range).
-    // Subnet has to be generated every time we run ping so it can't be initialized in constructor.
-    auto subnet = Factory::make_unique<Subnet, const std::string&, OutputStream&>(address_and_mask, this->output_stream);
+    try {
+        // Generate subnet (address range).
+        auto subnet = Factory::make_unique<Subnet, const std::string&, OutputStream&>(address_and_mask, this->output_stream);
+        this->output_stream << "Subnet: " << subnet->subnet->to_string() << std::endl;
+        this->output_stream << "Broadcast: " << subnet->broadcast->to_string() << std::endl << std::endl;
 
-    // Show subnet info.
-    this->output_stream << "Subnet: " << subnet->subnet->to_string() << std::endl;
-    this->output_stream << "Broadcast: " << subnet->broadcast->to_string() << std::endl << std::endl;
+        // Perform ping.
+        this->ping = Factory::make_unique<Ping, OutputStream&>(this->output_stream);
+        this->ping->ping(std::move(subnet));
+    } catch (const CustomException &exc) {
+        std::cerr << exc.what() << std::endl;
+        return -1;
+    }
 
-    // Perform ping.
-    // TODO: ping->ping() should return a code.
-    this->ping->ping(std::move(subnet));
     return 0;
 }
 
-void Orchestrator::stop()
+void Orchestrator::stop() noexcept
 {
     this->ping->stop();
 }
 
 
-int Orchestrator::get_progress()
+int Orchestrator::get_progress() noexcept
 {
     return this->ping->get_progress();
 }

@@ -20,15 +20,18 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    // Gracefully exit when a KNOWN exception is thrown.
+    // Run ping (aka orchestrator)
+    OutputStream stream_to_console(std::cout);
+    const std::string address_and_mask = argv[1];
+    std::unique_ptr<Orchestrator> orchestrator;
     try {
-        OutputStream stream_to_console(std::cout);
-        const std::string address_and_mask = argv[1];
-        return Factory::make_unique<Orchestrator, OutputStream&>(stream_to_console)->start(address_and_mask);
-    } catch (CustomException &exc) {
+        orchestrator = Factory::make_unique<Orchestrator, OutputStream&>(stream_to_console);
+    } catch (const CustomException &exc) {
         std::cerr << exc.what() << std::endl;
-        return 0;
+        return -1;
     }
+
+    return orchestrator->start(address_and_mask);
 }
 
 
