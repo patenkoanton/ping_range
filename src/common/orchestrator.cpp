@@ -4,8 +4,11 @@
 #include "custom_exception.h"
 
 
-// Prepares and runs 'ping'.
-// Keeps all the exceptions contained.
+Orchestrator::Orchestrator(OutputStream &stream) : output_stream(stream)
+{
+    this->ping = Factory::make_unique<Ping, OutputStream&>(stream);
+};
+
 // Returns 0 for success, negative for error.
 int Orchestrator::start(const std::string &address_and_mask) noexcept
 {
@@ -16,7 +19,6 @@ int Orchestrator::start(const std::string &address_and_mask) noexcept
         this->output_stream << "Broadcast: " << subnet->broadcast->to_string() << std::endl << std::endl;
 
         // Perform ping.
-        this->ping = Factory::make_unique<Ping, OutputStream&>(this->output_stream);
         this->ping->ping(std::move(subnet));
     } catch (const CustomException &exc) {
         std::cerr << exc.what() << std::endl;
