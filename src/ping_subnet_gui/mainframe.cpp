@@ -1,7 +1,7 @@
 #include "mainframe.h"
-#include "factory.h"
 #include "orchestrator.h"
 #include "output_stream_gui.h"
+#include "factory.cpp"      // template module
 
 
 enum ElementID {

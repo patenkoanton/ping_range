@@ -5,8 +5,8 @@
 #include <stdexcept>        // std::invalid_argument
 #include "subnet.h"
 #include "ip_address.h"
-#include "factory.h"
 #include "custom_exception.h"
+#include "factory.cpp"      // template module
 
 
 /* Simple sequence:

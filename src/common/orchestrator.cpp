@@ -1,7 +1,7 @@
 #include "orchestrator.h"
-#include "factory.h"
 #include "subnet.h"
 #include "custom_exception.h"
+#include "factory.cpp"      // template module
 
 
 Orchestrator::Orchestrator(OutputStream &stream) : output_stream(stream)

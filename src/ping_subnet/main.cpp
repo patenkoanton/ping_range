@@ -3,9 +3,9 @@
 #include <set>
 #include "main.h"
 #include "orchestrator.h"
-#include "factory.h"
 #include "output_stream.h"
 #include "custom_exception.h"
+#include "factory.cpp"      // template module
 
 
 int main(int argc, char *argv[])
