@@ -53,7 +53,7 @@ std::unique_ptr<IPAddress> Subnet::generate_subnet_address(const std::string &in
     }
 
     // Apply bitmask.
-    return Factory::make_unique<IPAddress, IPAddress>(input_ip & this->bitmask);
+    return Factory::make_unique<IPAddress>(input_ip & this->bitmask);
 }
 
 
@@ -62,7 +62,7 @@ std::unique_ptr<IPAddress> Subnet::generate_broadcast_address(int mask)
     uint32_t max_number_of_addresses = std::pow(2, this->ipv4_size_bits - mask);
     auto broadcast = *this->subnet + max_number_of_addresses - 1;
 
-    return Factory::make_unique<IPAddress, IPAddress>(broadcast);
+    return Factory::make_unique<IPAddress>(broadcast);
 }
 
 
@@ -70,7 +70,7 @@ void Subnet::generate_hosts(std::vector<std::shared_ptr<IPAddress>> &hosts)
 {
     auto host = *this->subnet + 1;
     while (host < *this->broadcast) {
-        hosts.push_back(Factory::make_shared<IPAddress, IPAddress>(host));
+        hosts.push_back(Factory::make_shared<IPAddress>(host));
         host++;
     }
 }
