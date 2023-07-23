@@ -28,6 +28,7 @@ class Mainframe : public wxFrame {
     wxTextCtrl *text_output;
     std::unique_ptr<std::ostream> text_output_stream;
     std::unique_ptr<OutputStreamGUI> output_to_gui;
+    std::unique_ptr<OutputStreamGUI> error_to_gui;
     std::unique_ptr<Orchestrator> orchestrator;
 
     // Useful methods

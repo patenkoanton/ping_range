@@ -4,9 +4,11 @@
 #include "factory.cpp"      // template module
 
 
-Orchestrator::Orchestrator(OutputStream &stream) : output_stream(stream)
+Orchestrator::Orchestrator(OutputStream &output_stream, OutputStream &error_stream) :
+    output_stream(output_stream),
+    error_stream(error_stream)
 {
-    this->ping = Factory::make_unique<Ping, OutputStream&>(stream);
+    this->ping = Factory::make_unique<Ping, OutputStream&, OutputStream&>(output_stream, error_stream);
 };
 
 // Returns 0 for success, negative for error.
@@ -14,14 +16,14 @@ int Orchestrator::start(const std::string &address_and_mask) noexcept
 {
     try {
         // Generate subnet (address range).
-        auto subnet = Factory::make_unique<Subnet, const std::string&, OutputStream&>(address_and_mask, this->output_stream);
+        auto subnet = Factory::make_unique<Subnet, const std::string&, OutputStream&, OutputStream&>(address_and_mask, this->output_stream, this->error_stream);
         this->output_stream << "Subnet: " << subnet->subnet->to_string() << std::endl;
         this->output_stream << "Broadcast: " << subnet->broadcast->to_string() << std::endl << std::endl;
 
         // Perform ping.
         this->ping->ping(std::move(subnet));
     } catch (const CustomException &exc) {
-        std::cerr << exc.what() << std::endl;
+        this->error_stream << exc.what() << std::endl;
         return -1;
     }
 

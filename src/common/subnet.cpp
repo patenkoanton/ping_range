@@ -14,13 +14,16 @@
     * 2) Calculate broadcast address.
     * 3) Store all possible hosts in subnet into vector.
  */
-Subnet::Subnet(const std::string &input_address_string, OutputStream &stream) : output_stream(stream)
+Subnet::Subnet(const std::string &input_address_string, OutputStream &output_stream, OutputStream &error_stream) :
+    output_stream(output_stream),
+    error_stream(error_stream)
 {
     std::pair<std::string, int> subnet_address_and_mask = this->parse_input_address_string(input_address_string);
     auto input_address = subnet_address_and_mask.first;
     auto input_mask = subnet_address_and_mask.second;
 
     // Calculate subnet address.
+    // TODO: why checking for nullptr if we throw from make_unique???
     this->subnet = this->generate_subnet_address(input_address, input_mask);
     if (this->subnet == nullptr) {
         throw CustomException("");	// no extra info required
@@ -38,7 +41,7 @@ Subnet::Subnet(const std::string &input_address_string, OutputStream &stream) : 
 std::unique_ptr<IPAddress> Subnet::generate_subnet_address(const std::string &input_address_string, int mask)
 {
     if (mask < 1 || mask > 32) {
-        std::cerr << "ERROR: invalid subnet mask provided." << std::endl;
+        this->error_stream << "ERROR: invalid subnet mask provided." << std::endl;
         return nullptr;
     }
 
@@ -48,7 +51,7 @@ std::unique_ptr<IPAddress> Subnet::generate_subnet_address(const std::string &in
     // Verify non-network bits not set in the input (similar to what tcpdump does).
     auto input_ip = IPAddress(input_address_string);
     if ((input_ip & ~this->bitmask) != 0) {
-        std::cerr << "ERROR: non-network bits set in " << input_address_string << "." << std::endl;
+        this->error_stream << "ERROR: non-network bits set in " << input_address_string << "." << std::endl;
         return nullptr;
     }
 
@@ -95,7 +98,7 @@ std::pair<std::string, int> Subnet::parse_input_address_string(const std::string
         try {
             mask = std::stoi(std::string(input_address_string, slash_pos + 1));
         } catch (std::invalid_argument &) {
-            std::cerr << "WARNING: empty subnet mask." << std::endl;
+            this->error_stream << "WARNING: empty subnet mask." << std::endl;
             mask = -1;
         }
     }

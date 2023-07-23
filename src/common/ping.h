@@ -27,6 +27,7 @@ struct pending_host {
 
 class Ping {
     OutputStream &output_stream;
+    OutputStream &error_stream;
     std::unique_ptr<Subnet> subnet;
     std::unique_ptr<Socket> socket;
 
@@ -54,7 +55,11 @@ class Ping {
     const uint32_t icmp_reply_expected_size = sizeof(iphdr) + sizeof(icmphdr);
     const uint32_t receive_buffer_size = this->icmp_reply_expected_size + 1;        // has to be bigger than ICMP packet
 public:
-    Ping(OutputStream &stream) : output_stream(stream), socket(Factory::make_unique<Socket, OutputStream&>(this->output_stream)) {};
+    Ping(OutputStream &output_stream, OutputStream &error_stream) :
+        output_stream(output_stream),
+        error_stream(error_stream),
+        socket(Factory::make_unique<Socket, OutputStream&, OutputStream&>(output_stream, error_stream))
+    {};
     void ping(std::unique_ptr<Subnet> subnet);
     void stop();
     int get_progress();     // returns % of hosts finalized

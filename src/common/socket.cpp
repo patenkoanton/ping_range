@@ -9,7 +9,9 @@
 #include "custom_exception.h"
 
 
-Socket::Socket(OutputStream &stream) : output_stream(stream)
+Socket::Socket(OutputStream &output_stream, OutputStream& error_stream) :
+    output_stream(output_stream),
+    error_stream(error_stream)
 {
     protoent *protocol = NULL;
     if ((protocol = getprotobyname("icmp")) == NULL) {
@@ -18,9 +20,9 @@ Socket::Socket(OutputStream &stream) : output_stream(stream)
 
     this->hsocket = socket(AF_INET, SOCK_RAW | SOCK_NONBLOCK, protocol->p_proto);
     if (this->hsocket < 0) {
-        std::cerr << std::endl;
-        std::cerr << "Try running 'make install' before running the app." << std::endl;
-        std::cerr << "See README for more info." << std::endl;
+        this->error_stream << std::endl;
+        this->error_stream << "Try running 'make install' before running the app." << std::endl;
+        this->error_stream << "See README for more info." << std::endl;
 
         throw CustomException(std::strerror(errno));
     }
@@ -72,7 +74,7 @@ int Socket::configure(const Subnet &target_subnet) const
 {
     // Apply subnet filter
     if (this-apply_subnet_bpf_filter(target_subnet) < 0) {
-        std::cerr << "ERROR: failed to apply BPF filter." << std::endl;     // TODO: change to warning???
+        this->error_stream << "ERROR: failed to apply BPF filter." << std::endl;     // TODO: change to warning???
         return -1;
     }
 

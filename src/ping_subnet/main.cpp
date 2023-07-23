@@ -22,10 +22,11 @@ int main(int argc, char *argv[])
 
     // Run ping (aka orchestrator)
     OutputStreamConsole stream_to_console(std::cout);
+    OutputStreamConsole error_to_console(std::cerr);
     const std::string address_and_mask = argv[1];
     std::unique_ptr<Orchestrator> orchestrator;
     try {
-        orchestrator = Factory::make_unique<Orchestrator, OutputStream&>(stream_to_console);
+        orchestrator = Factory::make_unique<Orchestrator, OutputStream&, OutputStream&>(stream_to_console, error_to_console);
     } catch (const CustomException &exc) {
         std::cerr << exc.what() << std::endl;
         return -1;
