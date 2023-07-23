@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <functional>
 #include "factory.h"
 #include "ping.h"
 #include "subnet.h"
@@ -9,32 +10,45 @@
 #include "output_stream.h"
 #include "custom_exception.h"
 
-// Private helpers (declarations).
+/***** Private declarations *****/
 static CustomException factory_get_custom_exception(std::string info, const std::exception &exc);
+template<class T, class... Args>
+static T make_object(std::function<T(Args...)> allocate, Args... args);
+
+/***** Public definitions *****/
 
 // Return class <T> object wrapped in unique_ptr.
-// Throw if allocation fails.
-template<class T, class... Args> std::unique_ptr<T> Factory::make_unique(Args... args)
+template<class T, class... Args>
+std::unique_ptr<T> Factory::make_unique(Args... args)
 {
-    try {
-        return std::make_unique<T>(args...);
-    } catch (std::bad_alloc &exc) {     // thrown by std::make_unique
-        throw factory_get_custom_exception("failed to allocate memory for application", exc);
-    } catch (CustomException &exc) {
-        throw factory_get_custom_exception("internal error", exc);
-    } catch (std::exception &exc) {
-        throw factory_get_custom_exception("unexpected error", exc);
-    }
-}
+    std::function<std::unique_ptr<T>(Args...)> allocate = [](Args... allocate_args) {
+        return std::make_unique<T>(allocate_args...);
+    };
 
+    return make_object<std::unique_ptr<T>, Args...>(allocate, args...);
+}
 
 // Return class <T> object wrapped in shared_ptr.
-// Throw if allocation fails.
-template<class T, class... Args> std::shared_ptr<T> Factory::make_shared(Args... args)
+template<class T, class... Args>
+std::shared_ptr<T> Factory::make_shared(Args... args)
+{
+    std::function<std::shared_ptr<T>(Args...)> allocate = [](Args... allocate_args) {
+        return std::make_shared<T>(allocate_args...);
+    };
+
+    return make_object<std::shared_ptr<T>, Args...>(allocate, args...);
+}
+
+/***** Private definitions *****/
+
+// Template factory used by both make_unique and make_shared.
+// Throws when allocation fails.
+template<class T, class... Args>
+static T make_object(std::function<T(Args...)> allocate, Args... args)
 {
     try {
-        return std::make_shared<T>(args...);
-    } catch (std::bad_alloc &exc) {     // thrown by std::make_shared
+        return allocate(args...);
+    } catch (std::bad_alloc &exc) {     // thrown by std::make_xxxxx
         throw factory_get_custom_exception("failed to allocate memory for application", exc);
     } catch (CustomException &exc) {
         throw factory_get_custom_exception("internal error", exc);
@@ -42,8 +56,6 @@ template<class T, class... Args> std::shared_ptr<T> Factory::make_shared(Args...
         throw factory_get_custom_exception("unexpected error", exc);
     }
 }
-
-// Private helpers (definitions).
 
 // Returns custom exception containing properly formatted info.
 static CustomException factory_get_custom_exception(std::string info, const std::exception &exc)
