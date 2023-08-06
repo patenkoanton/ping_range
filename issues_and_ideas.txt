@@ -4,6 +4,9 @@ I'm tired of writing TODOs in random places so I'll continue here.
 * Add README.md
 * Issue described in 15dc408 is fixed, but still reproducable if we run ping_subnet, and in parallel - ping the host from that subnet.
 In that case ping_subnet might still freeze. Find a way to fix it. POssible solution - use icmp_seq field.
+* Sometimes when we ping a lot of hosts (e.g. 8.8.8.0/22) we might run out of memory because std::vector<hosts> becomes too big.
+MASSIVE OPTIMIZATION: find a way to ping every single host once it's generated so it's not kept in memory for longer than required.
+
 
 =========== Ideas ======================
 * Add support for Windows, use autotools if required.
