@@ -1,6 +1,7 @@
+#include "main.h"
 #include "mainframe.h"
 #include "orchestrator.h"
-#include "output_stream_gui.h"
+#include "output_stream.h"
 #include "factory.cpp"      // template module
 
 
@@ -16,10 +17,10 @@ Mainframe::Mainframe(const wxString &title, const std::string &logfile) : wxFram
     this->create_controls();
 
     // Infrastructure
-    // TODO: why are we using make_unique for output_stream_gui, while the console one is created on the stack? (see main.cpp)
+    // TODO: why are we using make_unique for output_stream, while the console one is created on the stack? (see main.cpp)
     this->text_output_stream = Factory::make_unique<std::ostream, wxTextCtrl*>(this->text_output);
-    this->output_to_gui = Factory::make_unique<OutputStreamGUI, std::ostream&>(*this->text_output_stream);
-    this->error_to_gui = Factory::make_unique<OutputStreamGUI, std::ostream&>(*this->text_output_stream);
+    this->output_to_gui = Factory::make_unique<OutputStream, std::ostream&>(*this->text_output_stream);
+    this->error_to_gui = Factory::make_unique<OutputStream, std::ostream&>(*this->text_output_stream);
     this->orchestrator = Factory::make_unique<Orchestrator, OutputStream&, OutputStream&>(*this->output_to_gui, *this->error_to_gui);
 }
 
@@ -138,6 +139,9 @@ void Mainframe::run()
             progress = this->orchestrator->get_progress();
         }
 
+        // Progress bar won't fill up all the way to 100% due to multithreading fuckery.
+        // We'll use this as a temporary hacky fix.
+        this->progress_bar->SetValue(this->gauge_range);
         this->file_menu_save_item->Enable(true);
     });
 }

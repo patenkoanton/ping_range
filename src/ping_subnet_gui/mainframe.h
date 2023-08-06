@@ -4,7 +4,7 @@
 #include <thread>
 #include <iostream>
 #include "orchestrator.h"
-#include "output_stream_gui.h"
+#include "output_stream.h"
 
 class Mainframe : public wxFrame {
     wxMenuBar *menu_bar;
@@ -27,8 +27,8 @@ class Mainframe : public wxFrame {
 
     wxTextCtrl *text_output;
     std::unique_ptr<std::ostream> text_output_stream;
-    std::unique_ptr<OutputStreamGUI> output_to_gui;
-    std::unique_ptr<OutputStreamGUI> error_to_gui;
+    std::unique_ptr<OutputStream> output_to_gui;
+    std::unique_ptr<OutputStream> error_to_gui;
     std::unique_ptr<Orchestrator> orchestrator;
 
     // Useful methods

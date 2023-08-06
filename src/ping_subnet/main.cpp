@@ -3,7 +3,7 @@
 #include <set>
 #include "main.h"
 #include "orchestrator.h"
-#include "output_stream_console.h"
+#include "output_stream.h"
 #include "custom_exception.h"
 #include "factory.cpp"      // template module
 
@@ -21,8 +21,8 @@ int main(int argc, char *argv[])
     }
 
     // Run ping (aka orchestrator)
-    OutputStreamConsole stream_to_console(std::cout);
-    OutputStreamConsole error_to_console(std::cerr);
+    OutputStream stream_to_console(std::cout);
+    OutputStream error_to_console(std::cerr);
     const std::string address_and_mask = argv[1];
     std::unique_ptr<Orchestrator> orchestrator;
     try {
