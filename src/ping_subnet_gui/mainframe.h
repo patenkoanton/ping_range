@@ -37,6 +37,7 @@ class Mainframe : public wxFrame {
     void create_controls();
     void run();
     void stop();
+    void update_progress_bar();
 
     // Event handlers
     void run_button_handler(wxCommandEvent &event);

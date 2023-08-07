@@ -18,17 +18,12 @@ void Ping::ping(std::unique_ptr<Subnet> subnet)
     receiver.join();
     timer.join();
     finalizer.join();
-
-    this->running = false;
 }
 
 
 // Return % of finalized hosts if running. Otherwise return -1.
 int Ping::get_progress()
 {
-    if (this->running == false) {
-        return -1;
-    }
     const auto ratio = (float)this->finalized_hosts / (float)this->subnet->hosts.size();
     return (int)(ratio * 100);
 }
@@ -39,7 +34,6 @@ void Ping::init(std::unique_ptr<Subnet> subnet)
     this->subnet = std::move(subnet);
     this->pending_hosts.clear();
     this->finalized_hosts = 0;
-    this->running = true;
     this->stop_requested = false;
     if (this->socket->configure(*this->subnet) < 0) {
         // Non-critical. Ignore for now.

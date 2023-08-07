@@ -87,6 +87,12 @@ void Mainframe::stop()
     }
 }
 
+void Mainframe::update_progress_bar()
+{
+    auto progress = this->orchestrator->get_progress();
+    this->progress_bar->SetValue(progress);
+}
+
 void Mainframe::run_button_handler(wxCommandEvent &event)
 {
     this->run();
@@ -125,23 +131,27 @@ void Mainframe::run()
     this->progress_bar->SetValue(0);
     this->file_menu_save_item->Enable(false);
 
+    // Initiate ping (aka orchestrator).
     this->execution_thread = std::thread([this]() {
         std::string address_and_mask = (std::string)this->subnet_input->GetValue() + "/" + (std::string)this->mask_input->GetValue();
-        if (this->orchestrator->start(address_and_mask) < 0) {
-            return;
-        }
+        this->orchestrator->start(address_and_mask);
     });
 
+    // Wait for orchestrator to start (or fail to start) to avoid potential race condition.
+    while ((this->orchestrator->is_running() || this->orchestrator->is_cancelled()) == false) {
+        // NOP
+    }
+
+    // A parallel thread to update progress bar. Update progress until the end of execution.
     this->progress_tracking_thread = std::thread([this]() {
-        auto progress = this->orchestrator->get_progress();
-        while (progress >= 0 && progress <= this->gauge_range) {
-            this->progress_bar->SetValue(progress);
-            progress = this->orchestrator->get_progress();
+        while (this->orchestrator->is_running()) {
+            this->update_progress_bar();
         }
 
-        // Progress bar won't fill up all the way to 100% due to multithreading fuckery.
-        // We'll use this as a temporary hacky fix.
-        this->progress_bar->SetValue(this->gauge_range);
+        // When ping is finished, orchestrator is no longer "running".
+        // Because of that, progress bar might not get fully updated up to 100% and we might see something like 90% after the execution.
+        // Workaround: update progress one more [redundand] time.
+        this->update_progress_bar();
         this->file_menu_save_item->Enable(true);
     });
 }

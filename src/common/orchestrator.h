@@ -10,9 +10,13 @@ class Orchestrator {
     OutputStream &output_stream;
     OutputStream &error_stream;
     std::unique_ptr<Ping> ping;
+    std::atomic<bool> running;
+    std::atomic<bool> cancelled;
 public:
     Orchestrator(OutputStream &output_stream, OutputStream &error_stream);
-    int start(const std::string &address_and_mask) noexcept;
+    void start(const std::string &address_and_mask) noexcept;
     void stop() noexcept;
     int get_progress() noexcept;     // returns the % of finalized hosts
+    bool is_cancelled() noexcept;
+    bool is_running() noexcept;
 };

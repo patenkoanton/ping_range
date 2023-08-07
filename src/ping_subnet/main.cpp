@@ -32,7 +32,12 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    return orchestrator->start(address_and_mask);
+    orchestrator->start(address_and_mask);
+    if (orchestrator->is_cancelled()) {
+        return -1;
+    }
+
+    return 0;
 }
 
 
