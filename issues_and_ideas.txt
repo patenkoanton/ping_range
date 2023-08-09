@@ -6,7 +6,17 @@ I'm tired of writing TODOs in random places so I'll continue here.
 In that case ping_subnet might still freeze. Find a way to fix it. POssible solution - use icmp_seq field.
 * Sometimes when we ping a lot of hosts (e.g. 8.8.8.0/22) we might run out of memory because std::vector<hosts> becomes too big.
 MASSIVE OPTIMIZATION: find a way to ping every single host once it's generated so it's not kept in memory for longer than required.
+* gethostaddr hangs up for a long time when unable to resolve the name look up (example host: 8.8.9.1).
+This is a common issue with gethostaddr(). The following functions/utilities share this problem (tested with 8.8.9.1 host):
+        * getnameinfo
+        * nslookup
+        * host (command line utility)
+Potential cause: DNS server is not configured correctly making DNS lookups slow / inefficient.
+This behavior seems faulty: even with improperly configured DNS server the lookup shouldn't block forever (10+ seconds) cause the application stuttering.
+Also, there does not seem to be an easy replacement function "out-of-box".
 
+Wheel-invention-idea: let's write a primitive DNS lookup that won't be blocking in case of prolonged / unsuccessful DNS lookup.
+It should also have a timeout as an input value.
 
 =========== Ideas ======================
 * Add support for Windows, use autotools if required.
