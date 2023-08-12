@@ -18,13 +18,13 @@ void Orchestrator::start(const std::string &address_and_mask) noexcept
     this->cancelled = false;
     try {
         // Generate subnet (address range).
-        auto subnet = Factory::make_unique<Subnet, const std::string&, OutputStream&, OutputStream&>(address_and_mask, this->output_stream, this->error_stream);
+        auto subnet = Factory::make_shared<Subnet, const std::string&, OutputStream&, OutputStream&>(address_and_mask, this->output_stream, this->error_stream);
         this->output_stream << "Subnet: " << subnet->subnet->to_string() << std::endl;
         this->output_stream << "Broadcast: " << subnet->broadcast->to_string() << std::endl << std::endl;
 
         // Perform ping.
         this->running = true;
-        this->ping->ping(std::move(subnet));
+        this->ping->ping(subnet);
     } catch (const CustomException &exc) {
         this->error_stream << exc.what() << std::endl;
         this->cancelled = true;

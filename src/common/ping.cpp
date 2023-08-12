@@ -5,9 +5,9 @@
 #include "ping.h"
 
 
-void Ping::ping(std::unique_ptr<Subnet> subnet)
+void Ping::ping(std::shared_ptr<Subnet> subnet)
 {
-    this->init(std::move(subnet));
+    this->init(subnet);
 
     std::thread sender(&Ping::sender_thread, this);
     std::thread receiver(&Ping::receiver_thread, this);
@@ -29,9 +29,9 @@ int Ping::get_progress()
 }
 
 
-void Ping::init(std::unique_ptr<Subnet> subnet)
+void Ping::init(std::shared_ptr<Subnet> subnet)
 {
-    this->subnet = std::move(subnet);
+    this->subnet = subnet;
     this->pending_hosts.clear();
     this->finalized_hosts = 0;
     this->stop_requested = false;
